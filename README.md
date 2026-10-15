@@ -2,7 +2,7 @@
 
 A textbook on the mathematics of statistical inference, by A. Reeves Johnson, for readers who have taken a solid undergraduate statistics course and a semester of calculus.
 
-**Read the current edition:** [main.pdf](main.pdf). Each edition is also tagged (`v0.11` means Chapters 1 to 11 are written), so any earlier edition can be opened from the repository's tags.
+**Read the current edition:** [main.pdf](main.pdf). [EDITIONS.md](EDITIONS.md) lists every edition with a link to its PDF; `v0.11` means Chapters 1 to 11 are written.
 
 ## What the book covers
 
