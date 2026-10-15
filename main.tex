@@ -1,0 +1,90 @@
+\documentclass[11pt,letterpaper,oneside]{book}
+
+\input{preamble}
+
+\title{\textbf{Fundamentals of Statistics}}
+\author{\textbf{A.\ Reeves Johnson}}
+\date{}
+
+\begin{document}
+\Opensolutionfile{ans}[main.solutions]
+
+\frontmatter
+\maketitle
+\tableofcontents
+\input{chapters/preface}
+\input{chapters/notation}
+
+\mainmatter
+
+% One chapter per idea. The parts follow
+% the course's units with one change: the statistical model (the course's
+% unit 2) comes right after the running example, before the probability.
+
+\partintro{The book opens with its running example and with the object every later chapter lives in: the kiss experiment (\cref{ch:kiss}) and the statistical model (\cref{ch:models}), which turns the three assumptions of that experiment into a family of candidate distributions with a parameter to learn. The model comes first so that the limit theorems of Part II arrive with a job to do.}
+\part{The Kiss Experiment and the Statistical Model}
+\input{chapters/ch01_kiss_experiment}
+\input{chapters/ch02_statistical_models}
+
+\partintro{The three questions of \cref{ch:kiss} are about the random variable $\bar{R}_n$ as $n$ grows, and `as $n$ grows' is a limit. This part has the three limit facts every later chapter uses, the Law of Large Numbers (\cref{ch:lln}), the Central Limit Theorem (\cref{ch:clt}) and the rules for working with limits (\cref{ch:limit-tools}), and then the Gaussian distribution and the quantile notation that the rest of the book is written in (\cref{ch:gaussian}). If limits are not your difficulty, \cref{ch:lln}'s opening box says what can be skipped.}
+\part{Probability for Statistics}
+\input{chapters/ch03_lln}
+\input{chapters/ch04_clt}
+\input{chapters/ch05_working_with_limits}
+\input{chapters/ch06_gaussian}
+
+\partintro{The three questions of \cref{ch:kiss} become definitions with guarantees, stated for the general model of \cref{ch:models} and computed for the kiss experiment. An estimator (\cref{ch:estimators}) is a guess inside the model, judged by bias, variance and risk; a confidence interval (\cref{ch:confidence-intervals}) and a test (\cref{ch:tests-foundations}) are the two ways of attaching a guarantee to the guess.}
+\part{Foundations of Inference}
+\input{chapters/ch07_estimators}
+\input{chapters/ch08_confidence_intervals}
+\input{chapters/ch09_hypothesis_tests}
+
+\partintro{Part III judged estimators; this part produces them. The distances between distributions of \cref{ch:distances} say what `close to the truth' means; maximum likelihood (\cref{ch:likelihood,ch:mle-properties}) is the main method, with its consistency and asymptotic normality through the Fisher information; the method of moments and M-estimation (\cref{ch:mom-mestimation}) are the two generalizations.}
+\part{Methods of Estimation}
+\input{chapters/ch10_distances}
+\input{chapters/ch11_likelihood}
+\input{chapters/ch12_mle_properties}
+\input{chapters/ch13_moments_mestimation}
+
+\partintro{The tests of \cref{ch:tests-foundations} were built on one standardized average. This part supplies the distributions the remaining parametric tests use, chi-squared, Student's $t$ and Cochran's theorem (\cref{ch:t-test}), and the two general-purpose tests built on maximum likelihood, Wald's and the likelihood ratio (\cref{ch:wald-lrt}).}
+\part{Parametric Hypothesis Tests}
+\input{chapters/ch14_t_test}
+\input{chapters/ch15_wald_lrt}
+
+\partintro{Every method so far assumed the model was well-specified. This part tests that assumption: goodness of fit for discrete distributions by the chi-squared test (\cref{ch:gof}), and for continuous ones by comparing the empirical CDF with the candidate, the Kolmogorov--Smirnov and Lilliefors tests and the QQ plot (\cref{ch:ks}).}
+\part{Nonparametric Hypothesis Tests}
+\input{chapters/ch16_goodness_of_fit}
+\input{chapters/ch17_ks_tests}
+
+\partintro{The one part of the book where the parameter gets a distribution. Priors, posteriors and conjugacy (\cref{ch:bayes-intro}) set up the machinery; Jeffreys priors and Bayesian confidence regions (\cref{ch:jeffreys}) finish it, and say how the result relates to the frequentist intervals of \cref{ch:confidence-intervals}.}
+\part{Bayesian Statistics}
+\input{chapters/ch18_bayes}
+\input{chapters/ch19_jeffreys}
+
+\partintro{Least squares as a statistical model. One predictor first (\cref{ch:regression-uni}), then the matrix form with several, and the inference that comes with Gaussian errors (\cref{ch:regression-multi}), where the identifiability of \cref{ch:models} returns as the rank of the design matrix.}
+\part{Linear Regression}
+\input{chapters/ch20_regression_univariate}
+\input{chapters/ch21_regression_multivariate}
+
+\partintro{Regression for responses that are not Gaussian. Exponential families (\cref{ch:exp-families}) are the distributions the method works for; link functions and the fitting algorithm (\cref{ch:glm-links}) connect them to a linear predictor, with maximum likelihood doing the estimation as in Part IV.}
+\part{Generalized Linear Models}
+\input{chapters/ch22_exponential_families}
+\input{chapters/ch23_glm_links}
+
+\partintro{The book's one chapter of unsupervised statistics: finding the directions in which multivariate data vary most, through the eigenvectors of the sample covariance matrix, and what the Law of Large Numbers says about them (\cref{ch:pca}).}
+\part{Principal Component Analysis}
+\input{chapters/ch24_pca}
+
+\appendix
+\part*{Appendices}
+\addcontentsline{toc}{part}{Appendices}
+\input{chapters/appendix_math}
+\input{chapters/appendix_modes}
+\input{chapters/appendix_proofs}
+
+\backmatter
+\Closesolutionfile{ans}
+\chapter{Solutions to the Exercises}
+\Readsolutionfile{ans}
+
+\end{document}

@@ -1,0 +1,215 @@
+% ---------------------------------------------------------------
+% Packages. The list follows mit_stats_fundamentals.tex except that
+% pstricks (pst-bar, pst-node) is dropped: pdflatex cannot process
+% it, and every figure in the book is either TikZ or a PDF produced
+% by a script in scripts/.
+% ---------------------------------------------------------------
+\usepackage{amsmath,amsfonts,amsthm,bm} % Math packages
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{mathtools, xparse}
+\usepackage{wrapfig}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{cancel}
+\usepackage{dsfont} % To get 1 as indicator symbol
+% The font maps for the two vendored packages (texmf/), harmless when the
+% system copies are used instead.
+\ifdefined\pdfmapfile
+  \pdfmapfile{+dstroke.map}
+  \pdfmapfile{+rsfso.map}
+\fi
+
+% Book additions
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[most]{tcolorbox}
+\usepackage{microtype}
+\usepackage[colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black]{hyperref}
+\usepackage[capitalize, noabbrev]{cleveref}
+
+\graphicspath{{figures/}}
+
+% Let figures share pages with text instead of drifting onto float pages.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+
+% The dollar sign in text would otherwise come from the TS1 companion font,
+% which is a bitmap font on a minimal TeX install; take it from cmr instead.
+% (Slot 36 of the italic CM fonts is the pound sign, so write dollar amounts
+% in upright text or in math mode.)
+\DeclareTextSymbol{\textdollar}{OT1}{36}
+\DeclareTextSymbolDefault{\textdollar}{OT1}
+% Same for the list bullet: use the math-symbol font's bullet (Type 1).
+\DeclareTextSymbolDefault{\textbullet}{OMS}
+
+% Macros copied from the notes (see notes_macros.tex)
+\input{notes_macros}
+
+% Paragraphs as in the notes: blank line between, no indent.
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\parindent}{0pt}
+
+% Footnotes: the notes use symbols, which run out after nine per
+% chapter in the book class, so the book uses numbers.
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+% ---------------------------------------------------------------
+% Theorem-like environments, numbered within chapters.
+% ---------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}{Exercise}[chapter]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% ---------------------------------------------------------------
+% Exercise solutions. In the source each solution sits right after its
+% exercise (easier to write and check); in the PDF the answers package
+% writes every solution to main.solutions.tex during the run and the
+% file is read back at the end of the book, in the chapter "Solutions
+% to the Exercises". Each exercise prints the page of its solution.
+% ---------------------------------------------------------------
+\usepackage{etoolbox}
+\usepackage{answers}
+\Newassociation{solution}{Solution}{ans}
+\renewcommand{\Currentlabel}{\theexercise}
+\renewcommand{\solutionstyle}[1]{\textbf{Exercise #1.}\label{sol:#1}}
+\AtEndEnvironment{exercise}{\ \textit{(Solution on page~\pageref{sol:\theexercise}.)}}
+\makeatletter
+% Keep the current chapter's title, so the solutions chapter can print
+% one heading per chapter, written to the file before its first exercise.
+\let\book@chapter\chapter
+\renewcommand{\chapter}{\@ifstar{\book@chapter*}{\book@chapter@titled}}
+\newcommand{\book@chapter@titled}{\@ifnextchar[{\book@chapter@opt}{\book@chapter@noopt}}
+\def\book@chapter@opt[#1]#2{\gdef\currentchaptertitle{#1}\book@chapter[#1]{#2}}
+\def\book@chapter@noopt#1{\gdef\currentchaptertitle{#1}\book@chapter{#1}}
+\def\currentchaptertitle{}
+\def\solutions@lastchapter{}
+\newcommand{\solutions@heading}{%
+  \edef\solutions@this{\thechapter}%
+  \ifx\solutions@this\solutions@lastchapter\else
+    \global\let\solutions@lastchapter\solutions@this
+    \begingroup
+      \let\protect\string
+      \immediate\write\csname ans@file\endcsname{\string\section*{\@chapapp\space\thechapter. \unexpanded\expandafter{\currentchaptertitle}}}%
+    \endgroup
+  \fi}
+\AtBeginEnvironment{exercise}{\solutions@heading}
+% A short introduction printed on the part page, below the part title.
+% Usage: \partintro{text} immediately before \part{...}.
+\def\partintrotext{}
+\newcommand{\partintro}[1]{\gdef\partintrotext{#1}}
+\let\book@endpart\@endpart
+\def\@endpart{%
+  \ifx\partintrotext\@empty\else
+    \vskip 4em
+    \begin{center}\begin{minipage}{0.74\textwidth}\normalfont\normalsize\noindent\partintrotext\end{minipage}\end{center}
+    \global\let\partintrotext\@empty
+  \fi
+  \book@endpart}
+\makeatother
+
+% ---------------------------------------------------------------
+% Boxes. Three kinds, used throughout the book:
+%   intuition    - the picture or story behind a result
+%   bridge       - the undergraduate-statistics version of an idea
+%   pitfall      - a mistake that is easy to make
+%   worked       - the computation carried through with numbers
+%   sanitycheck  - how to tell whether an answer is absurd
+%   inwords      - a definition read aloud, straight after it is stated
+% Colors are muted so the mathematics stays the foreground.
+% ---------------------------------------------------------------
+\definecolor{boxblue}{HTML}{2A78D6}
+\definecolor{boxorange}{HTML}{EB6834}
+\definecolor{boxaqua}{HTML}{1BAF7A}
+\definecolor{boxgray}{HTML}{6B6B6B}
+
+\newtcolorbox{intuition}[1][]{%
+  enhanced, breakable, colback=boxblue!4, colframe=boxblue!70!black,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title={Intuition\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+\newtcolorbox{bridge}[1][]{%
+  enhanced, breakable, colback=boxaqua!5, colframe=boxaqua!60!black,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title={From undergraduate statistics\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+\newtcolorbox{pitfall}[1][]{%
+  enhanced, breakable, colback=boxorange!5, colframe=boxorange!70!black,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title={Pitfall\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+\newtcolorbox{worked}[1][]{%
+  enhanced, breakable, colback=white, colframe=boxgray,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title={Worked example\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+% "In words" box after a definition: the definition read aloud, and what it
+% says for the package test. A thin left rule, no title.
+\newtcolorbox{inwords}{%
+  enhanced, breakable, colback=white, colframe=gray!55,
+  leftrule=1.6pt, rightrule=0pt, toprule=0pt, bottomrule=0pt, arc=0pt,
+  left=6pt, right=2pt, top=3pt, bottom=3pt, boxsep=0pt}
+
+% "Does this answer make sense?": how to check a result without redoing it.
+% Extreme cases, bounds, units, a second route to the same number. Aimed at
+% a reader who can follow a derivation but cannot yet tell when its output
+% is absurd.
+\newtcolorbox{sanitycheck}[1][]{%
+  enhanced, breakable, colback=boxgray!5, colframe=boxgray!90!black,
+  boxrule=0.5pt, arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title={Does this make sense?\if\relax\detokenize{#1}\relax\else\ #1\fi}}
+
+% A one-line reminder of what a limit theorem hands you, printed where the
+% theorem is used rather than where it was proved. The book's rule is that
+% no chapter after Part II assumes the reader has internalized Part II:
+% every use of the LLN, the CLT, Slutsky, the continuous mapping theorem or
+% the delta method restates its content in one line, right there.
+\newcommand{\recall}[1]{\par\noindent{\small\textcolor{gray!75!black}{\textit{Recall.} #1}}\par\nobreak\smallskip}
+
+% Distances between distributions (Chapter 10 on)
+\newcommand{\TV}{\mathrm{TV}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\Unif}{\mathrm{Unif}}
+\newcommand{\Bin}{\mathrm{Bin}}
+
+% Pointer to the Mathematical Toolkit (Appendix A), e.g. \toolkit{sec:math-mvt}.
+\newcommand{\toolkit}[1]{{\small\textcolor{gray!70!black}{(toolkit \ref{#1})}}}
+
+% One italic line before a proof: its strategy, and whether to read it now.
+%   \coreproof{strategy}      -- a proof the reader should follow
+%   \optionalproof{strategy}  -- here for completeness; skip on a first reading
+\newcommand{\coreproof}[1]{\par\noindent{\small\textit{Proof strategy (core).} #1}\par\nobreak}
+\newcommand{\optionalproof}[1]{\par\noindent{\small\textit{Proof strategy (for completeness; skip on a first reading).} #1}\par\nobreak}
+
+% A chapter-opening summary of what is coming.
+\newtcolorbox{chaptergoals}{%
+  enhanced, colback=gray!6, colframe=gray!50, boxrule=0.4pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries,
+  title={In this chapter}}
+
+% The notes' convergence arrows, plus two the book needs.
+\newcommand{\convr}[1]{\ensuremath{\xrightarrow [n \to \infty ]{L^{#1}}}} % convergence in r-th mean
+\newcommand{\convany}{\ensuremath{\xrightarrow [n \to \infty ]{\text{a.s.}/\Pr/\text{(d)}}}}
+\newcommand{\convasp}{\ensuremath{\xrightarrow [n \to \infty ]{\text{a.s.}/\Pr}}} % almost surely and in probability together, as the course writes the two laws
+
+% TikZ libraries used by in-text diagrams
+\usetikzlibrary{shapes,decorations,arrows,calc,arrows.meta,fit,positioning,backgrounds}

@@ -1,0 +1,36 @@
+\chapter{Notation}
+\label{ch:notation}
+
+The symbols that recur, in the order a reader meets them.
+These are the standard conventions of mathematical statistics; the two that differ from most software are marked.
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.55in}>{\raggedright\arraybackslash}p{4.35in}@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$\Xton$ & the sample: $n$ random variables, i.i.d.\ (independent, identically distributed) unless said otherwise \\[2pt]
+$x_1, \ldots, x_n$ & the realized values, numbers; likewise $\bar{X}_n$ is a random variable and $\bar{x}_n$ a number (\cref{ch:lln}) \\[2pt]
+$\Xton \iid \Bern(p)$ & the $X_i$ are i.i.d.\ with the named distribution; Bern, Bin, Pois, Expo, Unif, Gauss \\[2pt]
+$\Gauss(\mu, \sigma^2)$ & Gaussian with mean $\mu$ and \textit{variance} $\sigma^2$ (most software takes the standard deviation) \\[2pt]
+$\varphi$, $\Phi$ & density and CDF of $\Gauss(0,1)$ \\[2pt]
+$q_\alpha$ & the quantile with probability $\alpha$ \textit{above} it: $\Pr(Z > q_\alpha) = \alpha$, so $q_{0.05} = 1.645$, $q_{0.025} = 1.96$ (software indexes by the probability below) \\[2pt]
+$\Pr$, $\E$, $\var$ & probability, expectation, variance; $\Pr_\theta$, $\E_\theta$ when they are computed under the distribution with parameter $\theta$ \\[2pt]
+$\ind(A)$ & the indicator: $1$ if $A$ holds, $0$ otherwise; $\E[\ind(A)] = \Pr(A)$ \\[2pt]
+$\bar{R}_n$, $\hat{p}$ & the kiss experiment: $R_i = 1$ if couple $i$ turns right, $\hat{p} = \bar{R}_n$; $n = 124$, $80$ right turns, $\bar{R}_n = 0.645$ \\[2pt]
+$\bar{T}_n$, $\hat{\lambda}$ & the subway inter-arrival times, $T_i \iid \Expo(\lambda)$, $\hat{\lambda} = 1/\bar{T}_n$; $n = 64$, $\bar{T}_n = 6.23$ \\[2pt]
+$X_n \convp X$ & convergence in probability (\cref{def:convp}) \\[2pt]
+$X_n \convd X$ & convergence in distribution (\cref{def:convd}); the limit may be written as a distribution, $X_n \convd \Gauss(0,1)$ \\[2pt]
+$X_n \convas X$, $X_n \convasp X$ & convergence almost surely (\cref{app:modes}); both arrows at once, which is how the two laws of large numbers are written together \\[2pt]
+$\statmodel$ & a statistical model: sample space $E$ and a family of candidate distributions indexed by $\theta \in \Theta$ (\cref{def:statmodel}) \\[2pt]
+$\theta$, $\theta^*$, $\ethn$ & a parameter, the true parameter, an estimator of it from $n$ observations \\[2pt]
+$\Bias$, $R(\ethn)$ & bias $\E_\theta[\ethn] - \theta$ and quadratic risk $\E_\theta[(\ethn - \theta)^2]$ (\cref{ch:estimators}) \\[2pt]
+$\mathcal{I} \ni \theta$ & the random interval $\mathcal{I}$ contains $\theta$; same as $\theta \in \mathcal{I}$, written to put the random object first (\cref{ch:confidence-intervals}) \\[2pt]
+$\alpha$ & a small probability: a test's level, or $1 -$ (an interval's level) \\[2pt]
+r.v., CDF, PDF, PMF & random variable; cumulative distribution function $F(x) = \Pr(X \leq x)$; density; probability mass function \\[2pt]
+CLT, LLN, CMT & Central Limit Theorem, Law of Large Numbers, continuous mapping theorem \\[2pt]
+(toolkit A.$k$) & a pointer to entry $k$ of the Mathematical Toolkit, \cref{app:math}, which explains the piece of mathematics being used \\
+\bottomrule
+\end{tabular}
+\end{center}

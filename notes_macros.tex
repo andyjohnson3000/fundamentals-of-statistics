@@ -1,0 +1,171 @@
+% ---------------------------------------------------------------
+% Macros carried over verbatim from mit_stats_fundamentals.tex
+% (the notes this book is built from). Do not edit here; edit the
+% notes and re-copy, so the two stay in step.
+% ---------------------------------------------------------------
+% For the power set symbol
+\usepackage[mathscr]{euscript}
+\let\euscr\mathscr \let\mathscr\relax% just so we can load this and rsfs
+\usepackage[scr]{rsfso}
+\newcommand{\powerset}{\raisebox{.15\baselineskip}{\Large\ensuremath{\wp}}}
+
+
+% Tikz settings optimized for causal graphs.
+\usetikzlibrary{shapes,decorations,arrows,calc,arrows.meta,fit,positioning}
+\tikzset{
+    -Latex,auto,node distance =1 cm and 1 cm,semithick,
+    state/.style ={ellipse, draw, minimum width = 0.7 cm},
+    point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+    bidirected/.style={Latex-Latex,dashed},
+    el/.style = {inner sep=2pt, align=left, sloped}
+}
+
+
+% Command to put circle around numbers in math mode
+\makeatletter
+\newcommand\mathcircled[1]{%
+  \mathpalette\@mathcircled{#1}%
+}
+\newcommand\@mathcircled[2]{%
+  \tikz[baseline=(math.base)] \node[draw,circle,inner sep=1pt] (math) {$\m@th#1#2$};%
+}
+\makeatother
+
+% Command for strikes through arrows
+\makeatletter %% <- make @ usable in command names
+\newcommand*\Neg[2][0mu]{\Neginternal{#1}{\negslash}{#2}}
+\newcommand*\sNeg[2][0mu]{\Neginternal{#1}{\snegslash}{#2}}
+\newcommand*\ssNeg[2][0mu]{\Neginternal{#1}{\ssnegslash}{#2}}
+\newcommand*\sssNeg[2][0mu]{\Neginternal{#1}{\sssnegslash}{#2}}
+\newcommand*\Neginternal[3]{\mathpalette\Neg@{{#1}{#2}{#3}}}
+\newcommand*\Neg@[2]{\Neg@@{#1}#2}
+\newcommand*\Neg@@[4]{%
+  \mathrel{\ooalign{%
+    $\m@th#1#4$\cr
+    \hidewidth$\m@th#3{#1}\mkern\muexpr#2*2$\hidewidth\cr
+  }}%
+}
+
+\newcommand*\negslash[1]{\m@th#1\not\mathrel{\phantom{=}}}
+\newcommand*\snegslash[1]{\rotatebox[origin=c]{60}{$\m@th#1-$}}
+\newcommand*\ssnegslash[1]{\rotatebox[origin=c]{60}{$\m@th#1{\dabar@}\mkern-7mu{\dabar@}$}}
+\newcommand*\sssnegslash[1]{\rotatebox[origin=c]{60}{$\m@th#1\dabar@$}}
+\makeatother  %% <- revert @
+
+
+%%%%%%%% 	FOR WIDE HATS
+% \stackMath
+\newcommand\reallywidehat[1]{%
+\savestack{\tmpbox}{\stretchto{%
+  \scaleto{%
+    \scalerel*[\widthof{\ensuremath{#1}}]{\kern-.6pt\bigwedge\kern-.6pt}%
+    {\rule[-\textheight/2]{1ex}{\textheight}}%WIDTH-LIMITED BIG WEDGE
+  }{\textheight}% 
+}{0.5ex}}%
+\stackon[1pt]{#1}{\tmpbox}%
+}
+
+
+%%%%% COMMANDS
+\DeclareMathOperator*{\E}{\mathbb{E}} % Expectation symbol
+\DeclareMathOperator*{\var}{\mathbb{V}\text{ar}} % Variance
+\DeclareMathOperator*{\cov}{\mathbb{C}\text{ov}} % Covariance
+\DeclareMathOperator*{\corr}{\textrm{corr}} % Correlation
+\DeclareMathOperator*{\se}{\textrm{se}} % Standard error
+\newcommand\myeq{\stackrel{\mathclap{\normalfont\mbox{s}}}{~}} % Permits words above \sim
+\newcommand{\simple}{\ensuremath{y = \beta_0 + \beta_1 x_1 + u}}
+\newcommand{\multiple}{\ensuremath{y = \beta_0 + \beta_1 x_1 + \cdots +  \beta_k x_k + u}}
+\newcommand{\ydev}{\ensuremath{(y_i - \bar{y})}}
+\newcommand{\xdev}{\ensuremath{(x_i - \bar{x})}}
+\newcommand{\xsquare}{\ensuremath{(x_i - \bar{x})^2}}
+\newcommand{\vecu}{\ensuremath{\mathbf{u}}}
+\newcommand{\vecut}{\ensuremath{\mathbf{u}^{\mathbf{T}}}}
+\newcommand{\vecbeta}{\ensuremath{\bm{\beta}}}
+\newcommand{\vecbetat}{\ensuremath{\bm{\beta}^{\mathbf{T}}}}
+\newcommand{\matx}{\ensuremath{\mathbf{X}}}
+\newcommand{\matxt}{\ensuremath{\mathbf{X}^{\mathbf{T}}}}
+\newcommand{\mata}{\ensuremath{\mathbf{A}}}
+\newcommand{\matat}{\ensuremath{\mathbf{A}^{\mathbf{T}}}}
+\newcommand{\matb}{\ensuremath{\mathbf{B}}}
+\newcommand{\matbt}{\ensuremath{\mathbf{B}^{\mathbf{T}}}}
+\newcommand{\mathh}{\ensuremath{\mathbf{H}}}
+\newcommand{\mathht}{\ensuremath{\mathbf{H}^{\mathbf{T}}}}
+\newcommand{\matv}{\ensuremath{\mathbf{V}}}
+\newcommand{\matvt}{\ensuremath{\mathbf{V}^{\mathbf{T}}}}
+\newcommand{\maty}{\ensuremath{\mathbf{Y}}}
+\newcommand{\matyt}{\ensuremath{\mathbf{Y}^{\mathbf{T}}}}
+\newcommand{\matt}{\ensuremath{\mathbf{T}}}
+\newcommand{\matzero}{\ensuremath{\mathbf{0}}}
+\newcommand{\matzerot}{\ensuremath{\mathbf{0}^{\mathbf{T}}}}
+\newcommand{\vecy}{\ensuremath{\mathbf{y}}}
+\newcommand{\vecyt}{\ensuremath{\mathbf{y}^{\mathbf{T}}}}
+\newcommand{\vecycap}{\ensuremath{\mathbf{Y}}}
+\newcommand{\vecx}{\ensuremath{\mathbf{x}}}
+\newcommand{\vecxt}{\ensuremath{\mathbf{x}^{\mathbf{T}}}}
+\newcommand{\veca}{\ensuremath{\mathbf{a}}}
+\newcommand{\vecat}{\ensuremath{\mathbf{a}^{\mathbf{T}}}}
+\newcommand{\vecb}{\ensuremath{\mathbf{b}}}
+\newcommand{\vecbt}{\ensuremath{\mathbf{b}^{\mathbf{T}}}}
+\newcommand{\vecbetah}{\ensuremath{\bm{\hat{\beta}}}}
+\newcommand{\vecbetatil}{\ensuremath{\bm{\tilde{\beta}}}}
+\newcommand{\vecep}{\ensuremath{\bm{\epsilon}}}
+\newcommand{\veceta}{\ensuremath{\bm{\eta}}}
+\newcommand{\veczero}{\ensuremath{\mathbf{0}}}
+\newcommand{\vectheta}{\ensuremath{{\boldsymbol \theta }}}
+\newcommand{\ethn}{\ensuremath{\hat{\theta}_n}} % hat theta_n
+\newcommand{\epn}{\ensuremath{\hat{p}_n}} % hat p_n
+\newcommand{\xdesign}{\mathbb{X}}
+\newcommand{\ident}{\mathbb{I}}
+\newcommand{\Gauss}{\text{Gauss}} % Gauss text
+\newcommand{\Bern}{\text{Bern}} % Bern text
+\newcommand{\Pois}{\text{Pois}} % Pois text
+\newcommand{\Expo}{\text{Expo}} % Expo text
+\newcommand{\Bias}{\text{Bias}} % Bias text
+\newcommand{\statmodel}{\ensuremath{(E, (\Pr_{\theta})_{\theta \in \Theta})}} % Stat model
+\newcommand{\one}{\ensuremath{\mathds{1}}}
+\renewcommand{\Pr}{\ensuremath{\text{Pr}}}
+\newcommand{\card}{\ensuremath{\text{card}}}
+\newcommand{\kinz}{\ensuremath{k \in \mathbb{Z}}}
+\newcommand{\ninz}{\ensuremath{n \in \mathbb{Z}}}
+\newcommand{\irr}{\mathbb{R}\setminus\mathbb{Q}}
+\newcommand{\inz}{\ensuremath{\in \mathbb{Z}}}
+\newcommand{\ps}{\ensuremath{\mathscr{P}}} % script power set
+\newcommand{\dom}{\ensuremath{\text{dom}}}
+\newcommand{\ran}{\ensuremath{\text{ran}}}
+\newcommand{\codom}{\ensuremath{\text{codom}}}
+\newcommand{\id}{\ensuremath{\text{id}}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\inn}{\ensuremath{\in \mathbb{N}}}
+\newcommand{\xbin}{\ensuremath{X \sim \text{Bin}(n, p)}}
+\DeclareMathOperator*{\sd}{\textrm{sd}} % Standard deviation
+\newcommand{\intbar}{\ensuremath{\biggr\rvert}} % Evaluation bar for integrals
+\renewcommand{\Pr}{\mathbb{P}}
+\newcommand{\Qr}{\mathbb{Q}}
+\newcommand{\real}{\ensuremath{\mathbb{R}}} % set of real numbers
+\newcommand{\lv}{\ensuremath{\left \lvert}} % left bar
+\newcommand{\rv}{\ensuremath{\right \rvert}} % left bar
+\newcommand{\dx}{\ensuremath{\, \mathrm{d} x}} % Space between integrand and dx and non-italic d
+\newcommand{\dy}{\ensuremath{\, \mathrm{d} y}} % Space between integrand and dx and non-italic d
+\newcommand{\Xton}{\ensuremath{X_1, \ldots, X_n}} % Sequence of r.v.s X1 to Xn
+\newcommand{\limn}{\ensuremath{\lim_{n \to \infty}}} % lim of n to infitiny
+\newcommand{\iid}{\ensuremath{\stackrel{iid}{\sim}}} % iid above tilde
+\newcommand{\ind}{\mathds{1}} % Indicator variables
+% Convergence Commands
+\newcommand{\convd}{\ensuremath{\xrightarrow [n \to \infty ]{\text{(d)}}}} % convergence in distribution
+\newcommand{\convp}{\ensuremath{\xrightarrow [n \to \infty ]{\Pr}}} % convergence in prob
+\newcommand{\convas}{\ensuremath{\xrightarrow [n \to \infty ]{\text{a.s.}}}} % convergence almost surely
+
+% For longer absolute value bars (need mathtools package)
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+
+\DeclarePairedDelimiter{\oldnormaux}{\bracevert}{\bracevert}
+
+\NewDocumentCommand{\oldnorm}{som}{%
+  \IfBooleanTF{#1}
+    {\oldnormaux*{#3}}
+    {\IfNoValueTF{#2}
+       {\oldnormaux*{\vphantom{dq}#3}}
+       {\oldnormaux[#2]{#3}}%
+    }%
+}

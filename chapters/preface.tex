@@ -1,0 +1,62 @@
+\chapter{Preface}
+\label{ch:preface}
+
+This is a book about the mathematics underneath the statistical methods you already use.
+It covers what a graduate introduction to statistical inference covers: the limit theorems that justify large-sample reasoning, statistical models, estimators and how to judge them, confidence intervals, hypothesis tests, maximum likelihood, the chi-squared family, Bayesian inference, linear regression, generalized linear models and principal component analysis.
+It assumes you have met most of these before as recipes, and it asks the question an introductory course has no room for: why is any of this allowed?
+
+\textbf{Who it is for.}
+A reader with a solid undergraduate statistics course behind them.
+You know the sample mean, the normal distribution, confidence intervals and $t$-tests, and you have had a semester of calculus.
+Every step of every derivation is written out; nothing is left as an exercise that the text then relies on.
+
+The mathematics is all here: the $\epsilon$-$N$ definition of a limit, the proofs, the inequalities.
+At the same time, the limit theorems of Part II are used constantly in the rest of the book, and nobody carries their exact statements around in their head.
+So every later use of the Law of Large Numbers, the Central Limit Theorem, Slutsky's theorem or the delta method restates in one line what that theorem gives you, at the point where it is used, marked \textit{Recall}.
+You can read any chapter after \cref{ch:gaussian} without turning back to Part II.
+
+\textbf{How it is organized.}
+One chapter per idea, ten to eighteen pages, in parts ordered by what has to be understood before what.
+\Cref{ch:kiss} introduces the example that runs through the whole book and the three questions statistics asks about it.
+\Cref{ch:models} defines the object every later chapter lives inside.
+Part II is the probability: where an average settles, how it fluctuates on the way, and what you may do to a limit and still know where you are.
+Part III answers the three questions with guarantees, and the rest of the book is methods.
+
+Every chapter opens with a box, `In this chapter', that says what is coming and how it connects to the chapter before, and closes with a paragraph on what comes next, a summary and exercises.
+Five kinds of box run through the text:
+\begin{itemize}[nosep]
+\item \textit{Intuition}: the picture or the argument in words behind a result, usually before the result is proved.
+\item \textit{From undergraduate statistics}: the version of the idea you already met, and what the general version adds. There are many of these: the statistics you already know is the natural place to start from.
+\item \textit{Pitfall}: a mistake that is easy to make.
+\item \textit{Worked example}: the computation carried through with numbers.
+\item \textit{Does this make sense?}: how to tell that an answer is absurd without redoing the work. Extreme cases, bounds, a second route to the same number.
+\end{itemize}
+Every definition is followed by a short block that says the same thing in plain words and then says what it means for the running example.
+Every proof is preceded by one line of strategy, marked either \textit{core} (follow it; there are about ten such proofs) or \textit{for completeness} (the statement is what you need; read the proof when you want to).
+Solutions to all exercises are at the back of the book, and each exercise says on which page.
+
+\textbf{The mathematics you need.}
+A solid introductory statistics course and one semester of calculus, provided you are willing to read a definition slowly.
+Where a proof leans on a mathematical idea that an introductory course leaves implicit (the $\epsilon$-$N$ definition of a limit, the mean value theorem, Markov's inequality, what `injective' means), the text marks the step with a gray pointer such as `(toolkit A.9)' to the Mathematical Toolkit, \cref{app:math}, which explains that idea in a page with a picture and says where else the book uses it.
+The toolkit is where to go when a step feels unjustified.
+It is not a prerequisite to read first.
+
+\textbf{The minimal path through Part II.}
+\Cref{ch:lln,ch:clt,ch:limit-tools} are about limits of random variables, and they exist to deliver three facts: averages settle on their expectations, the error of an average is Gaussian on the $1/\sqrt{n}$ scale, and there are rules for transforming limits and plugging estimates into them.
+Read those three chapters for those three facts and take \cref{ch:lln}'s opening box as the working translation of the word `asymptotic' wherever it appears.
+The remaining modes of convergence are in \cref{app:modes}, for orientation only.
+
+\textbf{Two conventions that bite.}
+This book writes the Gaussian distribution as $\Gauss(\mu, \sigma^2)$ with the \textit{variance} as the second parameter, so $\Gauss(85, 4)$ has standard deviation $2$.
+Much of the software you will meet takes the standard deviation instead.
+And it writes $q_\alpha$ for the quantile with probability $\alpha$ \textit{above} it, so $q_{0.05} = 1.645$ and $q_{0.025} = 1.96$, while most tables and software index a quantile by the probability below.
+Both conventions are standard in mathematical statistics and both are traps when you move between sources.
+\Cref{ch:gaussian} explains them with pictures; every formula in this book follows them.
+
+\textbf{Figures.}
+Every figure is generated by a short script that ships with the book's source, so any of them can be redrawn with other numbers.
+Nothing in a figure is schematic: when a curve is drawn, it is the real curve, and when a probability is shaded, the shaded area is that probability.
+
+\textbf{Where the material comes from.}
+The syllabus is that of MIT's 18.6501x, \textit{Fundamentals of Statistics}, which I worked through and took notes on, and this book grew out of those notes.
+You do not need the course to read this book, and after this paragraph it is not mentioned again.

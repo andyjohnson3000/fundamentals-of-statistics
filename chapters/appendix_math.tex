@@ -1,0 +1,285 @@
+\chapter{Mathematical Toolkit}
+\label{app:math}
+
+This appendix collects the mathematical habits the book uses: not statistics, but the handful of ideas from calculus, sets and probability that the proofs lean on.
+Each entry says what the idea is in plain words, draws it, and names the first place in the book that needs it.
+When a chapter marks a step with `(toolkit \ref{sec:math-mvt})', this is where to come.
+Nothing here is needed to state a result; everything here is needed to follow a proof.
+Later chapters will add entries of their own (vectors and matrices for regression, the chi-squared family for tests) at the end.
+
+\section{Limits of sequences of numbers}
+\label{sec:math-limits}
+
+A sequence of numbers $x_1, x_2, x_3, \ldots$ \textbf{converges} to $x$ if the terms eventually stay as close to $x$ as you like.
+The definition makes `as close as you like' and `eventually' precise:
+\[
+\text{for every } \epsilon > 0 \text{ there is an index } N \text{ such that } \abs{x_n - x} < \epsilon \text{ for all } n \geq N.
+\]
+Read it as a game with an opponent.
+The opponent names a tolerance $\epsilon$, any positive number, however small.
+You must answer with an index $N$ past which every term of the sequence is within $\epsilon$ of $x$.
+If you can always answer, the sequence converges.
+The order of the two moves is the whole content: $\epsilon$ is chosen first and $N$ is allowed to depend on it, which is why a smaller $\epsilon$ is usually met with a larger $N$ (\cref{fig:tk-epsilon}).
+Writing the moves in the other order (`there is an $N$ that works for every $\epsilon$') would say the sequence is eventually \textit{equal} to $x$, a much stronger and usually false statement.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_epsilon_n}
+\caption{The $\epsilon$-$N$ definition as a game. Left: the sequence $x_n = 2 + (-1)^n/\sqrt{n}$ with two tolerances; for $\epsilon = 0.3$ every term past $N = 12$ is inside the band, for $\epsilon = 0.1$ you need $N = 101$ (at $n = 100$ the term sits exactly on the band's edge, and the definition asks for strictly inside). Right: the index that works, as a function of the tolerance, climbs as $\epsilon$ shrinks. Convergence means the staircase is defined for every $\epsilon > 0$, however small.}
+\label{fig:tk-epsilon}
+\end{figure}
+
+\textbf{Where the book uses it.} \Cref{sec:conv-why} starts from this definition and explains why it cannot be applied directly to random variables; \cref{def:convp} keeps its shape but applies it to the \textit{probabilities} $\Pr(\abs{X_n - X} \geq \epsilon)$, which are ordinary numbers.
+Every `$\to 0$' in a proof of convergence in probability is this definition applied to a sequence of numbers.
+
+\section{Supremum and infimum}
+\label{sec:math-sup}
+
+The \textbf{maximum} of a set of numbers is its largest member.
+Some sets have none: $\{1 - \frac{1}{n} : n = 1, 2, \ldots\}$ climbs toward $1$ and never reaches it.
+The \textbf{supremum}, written $\sup$, is the least upper bound: the smallest number that no member exceeds.
+For that set the supremum is $1$, which is not a member.
+When a maximum exists it equals the supremum; the supremum exists more often, which is why proofs prefer it.
+The \textbf{infimum}, $\inf$, is the greatest lower bound, and the same remarks apply with `minimum'.
+\Cref{fig:tk-sup} shows one set whose supremum is not attained and one function on a closed interval whose supremum and infimum both are (a continuous function on a closed, bounded interval always attains both).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_sup}
+\caption{Left: the set $\{1 - 1/n\}$ has no largest element, but $1$ is its least upper bound. Right: $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its infimum at $x = 0$, so here $\sup = \max$ and $\inf = \min$.}
+\label{fig:tk-sup}
+\end{figure}
+
+\textbf{Where the book uses it.} The conservative confidence interval of \cref{sec:ci-three-solutions} replaces $\sqrt{p(1-p)}$ by its supremum over $p \in (0,1)$, which is $\frac12$ and is attained; the subway version has $\sup_\lambda \lambda = \infty$, which is why no conservative interval exists there. \Cref{ch:estimators} mentions that a statistic may be defined through a $\sup$ or $\inf$; the maximum of a sample, $\max_i X_i$, is a maximum of finitely many numbers and causes no trouble.
+
+\section{Sets, maps and one-to-one}
+\label{sec:math-maps}
+
+A \textbf{map} (or function) $f$ from a set $A$ to a set $B$ assigns to each element of $A$ exactly one element of $B$.
+Its \textbf{image} is the set of elements of $B$ that are actually hit.
+The map is \textbf{injective} (one-to-one) if different inputs always give different outputs: $a_1 \neq a_2$ implies $f(a_1) \neq f(a_2)$, or, turned around, $f(a_1) = f(a_2)$ implies $a_1 = a_2$.
+An injective map can be undone: from the output you can recover the input.
+For a function of one real variable the test is visual, the horizontal-line test of \cref{fig:tk-injective}: if some horizontal line crosses the graph twice, two inputs share an output and the map is not injective.
+A strictly increasing or strictly decreasing function always passes the test.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_injective}
+\caption{The horizontal-line test. Left: $\lambda \mapsto e^{-5\lambda}$ is strictly decreasing, so every height is hit once and $\lambda$ can be read off the output; this is the censored-exponential example of \cref{ex:censored-expo}. Right: $x \mapsto x^2$ on $[-2, 2]$ hits the height $1$ twice, so the input cannot be recovered from the output.}
+\label{fig:tk-injective}
+\end{figure}
+
+A \textbf{partition} of a set is a way of cutting it into pieces that do not overlap and together cover everything; any map partitions its domain into the sets of inputs that share an output.
+
+\textbf{Where the book uses it.} Identifiability (\cref{def:identifiable}) is exactly the statement that the map $\theta \mapsto \Pr_\theta$ is injective; every identifiability argument in \cref{ch:models} is a horizontal-line test on that map. A statistic partitions the sample space (\cref{sec:est-reduction}).
+
+\section{Indicator functions}
+\label{sec:math-indicator}
+
+The \textbf{indicator} of an event or a condition is the function that is $1$ when the condition holds and $0$ when it does not: $\ind(x \geq 5)$ is $0$ for $x < 5$ and $1$ from $5$ on.
+It is the simplest random variable there is, a coin that comes up $1$ with probability $\Pr(\text{condition})$, and its expectation is that probability:
+\[
+\E[\ind(X \geq 5)] = 1 \cdot \Pr(X \geq 5) + 0 \cdot \Pr(X < 5) = \Pr(X \geq 5).
+\]
+That one line, \textit{the expectation of an indicator is a probability}, is how probabilities enter computations that are written with expectations, and how a sum of indicators becomes a count (the number of couples turning right is $\sum_i \ind(R_i = 1)$).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_indicator}
+\caption{Left: the indicator $\ind(x \geq 5)$ is a step from $0$ to $1$. Right: for $X \sim \Expo(0.16)$ its expectation is the shaded probability $\Pr(X \geq 5) = e^{-5 \times 0.16} = 0.45$.}
+\label{fig:tk-indicator}
+\end{figure}
+
+\textbf{Where the book uses it.} The CDF of a constant is a step function (\cref{ex:unif-shrinking}); the censored observations of \cref{ch:models} are indicators of the unobserved variable; the Strong Law in \cref{app:modes} counts failures with a sum of indicators; Markov's inequality below is proved with one.
+
+\section{Random variables as functions, and `almost surely'}
+\label{sec:math-rv}
+
+A \textbf{random variable} is a function from the sample space (the set of possible outcomes of an experiment) to the real line.
+\Cref{fig:tk-rv} draws the simplest case: the $36$ outcomes of two dice, and the function $X = $ `the sum'.
+The probability $\Pr(X = 7)$ is the probability of the set of outcomes that $X$ sends to $7$.
+Two random variables on the same sample space, say the sum $X$ and the larger die $Y$, are two functions of the \textit{same} outcome, which is what gives meaning to $X - Y$ and to `$X$ and $Y$ are close': you compare them outcome by outcome.
+This is the viewpoint \cref{sec:conv-why} needs for a sequence of random variables, which is a sequence of functions on one sample space.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_rv_function}
+\caption{A random variable is a function on the sample space. Left: the $36$ outcomes of two dice, each colored by the value the function $X = $ `sum' assigns it. Right: the distribution of $X$ on the real line; $\Pr(X = 7) = 6/36$ because six outcomes are sent to $7$.}
+\label{fig:tk-rv}
+\end{figure}
+
+Three phrases from probability theory appear in the book and mean less than they sound.
+\begin{itemize}[nosep]
+\item \textbf{Almost surely} means `with probability one'. A continuous random variable equals any particular number with probability zero, so `$X \neq 5$ almost surely' is true even though the outcome $X = 5$ is not impossible; the set of outcomes where a statement fails is allowed to be nonempty as long as it has probability zero. The book uses it in Hoeffding's inequality (`bounded almost surely': the probability of landing outside $[a, b]$ is zero) and in \cref{app:modes}.
+\item \textbf{Measurable} (a measurable function, a measurable sample space) is the technical condition that makes probabilities of the relevant events well defined. Every function you can write down with formulas, limits, sums and integrals is measurable; the usual rule of thumb, that anything you can compute from the data is a statistic, is correct in practice. The book never needs more.
+\item A \textbf{probability measure} (or distribution) assigns a probability to every event. A PMF or PDF is a recipe for one: sum or integrate it over the event. The two determine each other, and the book writes down families of distributions through their PMFs and PDFs (\cref{def:statmodel}).
+\end{itemize}
+
+\section{Densities, CDFs and quantiles}
+\label{sec:math-density}
+
+For a continuous random variable, \textbf{probability is area}: $\Pr(a \leq X \leq b)$ is the area under the density $f$ between $a$ and $b$.
+The \textbf{CDF} $F(x) = \Pr(X \leq x)$ is the area accumulated up to $x$, so $\Pr(a \leq X \leq b) = F(b) - F(a)$, and $F$ is the antiderivative of $f$: $f = F'$.
+The \textbf{quantile} reads the CDF backwards: given a probability $u$, the quantile is the $x$ with $F(x) = u$; the book's $q_\alpha$ is the case $u = 1 - \alpha$, indexed by the probability \textit{above} the cutoff.
+\Cref{fig:tk-density} draws the three on one example.
+The same three ideas work for a discrete random variable with sums in place of integrals: the PMF is the list of probabilities, the CDF the running total, and the CDF jumps at each possible value instead of rising smoothly.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_tk_density_cdf}
+\caption{Density, CDF and quantile as one picture. Top: the shaded area under the $\Gauss(0,1)$ density between $a = -1$ and $b = 1$ is $\Pr(a \leq X \leq b) = 0.683$. Bottom: the same probability is the rise of the CDF from $F(a)$ to $F(b)$; reading the CDF sideways at $0.95$ gives the quantile $q_{0.05} = 1.645$ of \cref{sec:gauss-quantiles}.}
+\label{fig:tk-density}
+\end{figure}
+
+\textbf{Where the book uses it.} Convergence in distribution (\cref{def:convd}) compares CDFs, and the jumps of a discrete CDF are why only continuity points count. Every probability in \cref{ch:gaussian} is a CDF lookup. The density of a transformed variable, such as $aX + b$ or $X^2$, is found by writing its CDF and differentiating (\cref{sec:gauss-properties}, \cref{ch:models}).
+
+\section{Three inequalities}
+\label{sec:math-inequalities}
+
+\textbf{The triangle inequality:} $\abs{x + y} \leq \abs{x} + \abs{y}$, and so $\abs{x - z} \leq \abs{x - y} + \abs{y - z}$: a detour through $y$ is never shorter than the direct distance.
+Proofs use it to split an error into two pieces, for instance $\abs{T_n - \mu} \leq \abs{T_n - \E[T_n]} + \abs{\E[T_n] - \mu}$ in \cref{prop:shrinking-variance}: if the total is at least $\epsilon$, one of the two pieces is at least $\epsilon/2$.
+
+\textbf{Markov's inequality:} if $Y \geq 0$ then $\Pr(Y \geq a) \leq \E[Y]/a$ for every $a > 0$.
+The picture (\cref{fig:tk-inequalities}, left) is the proof: the step function $a \cdot \ind(Y \geq a)$ never exceeds $Y$, so its expectation, $a \Pr(Y \geq a)$, is at most $\E[Y]$.
+A non-negative variable with a small mean is rarely large.
+
+\textbf{Chebyshev's inequality:} for any random variable with finite variance, $\Pr(\abs{T - \E[T]} \geq \epsilon) \leq \var(T)/\epsilon^2$.
+It is Markov's inequality applied to $Y = (T - \E[T])^2$ with $a = \epsilon^2$.
+In standard-deviation units it says $\Pr(\abs{T - \E[T]} \geq k \sigma) \leq 1/k^2$ for every distribution whatsoever, which is both its strength (universal) and its weakness (loose: for a Gaussian the true two-standard-deviation tail is $0.046$, the bound says $0.25$).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_inequalities}
+\caption{Left: Markov's inequality is the picture $a \cdot \ind(Y \geq a) \leq Y$; take expectations. Right: Chebyshev's bound $1/k^2$ against the exact tail probabilities of a Gaussian and of an $\Expo(1)$ variable. The bound holds for every distribution and is far from tight for these two.}
+\label{fig:tk-inequalities}
+\end{figure}
+
+\textbf{Where the book uses it.} The Law of Large Numbers (\cref{thm:wlln}) is Chebyshev's inequality with $n \to \infty$; the shrinking-variance criterion is the same with the triangle inequality in front; convergence in mean implies convergence in probability by Markov (\cref{app:modes}); Hoeffding's inequality (\cref{thm:hoeffding}) is the sharper cousin for bounded variables.
+
+\section{Convex functions}
+\label{sec:math-convex}
+
+A function is \textbf{convex} if the chord joining any two points of its graph lies on or above the graph, and \textbf{concave} if every chord lies on or below (\cref{fig:tk-convex}).
+For a function with a second derivative, convex means $g'' \geq 0$ (the slope keeps increasing) and concave means $g'' \leq 0$.
+$x^2$, $e^x$ and $1/x$ on $(0, \infty)$ are convex; $\log x$ and $\sqrt{x}$ are concave; $\sin x$ is neither.
+Averaging interacts with convexity in one direction only: for convex $g$, the average of $g$ over two points is at least $g$ of their average, which is the chord sitting above the curve at its midpoint.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_convex}
+\caption{Convex: chords above the graph. Concave: chords below. Neither: a chord can cross the graph.}
+\label{fig:tk-convex}
+\end{figure}
+
+\textbf{Where the book uses it.} Jensen's inequality (\cref{thm:jensen}) is the chord statement with the two-point average replaced by an expectation; it explains why $1/\bar{T}_n$ overestimates $\lambda$ and why $\sqrt{\cdot}$ of an unbiased estimator is biased (\cref{ch:estimators}). The quadratic in the solve interval of \cref{ch:confidence-intervals} is convex, which is why the inequality holds between its roots. Likelihoods in Part IV are maximized by finding where a concave function's slope is zero.
+
+\section{Tangent lines, the mean value theorem and Taylor's expansion}
+\label{sec:math-mvt}
+
+The derivative $g'(\theta)$ is the slope of the tangent line to the graph of $g$ at $\theta$, and the tangent line $g(\theta) + g'(\theta)(x - \theta)$ is the best straight-line stand-in for $g$ near $\theta$.
+Two facts make this precise.
+
+\textbf{The mean value theorem.}
+For a smooth $g$ and any $a < b$ there is a point $c$ between them where the tangent is parallel to the chord:
+\[
+g(b) - g(a) = g'(c) \, (b - a) \quad \text{for some } c \in (a, b).
+\]
+The change in $g$ over an interval equals the slope somewhere inside the interval times the interval's length (\cref{fig:tk-mvt}, left).
+You never learn where $c$ is, and you never need to: in the delta method it is squeezed between two points that converge to $\theta$, so $g'(c)$ converges to $g'(\theta)$.
+
+\textbf{The first-order Taylor expansion.}
+Near $\theta$,
+\[
+g(x) = g(\theta) + g'(\theta)(x - \theta) + \text{(an error of order } (x - \theta)^2),
+\]
+so on a window of width $h$ around $\theta$ the tangent line is wrong by about $h^2$, which is negligible compared with the $h$-sized changes along the line (\cref{fig:tk-mvt}, right).
+Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-order expansion, which Part IV uses for the likelihood ratio test.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_mvt_taylor}
+\caption{Left: the mean value theorem. Between $a$ and $b$ there is a $c$ where the tangent (blue) is parallel to the chord (orange). Right: the tangent line at $\theta$ approximates $g(x) = 1/x$; the error (shaded) is tiny on the window $\theta \pm \sigma/\sqrt{n}$ where an estimator lives, which is why the delta method can treat $g$ as linear there.}
+\label{fig:tk-mvt}
+\end{figure}
+
+\textbf{Where the book uses it.} The delta method (\cref{thm:delta}) is the mean value theorem followed by Slutsky's theorem; its intuition box is the tangent-line picture. The second-order expansion is behind the remark on $g'(\theta) = 0$ in \cref{sec:delta-method} and behind Wilks' theorem in \cref{ch:wald-lrt}.
+
+\section{Exponentials and logarithms}
+\label{sec:math-explog}
+
+Two facts about $e$ recur.
+First, $(1 - x/n)^n \to e^{-x}$ as $n \to \infty$ (\cref{fig:tk-explog}, left); more generally $(1 + a/n)^n \to e^{a}$.
+It is the step that turns the finite-$n$ formula in the maximum-of-uniforms proof (\cref{ex:max-unif}) into an exponential limit, and it reappears whenever a product of $n$ nearly-equal factors is pushed to the limit.
+Second, the logarithm turns multiplication into addition, $\log(ab) = \log a + \log b$ (\cref{fig:tk-explog}, right).
+A likelihood is a product of $n$ densities, a number so small it underflows a computer for moderate $n$; its logarithm is a sum of $n$ ordinary terms, and a sum of $n$ terms is what the Law of Large Numbers and the Central Limit Theorem know how to handle.
+That is the entire reason Part IV works with log-likelihoods.
+Because $\log$ is strictly increasing, maximizing the likelihood and maximizing the log-likelihood give the same answer.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_exp_log}
+\caption{Left: $(1 - x/n)^n$ for $n = 1, 2, 5, 20$ climbing toward $e^{-x}$; each curve is drawn up to $x = n$, where it reaches $0$. Right: the logarithm turns equal ratios into equal steps, so a product becomes a sum.}
+\label{fig:tk-explog}
+\end{figure}
+
+\section{Orders of magnitude: how fast is `fast'}
+\label{sec:math-rates}
+
+The book keeps saying that an error is `of order $1/\sqrt{n}$', that a bound `goes to zero like $1/n$', or `exponentially fast'.
+These are statements about how a quantity scales with $n$, ignoring constants.
+\Cref{fig:tk-rates} draws the three rates that matter here on ordinary axes and on log-log axes, where a power law $n^{-c}$ is a straight line of slope $-c$ and an exponential bends away below every power law.
+Practical translation of each rate:
+\begin{itemize}[nosep]
+\item $1/\sqrt{n}$: four times the data halves the error; a hundred times the data buys one decimal place. This is the rate of every estimator built from an average and of every confidence interval in this book.
+\item $1/n$: twice the data halves the error. Chebyshev's bound and the maximum-of-uniforms example have this rate; so does the bias of $1/\bar{T}_n$ in \cref{ch:estimators}, which is why the bias is swamped by the $1/\sqrt{n}$ standard error.
+\item $e^{-cn}$: each fixed addition to $n$ multiplies the error by the same factor below $1$. Hoeffding's bound has this rate, which is why it overtakes Chebyshev's for large $n$ (\cref{fig:bounds}).
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_rates}
+\caption{Three rates of decay. Left: on ordinary axes they all look alike at first. Right: on log-log axes $1/\sqrt{n}$ and $1/n$ are straight lines whose slopes are the exponents, and the exponential drops away below both.}
+\label{fig:tk-rates}
+\end{figure}
+
+\section{Functions of several variables: gradient and Hessian}
+\label{sec:math-multivar}
+
+A parameter with several coordinates, like $(\mu, \sigma^2)$ for a Gaussian, turns a log-likelihood into a function of several variables, and maximizing it needs the several-variable versions of the derivative and the second derivative.
+
+\textbf{Partial derivatives and the gradient.}
+For $h(a, b)$, the partial derivative $\partial h/\partial a$ is the ordinary derivative in $a$ with $b$ held fixed: the slope of the surface walking in the $a$ direction.
+The \textbf{gradient} collects them in a vector, $\nabla h = (\partial h/\partial a, \partial h/\partial b)$.
+It points in the direction in which $h$ climbs fastest, it is perpendicular to the contour line through its point, and its length is the steepness of the climb (\cref{fig:tk-gradient}, left).
+At the top of a hill the surface is flat in every direction, so the gradient is the zero vector: $\nabla h = 0$ is the first-order condition, one equation per coordinate.
+
+\textbf{The Hessian and the second-derivative test.}
+The \textbf{Hessian} is the matrix of second partial derivatives,
+\[
+\nabla^2 h = \begin{pmatrix} \partial^2 h/\partial a^2 & \partial^2 h/\partial a\,\partial b \\ \partial^2 h/\partial b\,\partial a & \partial^2 h/\partial b^2 \end{pmatrix},
+\]
+which is symmetric for the smooth functions of this book.
+A zero gradient alone does not certify a maximum: the saddle $h(a, b) = a^2 - b^2$ has $\nabla h = 0$ at the origin, which is a minimum along $a$ and a maximum along $b$ (\cref{fig:tk-gradient}, right).
+The second-derivative test settles it.
+A symmetric matrix $H$ is \textbf{negative definite} if $u^\top H u < 0$ for every nonzero vector $u$: the function curves down in every direction.
+If at a point where $\nabla h = 0$ the Hessian is negative definite, the point is a local maximum.
+For a $2 \times 2$ Hessian, negative definite means the top-left entry is negative and the determinant is positive.
+For the saddle the Hessian is $\begin{pmatrix} 2 & 0 \\ 0 & -2 \end{pmatrix}$, whose determinant is $-4$: not negative definite.
+For $h(a, b) = -(a^2 + ab + b^2)$ it is $\begin{pmatrix} -2 & -1 \\ -1 & -2 \end{pmatrix}$, top-left $-2 < 0$, determinant $3 > 0$: negative definite, and the origin is the maximum.
+
+\textbf{Concave in several variables.}
+Suppose the Hessian is negative definite at every point of a domain that contains the segment between any two of its points. Along the line $\theta + tu$, the second derivative in $t$ is $u^\top \nabla^2 h\, u < 0$, so every slice through the function, in every direction, is strictly concave in one variable. If $\nabla h(\hat{\theta}) = 0$, the slice from $\hat{\theta}$ toward any other point $\theta$ has zero slope at $\hat{\theta}$, so by the one-variable result (\cref{prop:concave-max}) it is highest there: $h(\theta) < h(\hat{\theta})$. A point with zero gradient, if there is one, is the unique maximizer, exactly as in one variable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_tk_gradient}
+\caption{Left: contours of the concave function $-(a^2 + ab + b^2)$ with its gradient drawn at a grid of points; each arrow points uphill, perpendicular to the contour, and the arrows shrink to nothing at the top, the one point where the gradient is $0$. Right: the saddle $a^2 - b^2$; its gradient is also $0$ at the origin, which is not a maximum.}
+\label{fig:tk-gradient}
+\end{figure}
+
+\textbf{Where the book uses it.} The Gaussian maximum likelihood estimator (\cref{sec:lik-families}) is found by a two-step argument, and its Hessian at the maximum is negative definite; the EM algorithm (\cref{sec:lik-em}) maximizes in five coordinates; \cref{ch:mle-properties} turns the Hessian of the log-likelihood into the Fisher information matrix.
+
+\section{To be added with later chapters}
+\label{sec:math-later}
+
+Vectors, matrices, the rank of a matrix and projections (for \cref{ch:regression-multi}); the chi-squared, Student's $t$ and $F$ families and how they arise from Gaussians (for \cref{ch:t-test}); eigenvalues and eigenvectors (for \cref{ch:pca}).

@@ -1,0 +1,20 @@
+# LaTeX build files
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.out
+*.toc
+*.synctex.gz
+main.solutions.tex
+chapters/*.aux
+
+# Python and system files
+__pycache__/
+.DS_Store
+figures/.stamp
+
+# Working logs kept on the author's computer only
+NOTES_TO_BOOK.md
+REVIEW_FLAGS.md
+WORKING_README.md
