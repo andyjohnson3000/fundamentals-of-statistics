@@ -32,6 +32,8 @@ Writing the moves in the other order (`there is an $N$ that works for every $\ep
 \textbf{Where the book uses it.} \Cref{sec:conv-why} starts from this definition and explains why it cannot be applied directly to random variables; \cref{def:convp} keeps its shape but applies it to the \textit{probabilities} $\Pr(\abs{X_n - X} \geq \epsilon)$, which are ordinary numbers.
 Every `$\to 0$' in a proof of convergence in probability is this definition applied to a sequence of numbers.
 
+\textbf{Limits inside an expectation.} One further fact is used once, in the uniform law of large numbers of \cref{sec:proof-ulln}: if random variables $W_r$ converge to $0$ as $r \to 0$ for every outcome, and all of them are bounded by one fixed random variable $G$ with $\E[G] < \infty$, then $\E[W_r] \to 0$ as well. This is the dominated convergence theorem. The bound is what makes it true: without it, a $W_r$ that is huge on a set of tiny probability can have an expectation that refuses to go to $0$ even though $W_r$ itself goes to $0$ at every outcome.
+
 \section{Supremum and infimum}
 \label{sec:math-sup}
 

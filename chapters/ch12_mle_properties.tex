@@ -1,4 +1,523 @@
 \chapter[Properties of the MLE]{Properties of the MLE: Consistency, Fisher Information and Asymptotic Normality}
 \label{ch:mle-properties}
 
-% Not yet written. Source material: notes ch. Maximum Likelihood Estimation (properties, Fisher information); unit 3 slides
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item Three facts that hold for the maximum likelihood estimator of every well-behaved model at once: it is consistent, it is asymptotically normal, and its asymptotic variance is one over a number you can compute from the model alone, the Fisher information.
+\item Why it is consistent: the average log-likelihood is an average, the Law of Large Numbers sends it to a fixed curve, and that curve peaks at the truth. The picture \cref{ch:distances} drew, made into an argument.
+\item The score: the slope of one observation's log-likelihood. It averages to zero at the truth, and its variance is the Fisher information, which is also the curvature of the log-likelihood at its peak. Both definitions, and why they agree.
+\item The Fisher information of the Bernoulli, Poisson, exponential and Gaussian models, and what each says about how precisely its parameter can be learned.
+\item Why the MLE is asymptotically normal: the Central Limit Theorem applied to the score, then one step of the delta method's reasoning. The result is the interval $\hat{\theta} \pm 1.96/\sqrt{nI(\hat{\theta})}$, for any model.
+\item The Cram\'er--Rao bound: no unbiased estimator has smaller variance than $1/(nI(\theta))$, so the MLE's precision is the best available.
+\item What the theorem needs, and the models it does not cover: the uniform model, whose error shrinks like $1/n$, not $1/\sqrt{n}$.
+\end{itemize}
+\Cref{ch:likelihood} computed the maximum likelihood estimator. This chapter says how good it is, and makes good on two promises: the consistency argument sketched under \cref{fig:klestimate}, and the curvature-equals-standard-error coincidence of the sanity check in \cref{sec:lik-mle}.
+\end{chaptergoals}
+
+\section{Three questions about an estimator}
+\label{sec:mle-questions}
+
+\Cref{ch:estimators} set out what to ask of an estimator: does it get to the truth as the sample grows (consistency), how fast and with what shape of error (asymptotic normality and the asymptotic variance), and how does it compare with the alternatives.
+For the sample proportion $\bar{R}_n$ those questions were answered by the Law of Large Numbers and the Central Limit Theorem, applied directly to an average.
+The maximum likelihood estimator of an arbitrary model is not an average.
+It is the argmax of a random function, and no theorem in Part II says anything about argmaxes.
+
+This chapter's whole trick is to turn the argmax back into an average.
+It happens twice.
+For consistency, the thing averaged is the log-likelihood of one observation: $\frac1n\ell_n(\theta)$ is an average, and the LLN handles it.
+For asymptotic normality, the thing averaged is the slope of the log-likelihood of one observation, the score: $\frac1n\ell_n'(\theta)$ is an average, and the CLT handles it.
+Everything else is bookkeeping, with one Taylor expansion.
+
+\section{Consistency}
+\label{sec:mle-consistency}
+
+\recall{The Law of Large Numbers (\cref{thm:wlln}): if $\Xton$ are i.i.d.\ and $h(X)$ has finite variance, then $\frac1n\sum_{i=1}^n h(X_i) \convp \E[h(X)]$.}
+
+Fix a candidate $\theta$ and look at the average log-likelihood,
+\[
+\frac1n\ell_n(\theta) = \frac1n\sum_{i=1}^n \log p_\theta(X_i).
+\]
+With $h = \log p_\theta$, the LLN says this converges in probability, under the truth $\Pr_{\theta^*}$, to
+\[
+M(\theta) = \E_{\theta^*}\big[\log p_\theta(X)\big] = \E_{\theta^*}\big[\log p_{\theta^*}(X)\big] - \KL(\Pr_{\theta^*}, \Pr_\theta),
+\]
+the split \cref{ch:distances} made.
+The first term does not depend on $\theta$.
+The second is a KL divergence, which is $0$ at $\theta = \theta^*$ and positive everywhere else if the model is identifiable (\cref{prop:kl-properties}).
+So $M$ is a fixed curve, not random, and it has a unique peak at the truth.
+
+\Cref{fig:mleconsistency} draws what happens.
+The random curve $\frac1n\ell_n$ settles onto the fixed curve $M$ as $n$ grows, and its peak, the MLE, slides toward the peak of $M$, the truth.
+At $n = 10$ the sample curve peaks at $0.80$, far from $p^* = 0.645$; at $n = 1{,}000$ the two curves are indistinguishable and the peaks nearly coincide.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_mle_consistency}
+\caption{Consistency of the MLE in the kiss model, with the truth at $p^* = 0.645$. Top: the average log-likelihood of one simulated sample of $n$ couples (blue, dashed), peaking at its own $\hat{p}$ (blue dot), against its limit $M(p) = p^*\log p + (1 - p^*)\log(1 - p)$ (black), which peaks at $p^*$ (black dot). Bottom: the sampling distribution of $\hat{p}$ at the same $n$, from $20{,}000$ simulated studies; its standard deviation $\sqrt{p^*(1 - p^*)/n}$ is $0.151$, $0.043$ and $0.015$.}
+\label{fig:mleconsistency}
+\end{figure}
+
+\begin{intuition}[the peaks follow the curves]
+The LLN works one $\theta$ at a time: for each fixed candidate, the average log-likelihood at that candidate converges.
+The theorem below needs more, that the whole random curve stays close to the whole fixed curve at once, so that the location of its peak converges too.
+Here is why that is plausible, and where it can fail.
+If two curves are within $\epsilon$ of each other everywhere, the peak of one is within $\epsilon$ of the peak of the other in height.
+If the fixed curve $M$ drops off decisively away from its peak, as it does in \cref{fig:mleconsistency}, a point far from $\theta^*$ has $M$ well below $M(\theta^*)$, and the random curve there is also well below its value near $\theta^*$, so the random peak cannot be far away.
+What can go wrong is a parameter space where $M$ never drops off decisively (an infinite $\Theta$ with $M$ flattening toward its edge), or a model where the random curve is close to $M$ at every single $\theta$ but not uniformly, with thin spikes that move around.
+The `technical conditions' in the theorem rule those out, and once the parameter space is restricted to a bounded closed set around the truth, as the paragraph after the theorem explains, they hold for every model in this book except the ones \cref{sec:mle-regularity} names.
+\end{intuition}
+
+\begin{theorem}[Consistency of the MLE]
+\label{thm:mle-consistent}
+Let $\Xton \iid \Pr_{\theta^*}$ in an identifiable model $(E, (\Pr_\theta)_{\theta \in \Theta})$ with $\Theta \subset \real^d$, and let $\hat{\theta}_n$ be the maximum likelihood estimator.
+Suppose that $\Theta$ is bounded and closed, that $\log p_\theta(x)$ is continuous in $\theta$ for every $x$, and that $\E_{\theta^*}[\sup_{\theta \in \Theta}\abs{\log p_\theta(X)}] < \infty$.
+Then
+\[
+\hat{\theta}_n \convp \theta^* \quad \text{under } \Pr_{\theta^*}.
+\]
+If the model is misspecified, so that the data come from a $\Pr$ outside the family, the same conclusion holds with $\theta^*$ replaced by the KL projection $\theta^\circ$ of \cref{def:kl-projection}, provided it is unique.
+\end{theorem}
+
+\coreproof{Under the hypotheses, a uniform law of large numbers (proved in \cref{sec:proof-ulln} of \cref{app:proofs}) upgrades the pointwise LLN to $\sup_\theta \abs{\frac1n\ell_n(\theta) - M(\theta)} \convp 0$. Then the argument of the intuition box applies: outside any neighborhood of $\theta^*$, $M$ is at least some $\delta > 0$ below $M(\theta^*)$, and once the random curve is uniformly within $\delta/2$ of $M$, its maximizer must be inside the neighborhood.}
+\begin{proof}
+Write $A_n = \sup_{\theta \in \Theta}\abs{\frac1n\ell_n(\theta) - M(\theta)}$.
+The uniform law of large numbers (\cref{thm:ulln}) says $A_n \convp 0$ under the stated hypotheses; the one-$\theta$-at-a-time version is the LLN with $h = \log p_\theta$, and the uniform version is where the continuity, boundedness and the integrable envelope $\sup_\theta\abs{\log p_\theta(X)}$ are used. It is the one step of this chapter proved outside it.
+
+Fix $\epsilon > 0$ and let $N = \{\theta : \norm{\theta - \theta^*} < \epsilon\}$.
+Its complement in $\Theta$, $\Theta \setminus N$, is bounded and closed, and $M$ is continuous on it (continuity of $\log p_\theta$ in $\theta$ plus the envelope condition), so $M$ attains a maximum on $\Theta \setminus N$ at some $\theta_1$.
+By identifiability and \cref{prop:kl-properties}, $M(\theta_1) < M(\theta^*)$; write $\delta = M(\theta^*) - M(\theta_1) > 0$.
+
+Now suppose $A_n < \delta/2$.
+For every $\theta \in \Theta \setminus N$,
+\[
+\tfrac1n\ell_n(\theta) \leq M(\theta) + A_n < M(\theta_1) + \delta/2 = M(\theta^*) - \delta/2 < M(\theta^*) - A_n \leq \tfrac1n\ell_n(\theta^*).
+\]
+So every $\theta$ outside $N$ has a strictly smaller average log-likelihood than $\theta^*$ does, and the maximizer $\hat{\theta}_n$ must lie in $N$.
+Hence $\Pr_{\theta^*}(\norm{\hat{\theta}_n - \theta^*} \geq \epsilon) \leq \Pr_{\theta^*}(A_n \geq \delta/2) \to 0$.
+
+For the misspecified case replace $\theta^*$ by $\theta^\circ$ and $\KL(\Pr_{\theta^*}, \Pr_\theta)$ by $\KL(\Pr, \Pr_\theta)$ throughout; uniqueness of $\theta^\circ$ is what gives $\delta > 0$.
+\end{proof}
+
+None of the families in this book has a bounded closed parameter space: the Bernoulli's is $(0, 1)$, the Poisson's $(0, \infty)$, and on the closed interval $[0, 1]$ the Bernoulli envelope $\sup_p\abs{\log p_p(X)}$ is infinite.
+The theorem is applied to them by restricting $\Theta$ to a bounded closed set $\Theta'$ that contains $\theta^*$ in its interior, for instance $[a, 1 - a]$ for the Bernoulli with $0 < a < \min(p^*, 1 - p^*)$.
+The conclusion is unchanged as long as the MLE over all of $\Theta$ lands in $\Theta'$ with probability tending to $1$, and for every family in this chapter it does, since $\ell_n$ falls to $-\infty$ at the edge of $\Theta$: for the kiss data, $80\log p + 44\log(1 - p) \to -\infty$ at both ends of $(0, 1)$, so $\bar{R}_n \in [a, 1 - a]$ once $\bar{R}_n$ is within $\min(p^*, 1 - p^*) - a$ of $p^*$, which happens with probability tending to $1$.
+
+\begin{inwords}
+\textbf{In words.} The average log-likelihood is an average, so it converges to a fixed curve. That curve is a constant minus the KL divergence from the truth, so it peaks at the truth. If the random curve hugs the fixed one closely enough everywhere, its peak is near the truth. The same argument, with the truth outside the model, lands on the member of the family closest to the truth.
+\par\smallskip
+\textbf{For the kiss data.} $M(p) = 0.645\log p + 0.355\log(1 - p)$, the black curve in \cref{fig:mleconsistency}, peaks at $0.645$. The theorem says $\hat{p} = \bar{R}_n \convp p^*$, which \cref{ch:estimators} already knew from the LLN directly. The theorem's value is that it needs no formula for the estimator: for the mixture of \cref{sec:lik-em}, once the labels are fixed by requiring $\mu_1 < \mu_2$ so that the model is identifiable, it says the same thing, though the MLE has no formula.
+\end{inwords}
+
+\section{The score and the Fisher information}
+\label{sec:mle-fisher}
+
+Consistency says the MLE gets there.
+The next question is how fast, and the answer is in the shape of the log-likelihood near its peak.
+\Cref{ch:likelihood} ended with a sanity check: for the kiss data, the curvature $-\ell_n''(\hat{p}) = 541.7$ and $1/\sqrt{541.7} = 0.043$, the standard error.
+This section defines the quantity behind that.
+
+Everything is built from one observation.
+Write
+\[
+\ell(\theta) = \log p_\theta(X)
+\]
+for the log-likelihood of a single $X \sim \Pr_{\theta}$, a random function of $\theta$, and assume it is twice differentiable in $\theta$.
+Its derivative $\ell'(\theta)$ is called the \textbf{score}.
+For $n$ observations, $\ell_n(\theta) = \sum_i \log p_\theta(X_i)$ is a sum of $n$ independent copies of $\ell$, so $\ell_n'$ is a sum of $n$ independent scores and $\ell_n''$ a sum of $n$ independent second derivatives.
+
+\begin{intuition}[what the score is]
+Fix the truth $\theta^*$ and draw one observation.
+The score $\ell'(\theta^*)$ is the slope, at the truth, of that observation's log-likelihood: how much the observation pushes the estimate of $\theta$ up or down from $\theta^*$.
+For the kiss model (\cref{fig:scoreclt}, left) a couple turning right has log-likelihood $\log p$, with slope $1/p^* = 1.55$ at $p^* = 0.645$: it pushes the estimate up.
+A couple turning left has log-likelihood $\log(1 - p)$, with slope $-1/(1 - p^*) = -2.82$: it pushes down, harder, since left turns are the rarer event.
+Weighted by how often each happens, $0.645 \times 1.55 - 0.355 \times 2.82 = 0$, to rounding.
+At the truth the pushes cancel on average, which is the first fact below.
+How much they vary around zero, their variance, measures how much one observation can move the estimate: that is the Fisher information.
+\end{intuition}
+
+\begin{proposition}[The score has mean zero]
+\label{prop:score-mean}
+Under regularity conditions that allow differentiating under the integral sign (stated in \cref{sec:mle-regularity}), for every $\theta \in \Theta$,
+\[
+\E_\theta[\ell'(\theta)] = 0.
+\]
+\end{proposition}
+
+\optionalproof{The density integrates to $1$ for every $\theta$, so the derivative of that integral in $\theta$ is $0$. Moving the derivative inside turns it into the expectation of the score.}
+\begin{proof}
+Take the continuous case; the discrete case replaces the integral by a sum.
+For every $\theta$, $\int p_\theta(x)\,\mathrm{d}x = 1$.
+Differentiate both sides in $\theta$, moving the derivative inside the integral:
+\[
+0 = \frac{\mathrm{d}}{\mathrm{d}\theta}\int p_\theta(x)\,\mathrm{d}x = \int \frac{\partial p_\theta(x)}{\partial\theta}\,\mathrm{d}x. \tag{$\ast$}
+\]
+Now $\ell'(\theta) = \partial_\theta \log p_\theta(X) = \partial_\theta p_\theta(X)/p_\theta(X)$, so
+\[
+\E_\theta[\ell'(\theta)] = \int \frac{\partial_\theta p_\theta(x)}{p_\theta(x)}\,p_\theta(x)\,\mathrm{d}x = \int \partial_\theta p_\theta(x)\,\mathrm{d}x = 0
+\]
+by $(\ast)$.
+\end{proof}
+
+\begin{definition}[Fisher information]
+\label{def:fisher}
+For a one-parameter model satisfying the regularity conditions of \cref{sec:mle-regularity}, the \textbf{Fisher information} at $\theta$ is
+\[
+I(\theta) = \var_\theta\big(\ell'(\theta)\big) = \E_\theta\big[\ell'(\theta)^2\big],
+\]
+the variance of the score of one observation.
+For a parameter $\theta \in \real^d$ the score is the gradient $\nabla\ell(\theta)$ and the \textbf{Fisher information matrix} is its $d \times d$ covariance matrix, $I(\theta) = \mathrm{Cov}_\theta(\nabla\ell(\theta))$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Draw one observation from $\Pr_\theta$ and ask how steeply its log-likelihood rises or falls at $\theta$. That slope is zero on average. Its spread, the Fisher information, measures how much one observation typically says about $\theta$: a large spread means observations push hard in one direction or the other, and each one carries a lot of information. $n$ independent observations carry $n$ times as much, since the variance of a sum of independent scores is the sum of their variances.
+\par\smallskip
+\textbf{For the kiss data.} $\ell'(p) = R/p - (1 - R)/(1 - p)$. The score takes the value $1/p$ with probability $p$ and $-1/(1-p)$ with probability $1 - p$, and its variance is $I(p) = 1/(p(1 - p))$ (\cref{sec:mle-fisher-examples}). At $p = 0.645$, $I = 4.37$, and $124$ couples carry $nI(\hat{p}) = 541.7$ units of information, the curvature the sanity check of \cref{ch:likelihood} found.
+\end{inwords}
+
+There is a second way to compute the same number, and it is the one that explains the sanity check.
+
+\begin{theorem}[Fisher information as curvature]
+\label{thm:fisher-curvature}
+Under the regularity conditions of \cref{sec:mle-regularity},
+\[
+I(\theta) = -\E_\theta\big[\ell''(\theta)\big].
+\]
+In several dimensions, $I(\theta) = -\E_\theta[\nabla^2\ell(\theta)]$, the negative of the expected Hessian.
+\end{theorem}
+
+\coreproof{Differentiate the identity $(\ast)$ once more, to get $\int \partial^2_\theta p_\theta = 0$. Write $\ell''$ by the quotient rule as $\partial^2_\theta p_\theta/p_\theta$ minus the squared score. The expectation of the first piece is $0$ by the new identity, and the expectation of the second is $I(\theta)$.}
+\begin{proof}
+Differentiating $(\ast)$ in $\theta$ once more, again moving the derivative inside,
+\[
+\int \frac{\partial^2 p_\theta(x)}{\partial\theta^2}\,\mathrm{d}x = 0. \tag{$\ast\ast$}
+\]
+By the quotient rule applied to $\ell'(\theta) = \partial_\theta p_\theta(X)/p_\theta(X)$,
+\[
+\ell''(\theta) = \frac{\partial^2_\theta p_\theta(X)\cdot p_\theta(X) - \big(\partial_\theta p_\theta(X)\big)^2}{p_\theta(X)^2} = \frac{\partial^2_\theta p_\theta(X)}{p_\theta(X)} - \left(\frac{\partial_\theta p_\theta(X)}{p_\theta(X)}\right)^2 = \frac{\partial^2_\theta p_\theta(X)}{p_\theta(X)} - \ell'(\theta)^2.
+\]
+Take expectations under $\Pr_\theta$.
+The first term gives $\int \partial^2_\theta p_\theta(x)\,\mathrm{d}x = 0$ by $(\ast\ast)$.
+The second gives $-\E_\theta[\ell'(\theta)^2] = -I(\theta)$ by \cref{def:fisher}.
+So $\E_\theta[\ell''(\theta)] = -I(\theta)$.
+The matrix version is the same computation entry by entry.
+\end{proof}
+
+\begin{intuition}[information is curvature]
+$\ell''(\theta)$ is how sharply one observation's log-likelihood curves at $\theta$, and the theorem says the Fisher information is the average of that curvature, with the sign flipped so that it comes out positive.
+\Cref{fig:fishercurvature} draws it for the kiss model.
+The two possible log-likelihoods, $\log p$ and $\log(1-p)$, are each curved; their average under $p^*$, the black curve, peaks at $p^*$ and curves down there with second derivative $-I(p^*) = -4.37$.
+The aqua parabola has exactly that curvature.
+For $n$ observations the log-likelihood is a sum, its curvature near $\theta^*$ is about $nI(\theta^*)$, and a sharply curved peak is one whose location is well determined: move a little away from $\hat{\theta}$ and the log-likelihood drops a lot, so few candidates fit nearly as well.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_fisher_curvature}
+\caption{Fisher information is curvature. Left: the log-likelihood of one couple's turn, $\log p$ for a right turn (blue) and $\log(1 - p)$ for a left turn (orange, dashed), and their average under $p^* = 0.645$ (black), which peaks at $p^*$; the aqua parabola through the peak has second derivative $-I(p^*) = -4.37$. Right: $I(p) = 1/(p(1 - p))$ for the Bernoulli model, smallest at $p = \frac12$ and growing without bound at either end.}
+\label{fig:fishercurvature}
+\end{figure}
+
+\begin{sanitycheck}[Which coin is most informative?]
+The right of \cref{fig:fishercurvature} says a single flip of a fair coin carries the least information about $p$, $I(\frac12) = 4$, and a flip of a heavily biased coin carries the most, $I(0.9) = 11.1$.
+Is that backwards?
+A fair coin's outcome is the most unpredictable, so it feels the most informative.
+But the question is not how surprising the flip is; it is how much the flip changes your estimate of $p$.
+The variance of $\hat{p}$ is $p(1 - p)/n$, which is largest at $p = \frac12$: a fair coin's $p$ is the hardest to pin down in absolute terms, since its flips vary the most.
+For $p = 0.9$ nearly every flip is heads, the sample proportion barely moves from sample to sample, and $p$ is learned to within a narrow margin.
+The Fisher information is the reciprocal of that variance per observation, $1/(p(1-p))$, so it says exactly this.
+\end{sanitycheck}
+
+\subsection{Fisher information of the standard families}
+\label{sec:mle-fisher-examples}
+
+\begin{worked}[four Fisher informations]
+In each case the curvature formula of \cref{thm:fisher-curvature} is the quicker route; the variance of the score is computed once as a check.
+\begin{itemize}
+\item \textbf{Bernoulli.} $\ell(p) = R\log p + (1 - R)\log(1 - p)$, so $\ell'(p) = R/p - (1-R)/(1-p)$ and $\ell''(p) = -R/p^2 - (1 - R)/(1-p)^2$. With $\E_p[R] = p$,
+\[
+I(p) = -\E_p[\ell''(p)] = \frac{p}{p^2} + \frac{1 - p}{(1-p)^2} = \frac1p + \frac{1}{1-p} = \frac{1}{p(1-p)}.
+\]
+As a check, $\ell'(p) = R\big(\frac1p + \frac{1}{1-p}\big) - \frac{1}{1-p}$ is a linear function of $R$, so $\var_p(\ell'(p)) = \big(\frac{1}{p(1-p)}\big)^2 \var(R) = \frac{p(1-p)}{p^2(1-p)^2} = \frac{1}{p(1-p)}$. The same.
+\item \textbf{Poisson.} $\ell(\lambda) = -\lambda + X\log\lambda - \log(X!)$, $\ell''(\lambda) = -X/\lambda^2$, and $\E_\lambda[X] = \lambda$ gives $I(\lambda) = 1/\lambda$.
+\item \textbf{Exponential.} $\ell(\lambda) = \log\lambda - \lambda X$, $\ell''(\lambda) = -1/\lambda^2$ with no $X$ in it, so $I(\lambda) = 1/\lambda^2$. For the subway rate $\hat{\lambda} = 0.1605$ per minute, $I = 38.8$.
+\item \textbf{Gaussian, both parameters unknown.} With $\theta = (\mu, \sigma^2)$ and $v = \sigma^2$, $\ell = -\frac12\log(2\pi v) - (X - \mu)^2/(2v)$. The second partial derivatives are
+\[
+\frac{\partial^2\ell}{\partial\mu^2} = -\frac1v, \qquad \frac{\partial^2\ell}{\partial\mu\,\partial v} = -\frac{X - \mu}{v^2}, \qquad \frac{\partial^2\ell}{\partial v^2} = \frac{1}{2v^2} - \frac{(X - \mu)^2}{v^3}.
+\]
+Under $\Pr_\theta$, $\E[X - \mu] = 0$ and $\E[(X - \mu)^2] = v$, so
+\[
+I(\mu, \sigma^2) = \begin{pmatrix} 1/\sigma^2 & 0 \\ 0 & 1/(2\sigma^4) \end{pmatrix}.
+\]
+The off-diagonal zero says that, for a Gaussian, learning about $\mu$ and learning about $\sigma^2$ don't interfere with each other.
+\end{itemize}
+\end{worked}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_fisher_families}
+\caption{Fisher information in three one-parameter families. Left: $I(\lambda) = 1/\lambda^2$ for $\Expo(\lambda)$; the subway rate $0.16$ has $I = 38.8$. Middle: $I(\lambda) = 1/\lambda$ for $\Pois(\lambda)$; the siblings fit $\hat{\lambda} = 1$ has $I = 1$. Right: what the information buys, the width $2 \times 1.96/\sqrt{nI(p)}$ of the $95\%$ interval for a proportion at $n = 100$, widest at $p = \frac12$ and $0.19$ at $p = 0.645$.}
+\label{fig:fisherfamilies}
+\end{figure}
+
+\begin{pitfall}[Fisher information depends on how the parameter is written]
+The exponential model has $I(\lambda) = 1/\lambda^2$ in the rate $\lambda$.
+Written in the mean gap $\beta = 1/\lambda$ it has $I(\beta) = 1/\beta^2$, a different function (\cref{ex:mle-reparam}).
+The information is a property of the model \textit{and} the parameterization: it measures information per unit of $\theta$, and a unit of $\lambda$ is not a unit of $\beta$.
+The general rule is $I(\beta) = I(\lambda)\,(\mathrm{d}\lambda/\mathrm{d}\beta)^2$, which is the delta method's $g'(\theta)^2$ seen from the other side.
+What does not depend on the parameterization is the conclusion drawn from it: the $95\%$ interval for $\beta$ obtained from $I(\beta)$ is the image under $\beta = 1/\lambda$ of the interval for $\lambda$, to first order.
+\end{pitfall}
+
+\section{Asymptotic normality}
+\label{sec:mle-normality}
+
+\recall{The Central Limit Theorem (\cref{thm:clt}): if $Y_1, Y_2, \ldots$ are i.i.d.\ with mean $m$ and variance $s^2 < \infty$, then $\sqrt{n}(\bar{Y}_n - m) \convd \Gauss(0, s^2)$.}
+
+Apply it to the scores $Y_i = \ell_i'(\theta^*)$, where $\ell_i(\theta) = \log p_\theta(X_i)$.
+They are i.i.d., with mean $0$ (\cref{prop:score-mean}) and variance $I(\theta^*)$ (\cref{def:fisher}), so
+\[
+\sqrt{n}\cdot\frac1n\ell_n'(\theta^*) = \frac{1}{\sqrt{n}}\sum_{i=1}^n \ell_i'(\theta^*) \convd \Gauss\big(0, I(\theta^*)\big).
+\]
+The middle of \cref{fig:scoreclt} shows it for the kiss model at $n = 124$: the average score at $p^*$ over $20{,}000$ simulated studies, with the Gaussian the CLT predicts.
+
+That is a statement about the slope of the log-likelihood at the truth.
+The MLE is where the slope is zero.
+To connect them, expand the slope around the truth.
+
+\recall{The mean value theorem \toolkit{sec:math-mvt}: for a differentiable $g$, $g(b) - g(a) = g'(c)(b - a)$ for some $c$ between $a$ and $b$. Slutsky's theorem (\cref{thm:slutsky}): if $X_n \convd X$ and $Y_n \convp y$, a constant, then $X_n Y_n \convd yX$ and $X_n + Y_n \convd X + y$. The continuous mapping theorem (\cref{thm:cmt}): if $Y_n \convp y$ and $f$ is continuous at $y$, then $f(Y_n) \convp f(y)$.}
+
+\begin{theorem}[Asymptotic normality of the MLE]
+\label{thm:mle-normal}
+Let $\Xton \iid \Pr_{\theta^*}$ in a model satisfying the regularity conditions of \cref{sec:mle-regularity}, with $\theta^*$ in the interior of $\Theta$ and $I(\theta^*) > 0$, and let $\hat{\theta}_n$ be the MLE.
+Then
+\[
+\sqrt{n}\,\big(\hat{\theta}_n - \theta^*\big) \convd \Gauss\Big(0, \frac{1}{I(\theta^*)}\Big) \quad \text{under } \Pr_{\theta^*}.
+\]
+For $\theta \in \real^d$, the limit is the $d$-dimensional Gaussian with mean $0$ and covariance matrix $I(\theta^*)^{-1}$.
+\end{theorem}
+
+\coreproof{The slope of $\ell_n$ is $0$ at $\hat{\theta}_n$ and, by the CLT, approximately $\Gauss(0, nI(\theta^*))$ at $\theta^*$. The mean value theorem writes the difference between the two slopes as (curvature somewhere in between) $\times$ ($\hat{\theta}_n - \theta^*$). The curvature in between is an average of second derivatives, which the LLN sends to $-I(\theta^*)$ once consistency pulls the in-between point to $\theta^*$. Dividing the Gaussian by $-I(\theta^*)$ gives the result, with Slutsky doing the division.}
+\begin{proof}
+Since $\theta^*$ is interior and $\hat{\theta}_n \convp \theta^*$ (\cref{thm:mle-consistent}), with probability tending to $1$ the MLE is interior too, and then the first-order condition holds: $\ell_n'(\hat{\theta}_n) = 0$.
+Apply the mean value theorem to $\ell_n'$ between $\theta^*$ and $\hat{\theta}_n$: there is a $\tilde{\theta}_n$ between them with
+\[
+0 = \ell_n'(\hat{\theta}_n) = \ell_n'(\theta^*) + \ell_n''(\tilde{\theta}_n)\,(\hat{\theta}_n - \theta^*).
+\]
+Rearrange and scale by $\sqrt{n}$:
+\[
+\sqrt{n}\,(\hat{\theta}_n - \theta^*) = \frac{\frac{1}{\sqrt{n}}\ell_n'(\theta^*)}{-\frac1n\ell_n''(\tilde{\theta}_n)}.
+\]
+The numerator converges in distribution to $\Gauss(0, I(\theta^*))$ by the CLT applied to the scores, as above.
+For the denominator, $-\frac1n\ell_n''(\theta^*) = -\frac1n\sum_i\ell_i''(\theta^*) \convp -\E_{\theta^*}[\ell''(\theta^*)] = I(\theta^*)$ by the LLN and \cref{thm:fisher-curvature}; and since $\tilde{\theta}_n$ is squeezed between $\theta^*$ and $\hat{\theta}_n \convp \theta^*$, the bound $\abs{\ell_i'''(\theta)} \leq K(X_i)$ near $\theta^*$ from the regularity conditions gives, by the mean value theorem once more,
+\[
+\Big|\tfrac1n\ell_n''(\tilde{\theta}_n) - \tfrac1n\ell_n''(\theta^*)\Big| \leq \Big(\tfrac1n\sum_{i=1}^n K(X_i)\Big)\,\abs{\hat{\theta}_n - \theta^*} \convp \E_{\theta^*}[K(X)] \cdot 0 = 0,
+\]
+by the LLN for the average of the $K(X_i)$ and Slutsky's product rule; so the denominator converges in probability to $I(\theta^*)$ as well.
+Since $I(\theta^*) > 0$, the function $x \mapsto 1/x$ is continuous there, and the continuous mapping theorem gives $1/(-\frac1n\ell_n''(\tilde{\theta}_n)) \convp 1/I(\theta^*)$.
+Slutsky's theorem multiplies the two:
+\[
+\sqrt{n}\,(\hat{\theta}_n - \theta^*) \convd \frac{1}{I(\theta^*)}\cdot\Gauss(0, I(\theta^*)) = \Gauss\Big(0, \frac{I(\theta^*)}{I(\theta^*)^2}\Big) = \Gauss\Big(0, \frac{1}{I(\theta^*)}\Big).
+\]
+In $d$ dimensions \toolkit{sec:math-multivar} each coordinate of the gradient gets its own in-between point $\tilde{\theta}_{n,j}$, all squeezed to $\theta^*$; the denominator becomes the matrix whose row $j$ is $-\frac1n$ times row $j$ of the Hessian evaluated at $\tilde{\theta}_{n,j}$, which converges in probability to $I(\theta^*)$ entry by entry; the numerator converges to a Gaussian vector with covariance $I(\theta^*)$ by the multivariate CLT (\cref{sec:conv-where-used}); and the inverse matrix multiplies it, giving covariance $I^{-1} I I^{-1} = I(\theta^*)^{-1}$.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_score_clt}
+\caption{Why the MLE is asymptotically normal, for the kiss model with $p^* = 0.645$ and $n = 124$. Left: one couple's log-likelihood, $\log p$ (blue) or $\log(1 - p)$ (orange, dashed), with the tangent at $p^*$ drawn on each; the slopes, $+1.55$ and $-2.82$, are the two possible values of the score, which averages to $0$ under $p^*$. Middle: the average score at $p^*$ over $20{,}000$ simulated studies, with the $\Gauss(0, I(p^*)/n)$ the CLT predicts (standard deviation $0.188$). Right: $\hat{p}$ over the same studies, with the $\Gauss(p^*, 1/(nI(p^*)))$ the theorem predicts (standard deviation $0.043$). The two histograms are the same picture: $\hat{p} - p^*$ is the average score divided by $I(p^*)$, to first order.}
+\label{fig:scoreclt}
+\end{figure}
+
+\begin{intuition}[why the variance is one over the information]
+Two forces set the size of the MLE's error.
+The slope of the log-likelihood at the truth is random, with standard deviation $\sqrt{nI}$ (the CLT): that is how far the data push.
+The curvature near the peak is about $nI$ (the LLN): that is how hard the log-likelihood resists.
+Displacement is push divided by resistance, $\sqrt{nI}/(nI) = 1/\sqrt{nI}$, which is the standard deviation of $\hat{\theta}_n$.
+More information means both a bigger push and a bigger resistance, and the resistance wins, since it grows like $n$ while the push grows like $\sqrt{n}$.
+\end{intuition}
+
+\begin{inwords}
+\textbf{In words.} For a large sample, the maximum likelihood estimator is approximately Gaussian, centered at the truth, with standard deviation $1/\sqrt{nI(\theta^*)}$. Everything about its precision is in one number computed from the model, and the recipe estimate $\pm 1.96\,/\sqrt{nI(\hat{\theta}_n)}$ gives a $95\%$ confidence interval for any regular model, with no need to work out the estimator's distribution by hand.
+\par\smallskip
+\textbf{For the kiss data.} $I(p) = 1/(p(1-p))$, so $1/(nI(p^*)) = p^*(1 - p^*)/n$: the theorem reproduces the CLT for $\bar{R}_n$ exactly, with asymptotic variance $0.229$ and standard error $0.043$ at $n = 124$. The interval $0.645 \pm 1.96 \times 0.043 = [0.561, 0.729]$ is the plug-in interval of \cref{ch:confidence-intervals}. In natural frequencies: of $1{,}000$ studies of $124$ couples with $p^* = 0.645$, about $683$ land within $0.043$ of the truth (the exact Binomial count is $698$).
+\end{inwords}
+
+\begin{bridge}[one recipe for every standard error]
+In an introductory course each estimator came with its own standard error formula: $\sqrt{\hat{p}(1-\hat{p})/n}$ for a proportion, $s/\sqrt{n}$ for a mean, something from software for a regression coefficient.
+\Cref{thm:mle-normal} is where those formulas come from, and it is one formula: the standard error of a maximum likelihood estimator is $1/\sqrt{nI(\hat{\theta})}$, or in practice $1/\sqrt{-\ell_n''(\hat{\theta})}$, the reciprocal square root of the curvature of the log-likelihood at its peak.
+For a proportion that is $\sqrt{\hat{p}(1 - \hat{p})/n}$, exactly.
+For a Gaussian mean it is $\sqrt{\widehat{\sigma^2}/n}$, which is $s/\sqrt{n}$ up to the factor $\sqrt{(n-1)/n}$.
+For a regression coefficient, a logistic regression coefficient, a Poisson rate, the same recipe, which is what software computes when it reports a standard error next to a maximum likelihood estimate.
+\end{bridge}
+
+\begin{worked}[standard errors from the Fisher information]
+\begin{itemize}
+\item \textbf{Subway rate.} $I(\lambda) = 1/\lambda^2$, so the standard error of $\hat{\lambda}$ is $\hat{\lambda}/\sqrt{n} = 0.1605/8 = 0.020$ per minute, the number \cref{ch:limit-tools} obtained by the delta method. A $95\%$ interval: $0.1605 \pm 0.039$, or $[0.121, 0.200]$.
+\item \textbf{Siblings.} $I(\lambda) = 1/\lambda$, so the standard error of $\hat{\lambda} = 1.0$ from $24$ students is $\sqrt{1.0/24} = 0.204$: with so few observations, the Poisson rate is known only to about $\pm 0.4$.
+\item \textbf{Boarding times.} The inverse information matrix is $\mathrm{diag}(\sigma^2, 2\sigma^4)$, so $\hat{\mu}$ has standard error $\sqrt{4.35/72} = 0.25$ minutes and $\widehat{\sigma^2}$ has standard error $\sqrt{2 \times 4.35^2/72} = 0.73$. The mean boarding time $24.2$ is known to a quarter of a minute; the variance $4.35$ only to within about $1.4$.
+\end{itemize}
+\end{worked}
+
+\section{The Cram\'er--Rao bound}
+\label{sec:mle-cramer-rao}
+
+Is $1/(nI(\theta))$ a good variance, or merely the MLE's variance?
+It is the best possible, in the following sense.
+
+\begin{theorem}[Cram\'er--Rao bound]
+\label{thm:cramer-rao}
+Under the regularity conditions of \cref{sec:mle-regularity}, let $T = T(\Xton)$ be any unbiased estimator of $\theta$ with finite variance.
+Then for every $\theta$,
+\[
+\var_\theta(T) \geq \frac{1}{nI(\theta)}.
+\]
+\end{theorem}
+
+\optionalproof{Unbiasedness, differentiated in $\theta$, says the covariance of $T$ with the total score $\ell_n'(\theta)$ is exactly $1$. The Cauchy--Schwarz inequality bounds a covariance by the product of standard deviations, and the total score has variance $nI(\theta)$.}
+\begin{proof}
+Unbiasedness says $\int T(x)\,p_\theta^{(n)}(x)\,\mathrm{d}x = \theta$ for every $\theta$, where $p^{(n)}_\theta = \prod_i p_\theta(x_i)$ is the joint density.
+Differentiate in $\theta$, moving the derivative inside (which the finite variance of $T$ and the regularity conditions permit), and use $\partial_\theta p^{(n)}_\theta = p^{(n)}_\theta\,\ell_n'(\theta)$:
+\[
+1 = \int T(x)\,\ell_n'(\theta)\,p^{(n)}_\theta(x)\,\mathrm{d}x = \E_\theta\big[T\,\ell_n'(\theta)\big] = \mathrm{Cov}_\theta\big(T, \ell_n'(\theta)\big),
+\]
+the last step because $\E_\theta[\ell_n'(\theta)] = 0$.
+By the Cauchy--Schwarz inequality for covariances, $\mathrm{Cov}(T, S)^2 \leq \var(T)\var(S)$ (take $c = \mathrm{Cov}(T, S)/\var(S)$ in $0 \leq \var(T - cS) = \var(T) - 2c\,\mathrm{Cov}(T, S) + c^2\var(S)$), with $S = \ell_n'(\theta)$ and $\var_\theta(S) = nI(\theta)$ (a sum of $n$ independent scores):
+\[
+1 \leq \var_\theta(T)\cdot nI(\theta).
+\]
+\end{proof}
+
+An unbiased estimator whose variance equals the bound is called \textbf{efficient}.
+The sample proportion is efficient for $p$: $\var(\bar{R}_n) = p(1-p)/n = 1/(nI(p))$ exactly, at every $n$.
+\Cref{fig:cramerrao} draws the bound for the kiss model and two other estimators from \cref{ch:estimators}.
+The MLE in general is not unbiased at finite $n$ (the subway $1/\bar{T}_n$ is not), so the bound does not apply to it directly; what \cref{thm:mle-normal} says is that its asymptotic variance equals the bound, so that in large samples nothing unbiased can do better.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_cramer_rao}
+\caption{The Cram\'er--Rao bound $p(1-p)/n$ for the kiss model at $n = 124$ (black), with the variance of $\bar{R}_n$ lying exactly on it (blue, dashed). The shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$ of \cref{ch:estimators} has a smaller variance (orange, solid), which the bound permits because the estimator is biased; its mean squared error (orange, dash-dot) is what to compare, and it rises above the bound once $p$ is more than about $0.16$ from $\frac12$.}
+\label{fig:cramerrao}
+\end{figure}
+
+\begin{pitfall}[a bound for unbiased estimators only]
+The shrinkage estimator in \cref{fig:cramerrao} has variance below the Cram\'er--Rao bound for every $p$.
+That does not contradict the theorem: the estimator is biased, and the theorem is about unbiased ones.
+Bias can buy variance, as \cref{ch:estimators} showed, and the honest comparison for a biased estimator is its mean squared error, which for the shrinkage estimator is below $\bar{R}_n$'s only near $p = \frac12$.
+A general version of the bound, with the bias's derivative in the numerator, covers biased estimators too; it is not needed here.
+\end{pitfall}
+
+\section{What the theorems need, and the models they do not cover}
+\label{sec:mle-regularity}
+
+The results above hold for \textbf{regular} models, which means:
+\begin{enumerate}[nosep]
+\item the parameter is identifiable (\cref{sec:models-identifiability});
+\item the support of $\Pr_\theta$, the set where $p_\theta > 0$, does not depend on $\theta$;
+\item the true $\theta^*$ is not on the boundary of $\Theta$;
+\item $p_\theta(x)$ is three times differentiable in $\theta$, the derivatives can be moved inside the integral (which gave $(\ast)$ and $(\ast\ast)$, and the corresponding step in the Cram\'er--Rao proof), $\ell''(\theta^*)$ has finite variance, and $\abs{\ell'''(\theta)} \leq K(X)$ near $\theta^*$ for a $K$ with finite variance;
+\item $I(\theta) > 0$ near $\theta^*$, and in $d$ dimensions $I(\theta)$ is invertible.
+\end{enumerate}
+Every family in this book except the uniform satisfies all five.
+Here is what each one guards against.
+
+\begin{itemize}
+\item \textbf{Identifiability} is what makes the limit curve $M$ peak at one point. In the Gaussian mixture of \cref{sec:models-gmm}, two parameter values give the same distribution, so $M$ has two peaks and the MLE converges to one of them, with the labels decided by the starting point.
+\item \textbf{Fixed support} is what allows differentiating under the integral sign. For $\Unif([0, \theta])$ the support is $[0, \theta]$, which moves with $\theta$; the identity $(\ast)$ fails, the score is not defined at the observations' maximum, and the theorems do not apply. And they are false there: the MLE $\max_i X_i$ has error of exact order $1/n$, not $1/\sqrt{n}$, as \cref{ex:lik-uniform} found. The limit of $n(\theta - \max_i X_i)$ is exponential, not Gaussian (\cref{ex:mle-uniform-rate}). The uniform MLE is better than regular, not worse: its error shrinks faster than any regular estimator's.
+\item \textbf{Interior truth} is what allows $\ell_n'(\hat{\theta}_n) = 0$. If $\theta^*$ sits on the boundary, say $\Theta = [0, \infty)$ for a Gaussian mean with $\mu^* = 0$, the MLE is $\max(\bar{X}_n, 0)$: equal to $0$ half the time and to the positive half of a Gaussian otherwise, not Gaussian.
+\item \textbf{Smoothness} is used in the mean value step and the LLN for $\ell''$. The Laplace model of \cref{ex:lik-laplace}, whose log-likelihood has a corner at each observation, needs a separate argument (and its MLE, the median, is asymptotically normal all the same, with variance $1$).
+\item \textbf{Positive information} is what makes the division in the proof legitimate. $I(\theta^*) = 0$ means the log-likelihood is flat at the truth to second order: the data say nothing about $\theta$ to first order, and the error shrinks more slowly than $1/\sqrt{n}$.
+\end{itemize}
+
+\begin{sanitycheck}[Faster than $1/\sqrt{n}$]
+For $\Unif([0, \theta])$ with $\theta = 10$, \cref{ex:lik-uniform} gave $\E[\max_i X_i] = \frac{n}{n+1}\theta$, so the bias of the MLE is $-\theta/(n+1)$: about $-0.1$ at $n = 100$ and $-0.01$ at $n = 1{,}000$, shrinking tenfold when $n$ grows tenfold.
+A regular estimator's error shrinks by $\sqrt{10} = 3.2$ when $n$ grows tenfold.
+So the uniform MLE is converging faster than any regular model allows, and the Cram\'er--Rao bound, which would put a floor of order $1/n$ under its variance, does not hold for it either.
+No contradiction: the bound needs $(\ast)$, which needs a fixed support.
+\end{sanitycheck}
+
+\section{What comes next}
+\label{sec:mle-next}
+
+This chapter finished the theory of maximum likelihood: consistent, asymptotically normal, with asymptotic variance $1/I(\theta^*)$ and the Cram\'er--Rao bound saying that is as good as unbiased estimation gets.
+\Cref{ch:mom-mestimation} puts two other recipes beside it.
+The method of moments matches sample moments to population moments, and the delta method gives its asymptotic variance, which is at least $1/I(\theta^*)$ and usually larger.
+M-estimation replaces $\log p_\theta$ by any function $\rho$ whose expectation peaks at the quantity of interest; the argument of this chapter, an average, a limit curve, a score and a curvature, goes through word for word, with $I(\theta)$ replaced by a sandwich of two matrices.
+\Cref{ch:wald-lrt} builds tests from this chapter's theorem: Wald's test standardizes $\hat{\theta}_n - \theta_0$ by $1/\sqrt{nI(\hat{\theta}_n)}$, and the likelihood ratio test compares $\ell_n(\hat{\theta}_n)$ with $\ell_n(\theta_0)$, whose difference is approximately $\frac12 nI(\theta^*)(\hat{\theta}_n - \theta_0)^2$ by the same Taylor expansion, and so approximately half a chi-squared.
+
+\section{Summary}
+\label{sec:mle-summary}
+
+\begin{itemize}[nosep]
+\item Consistency: $\frac1n\ell_n(\theta) \convp M(\theta) = \text{constant} - \KL(\Pr_{\theta^*}, \Pr_\theta)$ by the LLN; $M$ peaks at $\theta^*$ (or at the KL projection $\theta^\circ$ if the model is wrong); under a uniform version of the LLN the peak of $\frac1n\ell_n$ follows the peak of $M$, so $\hat{\theta}_n \convp \theta^*$.
+\item The score $\ell'(\theta)$ is the slope of one observation's log-likelihood. $\E_\theta[\ell'(\theta)] = 0$, from differentiating $\int p_\theta = 1$.
+\item Fisher information: $I(\theta) = \var_\theta(\ell'(\theta)) = -\E_\theta[\ell''(\theta)]$, the variance of the score and the expected curvature of the log-likelihood. $n$ observations carry $nI(\theta)$. Bernoulli $1/(p(1-p))$ (kiss: $4.37$, $124$ couples: $541.7$); Poisson $1/\lambda$; exponential $1/\lambda^2$; Gaussian $\mathrm{diag}(1/\sigma^2, 1/(2\sigma^4))$. It changes with the parameterization: $I(\beta) = I(\lambda)(\mathrm{d}\lambda/\mathrm{d}\beta)^2$.
+\item Asymptotic normality: $\sqrt{n}(\hat{\theta}_n - \theta^*) \convd \Gauss(0, 1/I(\theta^*))$, by the CLT on the scores, the mean value theorem on $\ell_n'$, the LLN on $\ell_n''$ and Slutsky. Push $\sqrt{nI}$ over resistance $nI$. The $95\%$ interval is $\hat{\theta}_n \pm 1.96/\sqrt{nI(\hat{\theta}_n)}$ for any regular model: kiss $[0.561, 0.729]$, subway $[0.121, 0.200]$.
+\item Cram\'er--Rao: every unbiased estimator has $\var \geq 1/(nI(\theta))$. $\bar{R}_n$ attains it. Biased estimators can go below it (shrinkage), and are judged by mean squared error.
+\item Regular models: identifiable, fixed support, interior truth, three derivatives that pass under the integral, positive information. The uniform model fails fixed support, and its MLE converges at rate $1/n$ with a non-Gaussian limit; mixtures fail identifiability.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:mle-exercises}
+
+\begin{exercise}
+\label{ex:mle-poisson-info}
+For $\Xton \iid \Pois(\lambda)$, compute $I(\lambda)$ both as $\var(\ell'(\lambda))$ and as $-\E[\ell''(\lambda)]$, state the asymptotic distribution of $\hat{\lambda} = \bar{X}_n$, and check it against the CLT applied directly to $\bar{X}_n$.
+\end{exercise}
+\begin{solution}
+$\ell(\lambda) = -\lambda + X\log\lambda - \log X!$, $\ell'(\lambda) = -1 + X/\lambda$, $\ell''(\lambda) = -X/\lambda^2$. $\var(\ell') = \var(X)/\lambda^2 = \lambda/\lambda^2 = 1/\lambda$; $-\E[\ell''] = \E[X]/\lambda^2 = 1/\lambda$. So $\sqrt{n}(\bar{X}_n - \lambda) \convd \Gauss(0, \lambda)$. The CLT directly: $\bar{X}_n$ has mean $\lambda$ and variance $\lambda/n$, so the same. For the siblings, standard error $\sqrt{1.0/24} = 0.20$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-reparam}
+For $\Xton \iid \Expo(\lambda)$, let $\beta = 1/\lambda$ be the mean gap. Write the log-likelihood in $\beta$, compute $I(\beta)$, and verify $I(\beta) = I(\lambda)(\mathrm{d}\lambda/\mathrm{d}\beta)^2$. State the asymptotic distribution of $\hat{\beta} = \bar{X}_n$ and check it against the CLT.
+\end{exercise}
+\begin{solution}
+In $\beta$ the density is $\beta^{-1}e^{-x/\beta}$, so $\ell(\beta) = -\log\beta - X/\beta$, $\ell'(\beta) = -1/\beta + X/\beta^2$, $\ell''(\beta) = 1/\beta^2 - 2X/\beta^3$, and with $\E[X] = \beta$, $I(\beta) = -\E[\ell''] = -1/\beta^2 + 2/\beta^2 = 1/\beta^2$. Check: $I(\lambda) = 1/\lambda^2 = \beta^2$ and $\mathrm{d}\lambda/\mathrm{d}\beta = -1/\beta^2$, so $I(\lambda)(\mathrm{d}\lambda/\mathrm{d}\beta)^2 = \beta^2/\beta^4 = 1/\beta^2$. The theorem gives $\sqrt{n}(\bar{X}_n - \beta) \convd \Gauss(0, \beta^2)$, and the CLT gives the same since $\var(X) = \beta^2$. For the subway, $\hat{\beta} = 6.23$ with standard error $6.23/8 = 0.78$ minutes.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-gauss-known-var}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$ with $\sigma^2$ known, compute $I(\mu)$ and show that $\bar{X}_n$ is efficient: its variance equals the Cram\'er--Rao bound at every $n$.
+\end{exercise}
+\begin{solution}
+$\ell(\mu) = -\frac12\log(2\pi\sigma^2) - (X - \mu)^2/(2\sigma^2)$, $\ell''(\mu) = -1/\sigma^2$, so $I(\mu) = 1/\sigma^2$ and the bound is $\sigma^2/n$. $\var(\bar{X}_n) = \sigma^2/n$ exactly, and $\bar{X}_n$ is unbiased, so it is efficient. (The Gaussian and Bernoulli sample means are efficient at every $n$; most MLEs reach the bound only in the limit.)
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-score-kiss}
+For the kiss data, compute the total score $\ell_n'(p)$ at $p = \frac12$, $0.6$, $0.645$ and $0.7$, and the standardized score $\ell_n'(p_0)/\sqrt{nI(p_0)}$ at $p_0 = \frac12$. Compare the latter with the test statistic of \cref{sec:tests-kiss}.
+\end{exercise}
+\begin{solution}
+$\ell_n'(p) = 80/p - 44/(1 - p)$: at $\frac12$, $160 - 88 = 72$; at $0.6$, $133.3 - 110 = 23.3$; at $0.645$, $0$; at $0.7$, $114.3 - 146.7 = -32.4$. The score is positive below $\hat{p}$ (the data push the estimate up), zero at $\hat{p}$, negative above. At $p_0 = \frac12$, $nI(p_0) = 124 \times 4 = 496$ and $72/\sqrt{496} = 3.23$, which is the $T_n = 2\sqrt{124}(0.645 - 0.5) = 3.23$ of \cref{ch:tests-foundations}: the standardized score at the null value is the score test statistic, and under $H_0$ it is approximately $\Gauss(0, 1)$ by the CLT for scores. \Cref{ch:wald-lrt} develops this.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-uniform-rate}
+For $\Xton \iid \Unif([0, \theta])$ and $M = \max_i X_i$, show that $n(\theta - M)/\theta \convd \Expo(1)$. Conclude that the MLE's error is of order $1/n$ and its limit is not Gaussian.
+\end{exercise}
+\begin{solution}
+From \cref{ex:lik-uniform}, $\Pr(M \leq m) = (m/\theta)^n$. For $t \geq 0$, $\Pr\big(n(\theta - M)/\theta > t\big) = \Pr\big(M < \theta(1 - t/n)\big) = (1 - t/n)^n \to e^{-t}$ \toolkit{sec:math-explog}. So the CDF of $n(\theta - M)/\theta$ converges to $1 - e^{-t}$, the $\Expo(1)$ CDF. The error $\theta - M$ is therefore about $\theta/n$ times an exponential variable: order $1/n$, always positive, with a skewed limit. Scaling by $\sqrt{n}$ instead would send $\sqrt{n}(\theta - M) \convp 0$, a degenerate limit, which is what asymptotic normality at rate $1/\sqrt{n}$ would look like if it held with asymptotic variance $0$; the model is not regular and the theorem does not apply.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-geometric-info}
+For the geometric model of \cref{ex:lik-geometric}, $\Pr(X = k) = (1-p)^{k-1}p$, compute $I(p)$ and the standard error of $\hat{p} = 1/\bar{X}_n$ for the five rounds of $3, 1, 2, 5, 1$ shots.
+\end{exercise}
+\begin{solution}
+$\ell(p) = (X - 1)\log(1 - p) + \log p$, $\ell''(p) = -(X - 1)/(1-p)^2 - 1/p^2$, and $\E[X] = 1/p$ gives $\E[X - 1] = (1 - p)/p$, so $I(p) = \frac{1}{p(1-p)} + \frac{1}{p^2} = \frac{p + (1 - p)}{p^2(1 - p)} = \frac{1}{p^2(1-p)}$. At $\hat{p} = 5/12$ with $n = 5$: $nI = 5/((5/12)^2 \times 7/12) = 49.4$ and the standard error is $1/\sqrt{49.4} = 0.14$. Five rounds say $p$ is somewhere around $0.42 \pm 0.28$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-information-additive}
+Show directly that the Fisher information of $n$ i.i.d.\ observations, defined as the variance of the total score $\ell_n'(\theta)$, is $nI(\theta)$, and that it is also $-\E_\theta[\ell_n''(\theta)]$.
+\end{exercise}
+\begin{solution}
+$\ell_n'(\theta) = \sum_{i=1}^n \ell_i'(\theta)$ is a sum of $n$ independent random variables each with variance $I(\theta)$, so its variance is $nI(\theta)$. And $-\E[\ell_n''(\theta)] = -\sum_i\E[\ell_i''(\theta)] = nI(\theta)$ by \cref{thm:fisher-curvature} applied to each term. Information adds over independent observations, the same way KL divergence did in \cref{prop:kl-additive}, and for the same reason: logs turn products into sums.
+\end{solution}
+
+\begin{exercise}
+\label{ex:mle-misspecified}
+Data come from $\Expo(1)$ but are fitted with the Gaussian family. \Cref{prop:kl-projection} says the KL projection is $\Gauss(1, 1)$. What does \cref{thm:mle-consistent} say the Gaussian MLEs $(\bar{X}_n, \frac1n\sum(X_i - \bar{X}_n)^2)$ converge to, and does that agree with the LLN applied directly?
+\end{exercise}
+\begin{solution}
+The theorem (misspecified case) says $\hat{\theta}_n \convp \theta^\circ = (1, 1)$. Directly: $\bar{X}_n \convp \E[X] = 1$ by the LLN, and $\frac1n\sum(X_i - \bar{X}_n)^2 = \frac1n\sum X_i^2 - \bar{X}_n^2 \convp \E[X^2] - 1 = 2 - 1 = 1$ by the LLN and the continuous mapping theorem (\cref{thm:cmt}, since $x \mapsto x^2$ is continuous). The two agree. The fitted Gaussian is the closest one to the truth in KL, at divergence $0.419$, and no amount of data moves it closer.
+\end{solution}

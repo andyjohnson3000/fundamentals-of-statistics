@@ -154,3 +154,53 @@ So $H(\theta_{t+1}) \leq H(\theta_t)$, and
 \end{proof}
 
 Ascent says nothing about where the climb ends: EM stops where the gradient of $\ell_n$ is $0$, which can be a local maximum or a saddle point.
+
+\section{The uniform law of large numbers}
+\label{sec:proof-ulln}
+
+The consistency proof of \cref{thm:mle-consistent} in \cref{ch:mle-properties} needs the Law of Large Numbers to hold for all candidates $\theta$ at once, not one at a time.
+That is the one step of that chapter not proved there.
+\textbf{Nothing later in the book depends on this section} beyond \cref{thm:mle-consistent} itself; the asymptotic normality theorem uses consistency, not the uniform law directly.
+
+\recall{The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ $X_1, X_2, \ldots$ and a function $h$ with $\var(h(X)) < \infty$, $\frac1n\sum_{i=1}^n h(X_i) \convp \E[h(X)]$.}
+
+\begin{theorem}[Uniform law of large numbers]
+\label{thm:ulln}
+Let $\Xton$ be i.i.d.\ and let $g(x, \theta)$ be a function of an observation and a parameter $\theta \in \Theta$, with $\Theta \subset \real^d$ bounded and closed.
+Suppose that $g(x, \theta)$ is continuous in $\theta$ for every $x$, and that there is an envelope $G(x) \geq \sup_{\theta}\abs{g(x, \theta)}$ with $\E[G(X)^2] < \infty$.
+Then, with $M(\theta) = \E[g(X, \theta)]$,
+\[
+\sup_{\theta \in \Theta}\,\Big|\frac1n\sum_{i=1}^n g(X_i, \theta) - M(\theta)\Big| \convp 0.
+\]
+\end{theorem}
+
+\optionalproof{Cover $\Theta$ by finitely many small balls. On each ball the function $g$ varies little, so the average over the ball's center controls the average everywhere in the ball; the ordinary LLN handles the finitely many centers at once, and continuity plus the envelope make the within-ball variation as small as you like.}
+\begin{proof}
+Fix $\epsilon > 0$.
+For $\theta \in \Theta$ and $r > 0$ let $B(\theta, r)$ be the ball of radius $r$ around $\theta$, and define the local oscillation
+\[
+w_r(x, \theta) = \sup_{\theta' \in B(\theta, r) \cap \Theta}\abs{g(x, \theta') - g(x, \theta)}.
+\]
+For each fixed $x$ and $\theta$, continuity of $g$ in $\theta$ gives $w_r(x, \theta) \to 0$ as $r \to 0$, and $0 \leq w_r(x, \theta) \leq 2G(x)$.
+So by dominated convergence \toolkit{sec:math-limits} (the dominating function is $2G$, integrable), $\E[w_r(X, \theta)] \to 0$ as $r \to 0$, for each $\theta$.
+
+A bounded closed set has the following property: for any way of attaching a ball $B(\theta, r_\theta)$ to each of its points, finitely many of those balls already cover it.
+Choose $r_\theta$ for each $\theta$ so small that $\E[w_{r_\theta}(X, \theta)] < \epsilon$, and pick a finite cover $B(\theta_1, r_1), \ldots, B(\theta_K, r_K)$.
+
+Now take any $\theta \in \Theta$, say in the ball around $\theta_k$. Split the error at $\theta$ into three pieces:
+\[
+\begin{aligned}
+\Big|\frac1n\sum_i g(X_i, \theta) - M(\theta)\Big| &\leq \underbrace{\frac1n\sum_i \abs{g(X_i, \theta) - g(X_i, \theta_k)}}_{\leq\, \frac1n\sum_i w_{r_k}(X_i, \theta_k)} + \underbrace{\Big|\frac1n\sum_i g(X_i, \theta_k) - M(\theta_k)\Big|}_{\text{LLN at } \theta_k}\\
+&\quad + \underbrace{\abs{M(\theta_k) - M(\theta)}}_{\leq\, \E[w_{r_k}(X, \theta_k)] < \epsilon}.
+\end{aligned}
+\]
+Taking the supremum over $\theta$ amounts to taking the maximum over the finitely many $k$, so
+\[
+\sup_\theta\Big|\frac1n\sum_i g(X_i, \theta) - M(\theta)\Big| \leq \max_{k \leq K}\frac1n\sum_i w_{r_k}(X_i, \theta_k) + \max_{k \leq K}\Big|\frac1n\sum_i g(X_i, \theta_k) - M(\theta_k)\Big| + \epsilon.
+\]
+Each of the $2K$ averages on the right is an ordinary average of i.i.d.\ terms with finite variance (bounded by $2G$ or $G$, with $\E[G^2] < \infty$), so by the LLN the first maximum converges in probability to $\max_k \E[w_{r_k}(X, \theta_k)] < \epsilon$ and the second to $0$.
+A maximum of finitely many sequences converging in probability converges in probability to the maximum of the limits.
+Hence with probability tending to $1$ the right side is below $3\epsilon$, and since $\epsilon$ was arbitrary, the left side converges in probability to $0$.
+\end{proof}
+
+The theorem is applied in \cref{thm:mle-consistent} with $g(x, \theta) = \log p_\theta(x)$, where the envelope $G = \sup_\theta\abs{\log p_\theta(X)}$ is the hypothesis stated there (with a finite second moment, which the book's version of the LLN needs).
