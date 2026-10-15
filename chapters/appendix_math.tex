@@ -21,11 +21,13 @@ You must answer with an index $N$ past which every term of the sequence is withi
 If you can always answer, the sequence converges.
 The order of the two moves is the whole content: $\epsilon$ is chosen first and $N$ is allowed to depend on it, which is why a smaller $\epsilon$ is usually met with a larger $N$ (\cref{fig:tk-epsilon}).
 Writing the moves in the other order (`there is an $N$ that works for every $\epsilon$') would say the sequence is eventually \textit{equal} to $x$, a much stronger and usually false statement.
+The left of \cref{fig:tk-epsilon} plays the game for $x_n = 2 + (-1)^n/\sqrt{n}$ with two tolerances: for $\epsilon = 0.3$ every term past $N = 12$ is inside the band, and for $\epsilon = 0.1$ you need $N = 101$ (at $n = 100$ the term sits exactly on the band's edge, and the definition asks for strictly inside).
+The right draws the index that works as a function of the tolerance; it climbs as $\epsilon$ shrinks, and convergence means the staircase is defined for every $\epsilon > 0$, however small.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_epsilon_n}
-\caption{The $\epsilon$-$N$ definition as a game. Left: the sequence $x_n = 2 + (-1)^n/\sqrt{n}$ with two tolerances; for $\epsilon = 0.3$ every term past $N = 12$ is inside the band, for $\epsilon = 0.1$ you need $N = 101$ (at $n = 100$ the term sits exactly on the band's edge, and the definition asks for strictly inside). Right: the index that works, as a function of the tolerance, climbs as $\epsilon$ shrinks. Convergence means the staircase is defined for every $\epsilon > 0$, however small.}
+\caption{The $\epsilon$-$N$ definition as a game. Left: the sequence $x_n = 2 + (-1)^n/\sqrt{n}$ with the bands $2 \pm 0.3$ and $2 \pm 0.1$. Right: the smallest index $N$ that works, as a function of the tolerance $\epsilon$.}
 \label{fig:tk-epsilon}
 \end{figure}
 
@@ -43,12 +45,14 @@ The \textbf{supremum}, written $\sup$, is the least upper bound: the smallest nu
 For that set the supremum is $1$, which is not a member.
 When a maximum exists it equals the supremum; the supremum exists more often, which is why proofs prefer it.
 The \textbf{infimum}, $\inf$, is the greatest lower bound, and the same remarks apply with `minimum'.
-\Cref{fig:tk-sup} shows one set whose supremum is not attained and one function on a closed interval whose supremum and infimum both are (a continuous function on a closed, bounded interval always attains both).
+\Cref{fig:tk-sup} shows both cases.
+On the left, the set $\{1 - 1/n\}$ has no largest element, but $1$ is its least upper bound.
+On the right, $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its infimum at $x = 0$, so there $\sup = \max$ and $\inf = \min$; a continuous function on a closed, bounded interval always attains both.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_sup}
-\caption{Left: the set $\{1 - 1/n\}$ has no largest element, but $1$ is its least upper bound. Right: $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its infimum at $x = 0$, so here $\sup = \max$ and $\inf = \min$.}
+\caption{Left: the set $\{1 - 1/n : n = 1, 2, \ldots\}$ and its supremum $1$. Right: the function $x e^{-x}$ on $[0, 4]$.}
 \label{fig:tk-sup}
 \end{figure}
 
@@ -62,12 +66,14 @@ Its \textbf{image} is the set of elements of $B$ that are actually hit.
 The map is \textbf{injective} (one-to-one) if different inputs always give different outputs: $a_1 \neq a_2$ implies $f(a_1) \neq f(a_2)$, or, turned around, $f(a_1) = f(a_2)$ implies $a_1 = a_2$.
 An injective map can be undone: from the output you can recover the input.
 For a function of one real variable the test is visual, the horizontal-line test of \cref{fig:tk-injective}: if some horizontal line crosses the graph twice, two inputs share an output and the map is not injective.
+On the left of the figure, $\lambda \mapsto e^{-5\lambda}$ is strictly decreasing, so every height is hit once and $\lambda$ can be read off the output; this is the map of the censored-exponential example of \cref{ex:censored-expo}.
+On the right, $x \mapsto x^2$ on $[-2, 2]$ hits the height $1$ twice, so the input cannot be recovered from the output.
 A strictly increasing or strictly decreasing function always passes the test.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_injective}
-\caption{The horizontal-line test. Left: $\lambda \mapsto e^{-5\lambda}$ is strictly decreasing, so every height is hit once and $\lambda$ can be read off the output; this is the censored-exponential example of \cref{ex:censored-expo}. Right: $x \mapsto x^2$ on $[-2, 2]$ hits the height $1$ twice, so the input cannot be recovered from the output.}
+\caption{The horizontal-line test. Left: $\lambda \mapsto e^{-5\lambda}$, the map of the censored-exponential example of \cref{ex:censored-expo}. Right: $x \mapsto x^2$ on $[-2, 2]$.}
 \label{fig:tk-injective}
 \end{figure}
 
@@ -84,11 +90,12 @@ It is the simplest random variable there is, a coin that comes up $1$ with proba
 \E[\ind(X \geq 5)] = 1 \cdot \Pr(X \geq 5) + 0 \cdot \Pr(X < 5) = \Pr(X \geq 5).
 \]
 That one line, \textit{the expectation of an indicator is a probability}, is how probabilities enter computations that are written with expectations, and how a sum of indicators becomes a count (the number of couples turning right is $\sum_i \ind(R_i = 1)$).
+\Cref{fig:tk-indicator} draws the two sides of the line: on the left the indicator $\ind(x \geq 5)$, a step from $0$ to $1$; on the right, for $X \sim \Expo(0.16)$, its expectation as the shaded probability $\Pr(X \geq 5) = e^{-5 \times 0.16} = 0.45$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_indicator}
-\caption{Left: the indicator $\ind(x \geq 5)$ is a step from $0$ to $1$. Right: for $X \sim \Expo(0.16)$ its expectation is the shaded probability $\Pr(X \geq 5) = e^{-5 \times 0.16} = 0.45$.}
+\caption{Left: the indicator $\ind(x \geq 5)$ as a function of $x$. Right: the density of $X \sim \Expo(0.16)$, with the probability $\Pr(X \geq 5)$ shaded.}
 \label{fig:tk-indicator}
 \end{figure}
 
@@ -99,14 +106,14 @@ That one line, \textit{the expectation of an indicator is a probability}, is how
 
 A \textbf{random variable} is a function from the sample space (the set of possible outcomes of an experiment) to the real line.
 \Cref{fig:tk-rv} draws the simplest case: the $36$ outcomes of two dice, and the function $X = $ `the sum'.
-The probability $\Pr(X = 7)$ is the probability of the set of outcomes that $X$ sends to $7$.
+The probability $\Pr(X = 7)$ is the probability of the set of outcomes that $X$ sends to $7$: six of the $36$, so $\Pr(X = 7) = 6/36$ on the right of the figure.
 Two random variables on the same sample space, say the sum $X$ and the larger die $Y$, are two functions of the \textit{same} outcome, which is what gives meaning to $X - Y$ and to `$X$ and $Y$ are close': you compare them outcome by outcome.
 This is the viewpoint \cref{sec:conv-why} needs for a sequence of random variables, which is a sequence of functions on one sample space.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_rv_function}
-\caption{A random variable is a function on the sample space. Left: the $36$ outcomes of two dice, each colored by the value the function $X = $ `sum' assigns it. Right: the distribution of $X$ on the real line; $\Pr(X = 7) = 6/36$ because six outcomes are sent to $7$.}
+\caption{A random variable as a function on the sample space. Left: the $36$ outcomes of two dice, each colored by the value the function $X = $ `sum' assigns it. Right: the distribution of $X$ on the real line.}
 \label{fig:tk-rv}
 \end{figure}
 
@@ -123,13 +130,15 @@ Three phrases from probability theory appear in the book and mean less than they
 For a continuous random variable, \textbf{probability is area}: $\Pr(a \leq X \leq b)$ is the area under the density $f$ between $a$ and $b$.
 The \textbf{CDF} $F(x) = \Pr(X \leq x)$ is the area accumulated up to $x$, so $\Pr(a \leq X \leq b) = F(b) - F(a)$, and $F$ is the antiderivative of $f$: $f = F'$.
 The \textbf{quantile} reads the CDF backwards: given a probability $u$, the quantile is the $x$ with $F(x) = u$; the book's $q_\alpha$ is the case $u = 1 - \alpha$, indexed by the probability \textit{above} the cutoff.
-\Cref{fig:tk-density} draws the three on one example.
+\Cref{fig:tk-density} draws the three on one example, the standard Gaussian.
+At the top, the shaded area under the density between $a = -1$ and $b = 1$ is $\Pr(a \leq X \leq b) = 0.683$.
+At the bottom, the same probability is the rise of the CDF from $F(a)$ to $F(b)$, and reading the CDF sideways at $0.95$ gives the quantile $q_{0.05} = 1.645$ of \cref{sec:gauss-quantiles}.
 The same three ideas work for a discrete random variable with sums in place of integrals: the PMF is the list of probabilities, the CDF the running total, and the CDF jumps at each possible value instead of rising smoothly.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{fig_tk_density_cdf}
-\caption{Density, CDF and quantile as one picture. Top: the shaded area under the $\Gauss(0,1)$ density between $a = -1$ and $b = 1$ is $\Pr(a \leq X \leq b) = 0.683$. Bottom: the same probability is the rise of the CDF from $F(a)$ to $F(b)$; reading the CDF sideways at $0.95$ gives the quantile $q_{0.05} = 1.645$ of \cref{sec:gauss-quantiles}.}
+\caption{Density, CDF and quantile for $\Gauss(0,1)$. Top: the density, with the area between $a = -1$ and $b = 1$ shaded. Bottom: the CDF, with the rise from $F(a)$ to $F(b)$ and the quantile $q_{0.05}$ marked.}
 \label{fig:tk-density}
 \end{figure}
 
@@ -148,11 +157,12 @@ A non-negative variable with a small mean is rarely large.
 \textbf{Chebyshev's inequality:} for any random variable with finite variance, $\Pr(\abs{T - \E[T]} \geq \epsilon) \leq \var(T)/\epsilon^2$.
 It is Markov's inequality applied to $Y = (T - \E[T])^2$ with $a = \epsilon^2$.
 In standard-deviation units it says $\Pr(\abs{T - \E[T]} \geq k \sigma) \leq 1/k^2$ for every distribution whatsoever, which is both its strength (universal) and its weakness (loose: for a Gaussian the true two-standard-deviation tail is $0.046$, the bound says $0.25$).
+The right of \cref{fig:tk-inequalities} draws the bound $1/k^2$ against the exact tail probabilities of a Gaussian and of an $\Expo(1)$ variable: the bound holds for every distribution and is far from tight for these two.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_inequalities}
-\caption{Left: Markov's inequality is the picture $a \cdot \ind(Y \geq a) \leq Y$; take expectations. Right: Chebyshev's bound $1/k^2$ against the exact tail probabilities of a Gaussian and of an $\Expo(1)$ variable. The bound holds for every distribution and is far from tight for these two.}
+\caption{Left: $Y$ and the step function $a \cdot \ind(Y \geq a)$. Right: Chebyshev's bound $1/k^2$ against the exact probabilities $\Pr(\abs{T - \E[T]} \geq k\sigma)$ for a Gaussian $T$ and for $T \sim \Expo(1)$.}
 \label{fig:tk-inequalities}
 \end{figure}
 
@@ -186,7 +196,7 @@ For a smooth $g$ and any $a < b$ there is a point $c$ between them where the tan
 \[
 g(b) - g(a) = g'(c) \, (b - a) \quad \text{for some } c \in (a, b).
 \]
-The change in $g$ over an interval equals the slope somewhere inside the interval times the interval's length (\cref{fig:tk-mvt}, left).
+The change in $g$ over an interval equals the slope somewhere inside the interval times the interval's length: on the left of \cref{fig:tk-mvt}, the tangent at $c$ is parallel to the chord from $a$ to $b$.
 You never learn where $c$ is, and you never need to: in the delta method it is squeezed between two points that converge to $\theta$, so $g'(c)$ converges to $g'(\theta)$.
 
 \textbf{The first-order Taylor expansion.}
@@ -194,13 +204,14 @@ Near $\theta$,
 \[
 g(x) = g(\theta) + g'(\theta)(x - \theta) + \text{(an error of order } (x - \theta)^2),
 \]
-so on a window of width $h$ around $\theta$ the tangent line is wrong by about $h^2$, which is negligible compared with the $h$-sized changes along the line (\cref{fig:tk-mvt}, right).
+so on a window of width $h$ around $\theta$ the tangent line is wrong by about $h^2$, which is negligible compared with the $h$-sized changes along the line.
+The right of \cref{fig:tk-mvt} draws this for $g(x) = 1/x$: the shaded error is tiny on the window $\theta \pm \sigma/\sqrt{n}$ where an estimator lives, which is why the delta method can treat $g$ as linear there.
 Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-order expansion, which Part IV uses for the likelihood ratio test.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_mvt_taylor}
-\caption{Left: the mean value theorem. Between $a$ and $b$ there is a $c$ where the tangent (blue) is parallel to the chord (orange). Right: the tangent line at $\theta$ approximates $g(x) = 1/x$; the error (shaded) is tiny on the window $\theta \pm \sigma/\sqrt{n}$ where an estimator lives, which is why the delta method can treat $g$ as linear there.}
+\caption{Left: the mean value theorem, with the chord from $a$ to $b$ (orange) and the parallel tangent at $c$ (blue). Right: $g(x) = 1/x$ and its tangent line at $\theta$, with the error between them shaded over the window $\theta \pm \sigma/\sqrt{n}$.}
 \label{fig:tk-mvt}
 \end{figure}
 
@@ -210,9 +221,9 @@ Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-orde
 \label{sec:math-explog}
 
 Two facts about $e$ recur.
-First, $(1 - x/n)^n \to e^{-x}$ as $n \to \infty$ (\cref{fig:tk-explog}, left); more generally $(1 + a/n)^n \to e^{a}$.
+First, $(1 - x/n)^n \to e^{-x}$ as $n \to \infty$; the left of \cref{fig:tk-explog} shows the curves for $n = 1, 2, 5, 20$ climbing toward $e^{-x}$, each drawn up to $x = n$, where it reaches $0$. More generally $(1 + a/n)^n \to e^{a}$.
 It is the step that turns the finite-$n$ formula in the maximum-of-uniforms proof (\cref{ex:max-unif}) into an exponential limit, and it reappears whenever a product of $n$ nearly-equal factors is pushed to the limit.
-Second, the logarithm turns multiplication into addition, $\log(ab) = \log a + \log b$ (\cref{fig:tk-explog}, right).
+Second, the logarithm turns multiplication into addition, $\log(ab) = \log a + \log b$: on the right of \cref{fig:tk-explog}, equal ratios along the axis become equal steps up the curve, so a product becomes a sum.
 A likelihood is a product of $n$ densities, a number so small it underflows a computer for moderate $n$; its logarithm is a sum of $n$ ordinary terms, and a sum of $n$ terms is what the Law of Large Numbers and the Central Limit Theorem know how to handle.
 That is the entire reason Part IV works with log-likelihoods.
 Because $\log$ is strictly increasing, maximizing the likelihood and maximizing the log-likelihood give the same answer.
@@ -220,7 +231,7 @@ Because $\log$ is strictly increasing, maximizing the likelihood and maximizing 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_exp_log}
-\caption{Left: $(1 - x/n)^n$ for $n = 1, 2, 5, 20$ climbing toward $e^{-x}$; each curve is drawn up to $x = n$, where it reaches $0$. Right: the logarithm turns equal ratios into equal steps, so a product becomes a sum.}
+\caption{Left: $(1 - x/n)^n$ for $n = 1, 2, 5, 20$, each drawn up to $x = n$, and the limit $e^{-x}$. Right: the graph of the logarithm.}
 \label{fig:tk-explog}
 \end{figure}
 
@@ -230,6 +241,7 @@ Because $\log$ is strictly increasing, maximizing the likelihood and maximizing 
 The book keeps saying that an error is `of order $1/\sqrt{n}$', that a bound `goes to zero like $1/n$', or `exponentially fast'.
 These are statements about how a quantity scales with $n$, ignoring constants.
 \Cref{fig:tk-rates} draws the three rates that matter here on ordinary axes and on log-log axes, where a power law $n^{-c}$ is a straight line of slope $-c$ and an exponential bends away below every power law.
+On ordinary axes the three look alike at first; on log-log axes $1/\sqrt{n}$ and $1/n$ are straight lines whose slopes are the exponents, and the exponential drops away below both.
 Practical translation of each rate:
 \begin{itemize}[nosep]
 \item $1/\sqrt{n}$: four times the data halves the error; a hundred times the data buys one decimal place. This is the rate of every estimator built from an average and of every confidence interval in this book.
@@ -240,7 +252,7 @@ Practical translation of each rate:
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_rates}
-\caption{Three rates of decay. Left: on ordinary axes they all look alike at first. Right: on log-log axes $1/\sqrt{n}$ and $1/n$ are straight lines whose slopes are the exponents, and the exponential drops away below both.}
+\caption{Three rates of decay, $1/\sqrt{n}$, $1/n$ and an exponential. Left: on ordinary axes. Right: on log-log axes.}
 \label{fig:tk-rates}
 \end{figure}
 
@@ -252,7 +264,8 @@ A parameter with several coordinates, like $(\mu, \sigma^2)$ for a Gaussian, tur
 \textbf{Partial derivatives and the gradient.}
 For $h(a, b)$, the partial derivative $\partial h/\partial a$ is the ordinary derivative in $a$ with $b$ held fixed: the slope of the surface walking in the $a$ direction.
 The \textbf{gradient} collects them in a vector, $\nabla h = (\partial h/\partial a, \partial h/\partial b)$.
-It points in the direction in which $h$ climbs fastest, it is perpendicular to the contour line through its point, and its length is the steepness of the climb (\cref{fig:tk-gradient}, left).
+It points in the direction in which $h$ climbs fastest, it is perpendicular to the contour line through its point, and its length is the steepness of the climb.
+On the left of \cref{fig:tk-gradient}, for the concave function $-(a^2 + ab + b^2)$, each arrow points uphill, perpendicular to the contour through its base, and the arrows shrink to nothing at the top, the one point where the gradient is $0$.
 At the top of a hill the surface is flat in every direction, so the gradient is the zero vector: $\nabla h = 0$ is the first-order condition, one equation per coordinate.
 
 \textbf{The Hessian and the second-derivative test.}
@@ -275,7 +288,7 @@ Suppose the Hessian is negative definite at every point of a domain that contain
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tk_gradient}
-\caption{Left: contours of the concave function $-(a^2 + ab + b^2)$ with its gradient drawn at a grid of points; each arrow points uphill, perpendicular to the contour, and the arrows shrink to nothing at the top, the one point where the gradient is $0$. Right: the saddle $a^2 - b^2$; its gradient is also $0$ at the origin, which is not a maximum.}
+\caption{Left: contours of $h(a, b) = -(a^2 + ab + b^2)$, with the gradient drawn as an arrow at a grid of points. Right: the saddle $h(a, b) = a^2 - b^2$.}
 \label{fig:tk-gradient}
 \end{figure}
 

@@ -87,7 +87,8 @@ Then:
 Two things are notable about the statement.
 First, it requires only a finite mean, not a finite variance; the Weak Law was proved in \cref{ch:lln} using Chebyshev's inequality, which needs the variance, but the conclusion of both laws holds under the weaker assumption.
 Second, the conclusion is about sample paths: run the experiment once, forever, and the sequence of running averages you record converges to $\mu$, with probability one.
-\Cref{fig:sllnpaths} shows six such paths for a fair coin.
+\Cref{fig:sllnpaths} shows six such paths for a fair coin, on the left, with the band $\mu \pm 0.05$ around the mean.
+Each path wanders early, enters the band and, as the Strong Law says, stays there; with probability one every path eventually does this.
 The two laws are often written together as
 \[
 \bar{X}_n \convasp \mu,
@@ -97,7 +98,7 @@ allowing whichever one is convenient to be used; for everything in this book the
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_slln_paths}
-\caption{Left: six realizations of the running proportion of heads in a fair coin, on a logarithmic $n$ axis. Each path wanders early, enters the band $\mu \pm 0.05$ and, as the Strong Law says, stays there; with probability one every path eventually does this. Right: one outcome of the sliding-indicator sequence of \cref{ex:sliding}, which converges in probability but not almost surely. For this outcome ($U = 0.37$) the value $1$ keeps recurring, at ever longer intervals, forever.}
+\caption{Left: six realizations of the running proportion of heads in a fair coin, on a logarithmic $n$ axis, with the band $\mu \pm 0.05$. Right: one outcome, $U = 0.37$, of the sliding-indicator sequence of \cref{ex:sliding}.}
 \label{fig:sllnpaths}
 \end{figure}
 
@@ -158,7 +159,7 @@ So $X_n \convp U$.
 In every block, exactly one interval (or two, at a shared endpoint) contains $u$, so $X_n(u) - u$ equals $1$ at least once in every block, forever.
 The sequence of numbers $X_n(u)$ therefore takes the value $u + 1$ infinitely often and cannot converge to $u$.
 This happens for every outcome, so $\Pr(X_n \to U) = 0$, the opposite of what almost sure convergence requires.
-The right panel of \cref{fig:sllnpaths} shows one outcome.
+The right of \cref{fig:sllnpaths} shows one outcome, $U = 0.37$: the value $1$ keeps recurring, at ever longer intervals, forever, so the sequence converges in probability but not almost surely.
 \end{example}
 
 In the device analogy, the sliding indicator is a device whose failures get rarer and rarer but never run out.
@@ -197,6 +198,8 @@ A sequence of r.v.s might converge for one type of convergence, but not for anot
 Some convergence types are `stronger' than others by which it's meant that if Type A convergence is stronger than Type B convergence, then Type A convergence implies Type B convergence.
 In \cref{fig:hierarchy}, the stronger types of convergence are given at the top and as you move to the bottom the type of convergence becomes weaker.
 By way of example, if a sequence of r.v.s converges in probability, then it converges in distribution as well.
+Each solid arrow is an implication that always holds, and no solid arrow reverses.
+Almost sure convergence and convergence in mean, side by side at the top, don't imply each other.
 
 \begin{figure}[htbp]
 \centering
@@ -217,7 +220,7 @@ By way of example, if a sequence of r.v.s converges in probability, then it conv
   \node[font=\scriptsize, left=0.2cm of p, align=right, text=gray] {strong};
   \node[font=\scriptsize, left=0.2cm of d, align=right, text=gray] {weak};
 \end{tikzpicture}
-\caption{The hierarchy. Solid arrows are implications that always hold; no solid arrow reverses. The dashed arrow is the one partial converse that matters: convergence in distribution to a \textit{constant} is the same as convergence in probability to it. Almost sure convergence and convergence in mean don't imply each other.}
+\caption{The four modes of convergence, strongest at the top. Solid arrows are implications; the dashed arrow is the partial converse of \cref{prop:convd-constant}.}
 \label{fig:hierarchy}
 \end{figure}
 
@@ -238,7 +241,7 @@ If $X_n$ is close to $X$ with high probability then their CDFs must be close, wh
 \end{itemize}
 
 
-The dashed arrow in \cref{fig:hierarchy} is \cref{prop:convd-constant}: convergence in distribution to a constant is convergence in probability to it.
+The dashed arrow in \cref{fig:hierarchy}, the one partial converse that matters, is \cref{prop:convd-constant}: convergence in distribution to a \textit{constant} is the same as convergence in probability to it.
 
 
 \section{Summary}

@@ -46,14 +46,15 @@ The first term does not depend on $\theta$.
 The second is a KL divergence, which is $0$ at $\theta = \theta^*$ and positive everywhere else if the model is identifiable (\cref{prop:kl-properties}).
 So $M$ is a fixed curve, not random, and it has a unique peak at the truth.
 
-\Cref{fig:mleconsistency} draws what happens.
-The random curve $\frac1n\ell_n$ settles onto the fixed curve $M$ as $n$ grows, and its peak, the MLE, slides toward the peak of $M$, the truth.
+\Cref{fig:mleconsistency} draws what happens, for one simulated sample of couples at each of $n = 10$, $124$ and $1{,}000$.
+The random curve $\frac1n\ell_n$, dashed, settles onto the fixed curve $M(p) = p^*\log p + (1 - p^*)\log(1 - p)$, black, as $n$ grows, and its peak, the MLE, slides toward the peak of $M$, the truth.
 At $n = 10$ the sample curve peaks at $0.80$, far from $p^* = 0.645$; at $n = 1{,}000$ the two curves are indistinguishable and the peaks nearly coincide.
+The bottom row shows the same thing across $20{,}000$ simulated studies: the sampling distribution of $\hat{p}$ tightens around $p^*$, with standard deviation $\sqrt{p^*(1 - p^*)/n}$ equal to $0.151$, $0.043$ and $0.015$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_mle_consistency}
-\caption{Consistency of the MLE in the kiss model, with the truth at $p^* = 0.645$. Top: the average log-likelihood of one simulated sample of $n$ couples (blue, dashed), peaking at its own $\hat{p}$ (blue dot), against its limit $M(p) = p^*\log p + (1 - p^*)\log(1 - p)$ (black), which peaks at $p^*$ (black dot). Bottom: the sampling distribution of $\hat{p}$ at the same $n$, from $20{,}000$ simulated studies; its standard deviation $\sqrt{p^*(1 - p^*)/n}$ is $0.151$, $0.043$ and $0.015$.}
+\caption{The kiss model, $p^* = 0.645$, at $n = 10$, $124$ and $1{,}000$. Top: the average log-likelihood of one simulated sample (blue, dashed; peak, blue dot) and its limit $M(p)$ (black; peak, black dot). Bottom: $\hat{p}$ over $20{,}000$ simulated studies.}
 \label{fig:mleconsistency}
 \end{figure}
 
@@ -128,7 +129,7 @@ For $n$ observations, $\ell_n(\theta) = \sum_i \log p_\theta(X_i)$ is a sum of $
 \begin{intuition}[what the score is]
 Fix the truth $\theta^*$ and draw one observation.
 The score $\ell'(\theta^*)$ is the slope, at the truth, of that observation's log-likelihood: how much the observation pushes the estimate of $\theta$ up or down from $\theta^*$.
-For the kiss model (\cref{fig:scoreclt}, left) a couple turning right has log-likelihood $\log p$, with slope $1/p^* = 1.55$ at $p^* = 0.645$: it pushes the estimate up.
+For the kiss model (\cref{fig:scoreclt}, left, which draws the tangent at $p^*$ on each of the two log-likelihoods) a couple turning right has log-likelihood $\log p$, with slope $1/p^* = 1.55$ at $p^* = 0.645$: it pushes the estimate up.
 A couple turning left has log-likelihood $\log(1 - p)$, with slope $-1/(1 - p^*) = -2.82$: it pushes down, harder, since left turns are the rarer event.
 Weighted by how often each happens, $0.645 \times 1.55 - 0.355 \times 2.82 = 0$, to rounding.
 At the truth the pushes cancel on average, which is the first fact below.
@@ -206,14 +207,15 @@ The matrix version is the same computation entry by entry.
 $\ell''(\theta)$ is how sharply one observation's log-likelihood curves at $\theta$, and the theorem says the Fisher information is the average of that curvature, with the sign flipped so that it comes out positive.
 \Cref{fig:fishercurvature} draws it for the kiss model.
 The two possible log-likelihoods, $\log p$ and $\log(1-p)$, are each curved; their average under $p^*$, the black curve, peaks at $p^*$ and curves down there with second derivative $-I(p^*) = -4.37$.
-The aqua parabola has exactly that curvature.
+The aqua parabola through the peak has exactly that curvature.
+The right of the figure draws $I(p) = 1/(p(1 - p))$ itself: smallest at $p = \frac12$ and growing without bound at either end.
 For $n$ observations the log-likelihood is a sum, its curvature near $\theta^*$ is about $nI(\theta^*)$, and a sharply curved peak is one whose location is well determined: move a little away from $\hat{\theta}$ and the log-likelihood drops a lot, so few candidates fit nearly as well.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_fisher_curvature}
-\caption{Fisher information is curvature. Left: the log-likelihood of one couple's turn, $\log p$ for a right turn (blue) and $\log(1 - p)$ for a left turn (orange, dashed), and their average under $p^* = 0.645$ (black), which peaks at $p^*$; the aqua parabola through the peak has second derivative $-I(p^*) = -4.37$. Right: $I(p) = 1/(p(1 - p))$ for the Bernoulli model, smallest at $p = \frac12$ and growing without bound at either end.}
+\caption{Left: one couple's log-likelihood, $\log p$ (right turn, blue) and $\log(1 - p)$ (left turn, orange, dashed), their average at $p^* = 0.645$ (black), and a parabola through its peak (aqua). Right: $I(p) = 1/(p(1 - p))$ for the Bernoulli model.}
 \label{fig:fishercurvature}
 \end{figure}
 
@@ -252,10 +254,13 @@ The off-diagonal zero says that, for a Gaussian, learning about $\mu$ and learni
 \end{itemize}
 \end{worked}
 
+\Cref{fig:fisherfamilies} draws two of these as functions of the parameter: $1/\lambda^2$ for the exponential, where the subway rate $0.16$ has $I = 38.8$, and $1/\lambda$ for the Poisson, where the siblings fit $\hat{\lambda} = 1$ has $I = 1$.
+The right of the figure shows what the information buys: the width $2 \times 1.96/\sqrt{nI(p)}$ of the $95\%$ interval for a proportion at $n = 100$, which is widest at $p = \frac12$ and is $0.19$ at $p = 0.645$.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_fisher_families}
-\caption{Fisher information in three one-parameter families. Left: $I(\lambda) = 1/\lambda^2$ for $\Expo(\lambda)$; the subway rate $0.16$ has $I = 38.8$. Middle: $I(\lambda) = 1/\lambda$ for $\Pois(\lambda)$; the siblings fit $\hat{\lambda} = 1$ has $I = 1$. Right: what the information buys, the width $2 \times 1.96/\sqrt{nI(p)}$ of the $95\%$ interval for a proportion at $n = 100$, widest at $p = \frac12$ and $0.19$ at $p = 0.645$.}
+\caption{Fisher information in three one-parameter families. Left: $I(\lambda) = 1/\lambda^2$ for $\Expo(\lambda)$. Middle: $I(\lambda) = 1/\lambda$ for $\Pois(\lambda)$. Right: the width $2 \times 1.96/\sqrt{nI(p)}$ of the $95\%$ interval for a proportion at $n = 100$, as a function of $p$.}
 \label{fig:fisherfamilies}
 \end{figure}
 
@@ -277,7 +282,7 @@ They are i.i.d., with mean $0$ (\cref{prop:score-mean}) and variance $I(\theta^*
 \[
 \sqrt{n}\cdot\frac1n\ell_n'(\theta^*) = \frac{1}{\sqrt{n}}\sum_{i=1}^n \ell_i'(\theta^*) \convd \Gauss\big(0, I(\theta^*)\big).
 \]
-The middle of \cref{fig:scoreclt} shows it for the kiss model at $n = 124$: the average score at $p^*$ over $20{,}000$ simulated studies, with the Gaussian the CLT predicts.
+The middle of \cref{fig:scoreclt} shows it for the kiss model at $n = 124$: the average score at $p^*$ over $20{,}000$ simulated studies, with the $\Gauss(0, I(p^*)/n)$ the CLT predicts, standard deviation $0.188$.
 
 That is a statement about the slope of the log-likelihood at the truth.
 The MLE is where the slope is zero.
@@ -320,10 +325,13 @@ Slutsky's theorem multiplies the two:
 In $d$ dimensions \toolkit{sec:math-multivar} each coordinate of the gradient gets its own in-between point $\tilde{\theta}_{n,j}$, all squeezed to $\theta^*$; the denominator becomes the matrix whose row $j$ is $-\frac1n$ times row $j$ of the Hessian evaluated at $\tilde{\theta}_{n,j}$, which converges in probability to $I(\theta^*)$ entry by entry; the numerator converges to a Gaussian vector with covariance $I(\theta^*)$ by the multivariate CLT (\cref{sec:conv-where-used}); and the inverse matrix multiplies it, giving covariance $I^{-1} I I^{-1} = I(\theta^*)^{-1}$.
 \end{proof}
 
+The right of \cref{fig:scoreclt} is the theorem for the kiss model: $\hat{p}$ over the same $20{,}000$ studies, with the $\Gauss(p^*, 1/(nI(p^*)))$ it predicts, standard deviation $0.043$.
+Beside the middle histogram it is the same picture, since to first order $\hat{p} - p^*$ is the average score divided by $I(p^*)$, which is what the rearranged mean value step in the proof says.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_score_clt}
-\caption{Why the MLE is asymptotically normal, for the kiss model with $p^* = 0.645$ and $n = 124$. Left: one couple's log-likelihood, $\log p$ (blue) or $\log(1 - p)$ (orange, dashed), with the tangent at $p^*$ drawn on each; the slopes, $+1.55$ and $-2.82$, are the two possible values of the score, which averages to $0$ under $p^*$. Middle: the average score at $p^*$ over $20{,}000$ simulated studies, with the $\Gauss(0, I(p^*)/n)$ the CLT predicts (standard deviation $0.188$). Right: $\hat{p}$ over the same studies, with the $\Gauss(p^*, 1/(nI(p^*)))$ the theorem predicts (standard deviation $0.043$). The two histograms are the same picture: $\hat{p} - p^*$ is the average score divided by $I(p^*)$, to first order.}
+\caption{Kiss model, $p^* = 0.645$, $n = 124$. Left: $\log p$ (blue) and $\log(1 - p)$ (orange, dashed), with tangents at $p^*$. Middle: the average score at $p^*$ over $20{,}000$ studies, with the CLT's Gaussian. Right: $\hat{p}$ over those studies, with the theorem's Gaussian.}
 \label{fig:scoreclt}
 \end{figure}
 
@@ -388,13 +396,13 @@ By the Cauchy--Schwarz inequality for covariances, $\mathrm{Cov}(T, S)^2 \leq \v
 
 An unbiased estimator whose variance equals the bound is called \textbf{efficient}.
 The sample proportion is efficient for $p$: $\var(\bar{R}_n) = p(1-p)/n = 1/(nI(p))$ exactly, at every $n$.
-\Cref{fig:cramerrao} draws the bound for the kiss model and two other estimators from \cref{ch:estimators}.
+\Cref{fig:cramerrao} draws the bound for the kiss model at $n = 124$, with the variance of $\bar{R}_n$ lying exactly on it, and beside them the variance and the mean squared error of the shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$ of \cref{ch:estimators}; the mean squared error rises above the bound once $p$ is more than about $0.16$ from $\frac12$.
 The MLE in general is not unbiased at finite $n$ (the subway $1/\bar{T}_n$ is not), so the bound does not apply to it directly; what \cref{thm:mle-normal} says is that its asymptotic variance equals the bound, so that in large samples nothing unbiased can do better.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.75\textwidth]{fig_cramer_rao}
-\caption{The Cram\'er--Rao bound $p(1-p)/n$ for the kiss model at $n = 124$ (black), with the variance of $\bar{R}_n$ lying exactly on it (blue, dashed). The shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$ of \cref{ch:estimators} has a smaller variance (orange, solid), which the bound permits because the estimator is biased; its mean squared error (orange, dash-dot) is what to compare, and it rises above the bound once $p$ is more than about $0.16$ from $\frac12$.}
+\caption{The kiss model at $n = 124$: the Cram\'er--Rao bound $p(1-p)/n$ (black), the variance of $\bar{R}_n$ (blue, dashed), and the variance (orange, solid) and mean squared error (orange, dash-dot) of the shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$ of \cref{ch:estimators}.}
 \label{fig:cramerrao}
 \end{figure}
 

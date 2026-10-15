@@ -61,15 +61,16 @@ You have written $\Pr_\theta(X = x)$ many times, always as a function of $x$ wit
 The same expression is a function of both $x$ and $\theta$, and the likelihood is what you get by switching which one you hold fixed.
 \Cref{fig:likslices} makes the switch visible for the kiss model.
 The left of the figure shades $\Pr_p(\text{count} = k)$ over a grid of counts $k$ and parameters $p$.
-Read it along a horizontal line, $p$ fixed: you get the distribution of the count, the probability question of \cref{ch:kiss}, which sums to $1$ over $k$.
-Read it along a vertical line, the count fixed at the $80$ you observed: you get the likelihood, the statistics question, a curve over $p$ that peaks where the data are most probable.
+Read it along a horizontal line, $p$ fixed: you get the distribution of the count, the probability question of \cref{ch:kiss}, which sums to $1$ over $k$; the middle of the figure is this slice along the dashed aqua line, $p = 0.645$.
+Read it along a vertical line, the count fixed at the $80$ you observed: you get the likelihood, the statistics question, a curve over $p$ that peaks where the data are most probable; the right of the figure is this slice along the orange line, and it peaks at $80/124 = 0.645$.
+The likelihood of the full sequence of $124$ turns is this curve divided by the constant $\binom{124}{80}$, which doesn't change where it peaks.
 Probability fixes the parameter and asks about the data; statistics fixes the data and asks about the parameter.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_likelihood_slices}
-\caption{One function, two readings, for $124$ couples. Left: $\Pr_p(\text{count} = k)$ over counts $k$ (horizontal) and parameters $p$ (vertical); darker is more probable. Middle: the slice along the dashed aqua line, $p = 0.645$, a PMF over $k$ that sums to $1$. Right: the slice along the orange line, the observed $k = 80$, which is the likelihood; it peaks at $80/124 = 0.645$. The likelihood of the full sequence of $124$ turns is this curve divided by the constant $\binom{124}{80}$, which doesn't change where it peaks.}
+\caption{$\Pr_p(\text{count} = k)$ for $124$ couples. Left: over counts $k$ (horizontal) and parameters $p$ (vertical), darker more probable. Middle: the slice along the dashed aqua line, $p = 0.645$. Right: the slice along the orange line, $k = 80$.}
 \label{fig:likslices}
 \end{figure}
 
@@ -135,14 +136,16 @@ Compare two candidate rates, and the $h$ cancels:
 \[
 \frac{\Pr_{\lambda_1}(\text{gap within } h/2 \text{ of } 5)}{\Pr_{\lambda_2}(\text{gap within } h/2 \text{ of } 5)} \approx \frac{f_{\lambda_1}(5)\, h}{f_{\lambda_2}(5)\, h} = \frac{f_{\lambda_1}(5)}{f_{\lambda_2}(5)}.
 \]
-\Cref{fig:densitystrip} shows the ratio of strip probabilities settling at the ratio of densities as the strip narrows.
+\Cref{fig:densitystrip} draws this for the rates $0.1$ and $0.2$ and a gap recorded as $5$ minutes.
+On the left, the taller $\Expo(0.2)$ strip contains the $\Expo(0.1)$ strip, and its orange part is the extra probability the faster rate gives the same gap.
+On the right, as the width $h$ shrinks, the ratio of the two strip probabilities settles at the ratio of the densities, $f_{0.1}(5)/f_{0.2}(5) = 0.824$.
 Every use of a likelihood is a comparison between parameters, so the density is all it needs.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_density_strip}
-\caption{Why a density can stand in for a probability. Left: the $\Expo(0.1)$ and $\Expo(0.2)$ densities, with the probabilities of a gap within $\frac12$ minute of $5$ shown as strips; the $\Expo(0.1)$ strip is blue, and the taller $\Expo(0.2)$ strip contains it, its extra height in orange. Right: the ratio of the two strip probabilities as the width $h$ shrinks; it settles at the ratio of the densities, $f_{0.1}(5)/f_{0.2}(5) = 0.824$.}
+\caption{Left: the $\Expo(0.1)$ and $\Expo(0.2)$ densities, with the probability of a gap within $\frac12$ minute of $5$ as a strip under each; the $\Expo(0.1)$ strip is blue, the $\Expo(0.2)$ strip's extra height orange. Right: the ratio of the strip probabilities against the width $h$.}
 \label{fig:densitystrip}
 \end{figure}
 
@@ -209,13 +212,13 @@ It keeps the numbers in a sane range: $L(0.645) = 9.4 \times 10^{-36}$ for the k
 And $\frac1n\ell_n(\theta)$ is an average, which is what the Law of Large Numbers and the Central Limit Theorem know how to handle; \cref{ch:mle-properties} uses that.
 
 \Cref{fig:kissloglik} shows both curves for the kiss data.
-The likelihood is a narrow peak at $0.645$ on a scale of $10^{-36}$.
-The log-likelihood is a smooth hill whose top is at the same place, flat there, and $5.30$ higher than its value at $p = \frac12$.
+The likelihood is a narrow peak at $0.645$ on a scale of $10^{-36}$: its height there is $9.4 \times 10^{-36}$, against $0.047 \times 10^{-36}$ at $p = \frac12$.
+The log-likelihood is a concave hill whose top is at the same place, where the tangent is flat: its maximum is $-80.65$, its value at $p = \frac12$ is $-85.95$, and the gap, $5.30$, is $124$ times the KL divergence $0.0428$ of \cref{ch:distances}.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_kiss_loglik}
-\caption{The kiss data. Left: the likelihood $L(p) = p^{80}(1 - p)^{44}$ in units of $10^{-36}$, with its peak $9.4$ at $\hat{p} = 0.645$ and the value $0.047$ at $p = \frac12$. Right: the log-likelihood $\ell(p) = 80\log p + 44\log(1 - p)$, concave, with its maximum $-80.65$ at $0.645$ where the tangent is flat, and the value $-85.95$ at $\frac12$; the gap, $5.30$, is $124$ times the KL divergence $0.0428$ of \cref{ch:distances}.}
+\caption{The kiss data. Left: the likelihood $L(p) = p^{80}(1 - p)^{44}$, in units of $10^{-36}$. Right: the log-likelihood $\ell(p) = 80\log p + 44\log(1 - p)$, with its tangent at the maximum.}
 \label{fig:kissloglik}
 \end{figure}
 
@@ -233,7 +236,9 @@ It is not a coincidence, and \cref{ch:mle-properties} proves it in general: the 
 
 The definition says `argmax', and an argmax has to be found.
 Maximizing an arbitrary function is hard: it can have many hills, and a point where the slope is zero can be the top of a small hill, the bottom of a valley or neither.
-The right of \cref{fig:concavevsnot} is $\theta \mapsto \prod_i (\theta - x_i)$ for five numbers $x_i$: four points with zero slope, and on the whole line no maximum at all.
+The right of \cref{fig:concavevsnot} is $\theta \mapsto \prod_i (\theta - x_i)$ for five numbers $x_i$: four points with zero slope, marked by dots, and on the whole line no maximum at all.
+Setting the derivative to $0$ finds all four without saying which, if any, is a maximum.
+The left of the figure is the Poisson log-likelihood of the siblings data, $-24\lambda + 24\log\lambda$ up to a constant: strictly concave, one hill, with its single maximum at $\hat{\lambda} = 1$, where the slope is $0$.
 The functions that are easy to maximize are the concave ones.
 
 \begin{definition}[Concave and convex functions]
@@ -266,7 +271,7 @@ At an interior maximizer the derivative must be $0$, since otherwise moving a li
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_concave_vs_not}
-\caption{Easy and hard functions to maximize. Left: the Poisson log-likelihood of the siblings data, $-24\lambda + 24\log\lambda$ up to a constant, strictly concave with its single maximum at $\hat{\lambda} = 1$, where the slope is $0$. Right: $\prod_i (\theta - x_i)$ for the five values marked on the axis; four points have slope $0$ (dots), and setting the derivative to $0$ finds all four without saying which, if any, is a maximum.}
+\caption{Easy and hard functions to maximize. Left: the Poisson log-likelihood of the siblings data, $-24\lambda + 24\log\lambda$ up to a constant. Right: $\prod_i (\theta - x_i)$ for the five values $x_i$ marked on the axis, with dots where the slope is $0$.}
 \label{fig:concavevsnot}
 \end{figure}
 
@@ -346,13 +351,16 @@ At the maximum the gradient is $0$ and the Hessian is the diagonal matrix with e
 (The log-likelihood is not concave in $\sigma^2$ everywhere, which is why the argument went one coordinate at a time instead of checking the Hessian at every point. It also needs $D > 0$: if every observation is the same number, the likelihood grows without bound as $\sigma^2 \to 0$.)
 
 For the $72$ flights boarded rear to front, with mean $24.2$ minutes and standard deviation $s = 2.1$ (taken to be computed with $n - 1$, the usual convention), $\hat{\mu} = 24.2$ and $\widehat{\sigma^2} = \frac{71}{72} \times 2.1^2 = 4.35$.
-\Cref{fig:gaussloglik} draws the log-likelihood surface.
+\Cref{fig:gaussloglik} draws the log-likelihood surface, measured down from its maximum.
+On the left, each contour is labeled by how far it lies below the maximum at $(24.2, 4.35)$.
+The middle slice, at $\sigma^2 = 4.35$, is symmetric in $\mu$.
+The right slice, at $\mu = 24.2$, is lopsided: variances above the maximum are penalized less than variances below it.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_gauss_loglik}
-\caption{The Gaussian log-likelihood of the boarding data ($n = 72$, mean $24.2$, standard deviation $2.1$), measured from its maximum. Left: contours over $(\mu, \sigma^2)$, labeled by how far each lies below the maximum, with the maximum at $(24.2, 4.35)$ and the two slices drawn as lines (blue solid, aqua dash-dot). Middle: the slice at $\sigma^2 = 4.35$, symmetric in $\mu$. Right: the slice at $\mu = 24.2$, lopsided: variances above the maximum are penalized less than variances below it.}
+\caption{The Gaussian log-likelihood of the boarding data, measured down from its maximum. Left: contours over $(\mu, \sigma^2)$, with the two slices marked as lines (blue solid, aqua dash-dot). Middle: the slice at $\sigma^2 = 4.35$. Right: the slice at $\mu = 24.2$.}
 \label{fig:gaussloglik}
 \end{figure}
 
@@ -378,15 +386,16 @@ The maximum is at the jump:
 \[
 \hat{\theta}^{\text{MLE}} = \max_i X_i.
 \]
-\Cref{fig:uniformlik} draws it for five observations whose largest is $7.6$.
+\Cref{fig:uniformlik} draws it for five observations whose largest is $7.6$: the likelihood is zero until $\theta = 7.6$, then $\theta^{-5}$, decreasing, and the maximum is at the jump, where no derivative is zero.
 Setting the derivative to $0$ would have found only the flat stretch below $\max_i X_i$, where the likelihood is $0$; the recipe of \cref{sec:lik-maximize} assumes a smooth function with its maximum inside $\Theta$, and this likelihood is neither smooth at its maximum nor concave.
 The estimator is also biased: the largest of $n$ draws always falls short of $\theta$, and $\E[\max_i X_i] = \frac{n}{n+1}\theta$ (\cref{ex:lik-uniform}). Multiplying by $\frac{n+1}{n}$ removes the bias.
+The right of the figure draws the density of the maximum of five draws when $\theta = 10$: it never exceeds $10$, and its mean is $8.33$, which is $\frac56 \times 10$.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_uniform_likelihood}
-\caption{Left: the likelihood of $\Unif([0, \theta])$ for five observations (ticks below the axis), zero until the largest observation, $7.6$, then $\theta^{-5}$, decreasing. The maximum is at the jump, where no derivative is zero. Right: the density $5m^4/10^5$ of the maximum of five draws when $\theta = 10$; it never exceeds $10$, and its mean is $8.33$.}
+\caption{Left: the likelihood of $\Unif([0, \theta])$ for five observations, marked by ticks below the axis. Right: the density $5m^4/10^5$ of the maximum $m$ of five draws from $\Unif([0, 10])$.}
 \label{fig:uniformlik}
 \end{figure}
 
@@ -442,7 +451,7 @@ Invariance does not carry unbiasedness along: $\bar{X}_n$ is unbiased for $\beta
 \label{sec:lik-em}
 
 The left of \cref{fig:emfaithful} is a histogram of the $272$ waiting times, in minutes, between eruptions of the Old Faithful geyser in Yellowstone National Park.\footnote{The version of the data distributed with W.~H\"ardle, \textit{Smoothing Techniques} (Springer, 1991); A.~Azzalini and A.~W.~Bowman, `A look at some data on the Old Faithful geyser', \textit{Applied Statistics} 39 (1990), 357--365, analyze a longer record.}
-It has two humps, one near $55$ minutes and one near $80$, and a single Gaussian (orange) fits it badly.
+It has two humps, one near $55$ minutes and one near $80$, and a single Gaussian (orange, dashed) fits it badly.
 A mixture of two Gaussians is the natural model: each wait comes from a short-wait regime or a long-wait regime, and you don't get to see which.
 
 The log-likelihood of the mixture,
@@ -497,11 +506,12 @@ For Old Faithful, starting from means $50$ and $70$, both standard deviations $1
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_em_faithful}
-\caption{The EM algorithm on the $272$ waiting times between eruptions of Old Faithful. Left: the histogram, the best single Gaussian (orange, dashed) and the two-component mixture fitted by EM (blue): weight $0.36$ on $\Gauss(54.6, 5.87^2)$ and $0.64$ on $\Gauss(80.1, 5.87^2)$. Right: the log-likelihood at the start and after each EM step, from three starting points: means $50$ and $70$ (blue, solid), $40$ and $95$ (aqua, dash-dot), $65$ and $75$ (yellow, dashed). It never decreases, and all three runs reach $-1034.0$, well above the single Gaussian's $-1095.3$ (orange line).}
+\caption{Old Faithful waiting times. Left: histogram, best single Gaussian (orange, dashed), EM mixture fit (blue). Right: the log-likelihood after each EM step from starting means $50, 70$ (blue, solid), $40, 95$ (aqua, dash-dot) and $65, 75$ (yellow, dashed); orange line, the single Gaussian.}
 \label{fig:emfaithful}
 \end{figure}
 
-The right of \cref{fig:emfaithful} shows the property that makes EM trustworthy as far as it goes: every step raises the log-likelihood or leaves it unchanged.
+The right of \cref{fig:emfaithful} tracks the log-likelihood at the start and after each EM step, from three starting points: the means $50$ and $70$ of the worked example, and also $40$ and $95$, and $65$ and $75$.
+It shows the property that makes EM trustworthy as far as it goes: every step raises the log-likelihood or leaves it unchanged, and all three runs climb to the same $-1034.0$, well above the single Gaussian's $-1095.3$.
 That fact is proved in \cref{sec:proof-em} of \cref{app:proofs}, with an argument that uses the nonnegativity of the KL divergence; nothing later in the book depends on it.
 What it does not guarantee is that EM reaches the highest point.
 It climbs whatever hill it starts near, which may be a local maximum or one of the spikes of \cref{sec:lik-fail}.

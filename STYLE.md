@@ -65,6 +65,14 @@ and how this book uses them:
 
 Where this book goes further than Blitzstein, because the reader needs it:
 
+- **Captions name, the text explains.** A caption says what is drawn and
+  nothing more: the quantities, the data, which color or line style is
+  which, in one to three sentences (about 20 to 35 words; never above 45).
+  The explanation, the numbers to notice and the point of the picture go
+  in the body paragraph that points to the figure, written so that the
+  paragraph and the figure are read together, as Blitzstein does. A reader
+  who reads only the caption should know what they are looking at, not
+  why it matters. (The author's instruction, 2026-10-15.)
 - **More visualization.** Every chapter has figures, and any idea that can
   be drawn is drawn. A result that is only an inequality on a page is a
   result this reader will not hold. Figures are generated, never hand-drawn,

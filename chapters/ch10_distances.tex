@@ -36,12 +36,14 @@ It depends on where in the parameter space it happens.
 Two Gaussians with standard deviation $1$ whose means differ by $0.01$ are, for every practical purpose, the same distribution: no event has probabilities under the two that differ by more than $0.004$.
 Two Gaussians with mean $0$ whose standard deviations are $0.01$ and $0.02$ also have parameters $0.01$ apart, and they are obviously different distributions: one is twice as wide as the other, and there is an event whose probability is $0.32$ higher under one than under the other.
 \Cref{fig:paramvsdist} draws both.
+On the left the two curves coincide to the width of a line, and the total variation distance of \cref{sec:dist-tv} between them is $0.004$.
+On the right they share only the gray area, $0.677$ of their mass, so the distance is $0.323$.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_param_vs_dist}
-\caption{Two pairs of Gaussians whose parameters differ by $0.01$. Left: means $0$ and $0.01$, standard deviation $1$; the curves coincide to the width of a line and the total variation distance is $0.004$. Right: mean $0$, standard deviations $0.01$ and $0.02$; the curves share only the gray area, $0.677$, so the total variation distance is $0.323$.}
+\caption{Two pairs of Gaussian densities whose parameters differ by $0.01$. Left: means $0$ and $0.01$, standard deviation $1$. Right: mean $0$, standard deviations $0.01$ and $0.02$; the gray area is the mass they share.}
 \label{fig:paramvsdist}
 \end{figure}
 
@@ -119,11 +121,13 @@ Lay the two densities on top of each other.
 Where they overlap, the gray region, they agree.
 Where they don't, the area splits into two pieces of equal size, one where $p$ is above and one where $q$ is above, and the total variation distance is the area of either piece.
 Equivalently, $1 - \TV$ is the area of the overlap, the probability mass the two distributions share.
+On the left, for $\Gauss(0,1)$ and $\Gauss(1,1)$, the blue piece and the orange piece each have area $0.383$, which is the total variation distance, and the gray overlap has area $1 - 0.383 = 0.617$.
+On the right, the two distributions of the number of right turns among $124$ couples share only $0.100$ of their mass, so $\TV = 0.900$; the two PMFs cross between $71$ and $72$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tv_area}
-\caption{Total variation as an area. Left: $\Gauss(0,1)$ and $\Gauss(1,1)$. The blue region, where the first density is above the second, and the orange region, where the second is above the first, have the same area, $0.383$, which is the total variation distance; the gray overlap has area $1 - 0.383 = 0.617$. Right: the distributions of the number of right turns among $124$ couples when $p = \frac12$ and when $p = 0.645$. They share only $0.100$ of their mass (gray), so $\TV = 0.900$, and the two PMFs cross between $71$ and $72$.}
+\caption{Total variation as an area. Left: $\Gauss(0,1)$ and $\Gauss(1,1)$: blue where the first density is higher, orange where the second is, gray where they overlap. Right: PMFs of the right-turn count among $124$ couples under $p = \frac12$ and $0.645$, shared mass in gray.}
 \label{fig:tvarea}
 \end{figure}
 
@@ -170,7 +174,7 @@ Everything else is in between, and \cref{sec:dist-tv-tests} makes `in between' p
 An introductory course measured how far apart two groups are with Cohen's $d$, the difference in means in units of the standard deviation, and called $0.2$ small, $0.5$ medium and $0.8$ large.
 For two Gaussians with a common standard deviation, $d$ is a parameter distance, and the second item of the worked example converts it to a distance between distributions: $\TV = 2\Phi(d/2) - 1$.
 \Cref{fig:tvcohen} draws the three conventional sizes.
-A `large' effect still leaves the two distributions sharing $69\%$ of their mass, and a `small' one leaves them sharing $92\%$.
+The total variation distances are $0.080$, $0.197$ and $0.311$: a `large' effect still leaves the two distributions sharing $69\%$ of their mass, a `medium' one leaves them sharing $80\%$, and a `small' one $92\%$.
 The shared area $1 - \TV$ is what some texts call the overlapping coefficient, and $\TV$ is the share of each group that has no counterpart in the other.
 With equal numbers in the two groups, the best rule for guessing which group one person came from is right with probability $(1 + \TV)/2$, which at $d = 0.8$ is $0.66$.
 \end{bridge}
@@ -178,7 +182,7 @@ With equal numbers in the two groups, the best rule for guessing which group one
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_tv_cohen}
-\caption{Cohen's three conventional effect sizes as total variation distances between $\Gauss(0,1)$ (blue, solid) and $\Gauss(d,1)$ (orange, dashed). The shared mass (gray) is $92\%$, $80\%$ and $69\%$; the total variation distances are $0.080$, $0.197$ and $0.311$.}
+\caption{Cohen's three conventional effect sizes, $d = 0.2$, $0.5$ and $0.8$, as total variation distances between $\Gauss(0,1)$ (blue, solid) and $\Gauss(d,1)$ (orange, dashed). The shared mass is gray.}
 \label{fig:tvcohen}
 \end{figure}
 
@@ -333,7 +337,7 @@ An expectation that puts positive probability on $+\infty$ is $+\infty$.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_kl_bernoulli}
-\caption{KL divergence and total variation between $\Bern(p)$ and $\Bern(q)$, with $p = 0.645$ fixed and $q$ varying. Left, the whole range: total variation is a tent with straight sides; the two KL divergences are smooth at $q = p$, differ from each other away from it, and $\KL(\Bern(p), \Bern(q))$ (blue) goes to infinity as $q$ approaches $0$ or $1$, where $\Bern(q)$ calls one of the two outcomes impossible. Right, near $q = p$: both KL curves hug the parabola $(p - q)^2 / (2p(1-p))$. At $q = \frac12$: total variation $0.145$, the two KL divergences $0.0428$ and $0.0440$, the parabola $0.0460$.}
+\caption{KL divergence in both orders and total variation between $\Bern(p)$ and $\Bern(q)$ for $p = 0.645$, as functions of $q$; $\KL(\Bern(p), \Bern(q))$ is blue. Left: the whole range. Right: near $q = p$, with the parabola $(p - q)^2 / (2p(1-p))$.}
 \label{fig:klbern}
 \end{figure}
 
@@ -343,7 +347,9 @@ An expectation that puts positive probability on $+\infty$ is $+\infty$.
 \[
 \KL(\Bern(p), \Bern(q)) = p \log \frac{p}{q} + (1 - p) \log \frac{1 - p}{1 - q}.
 \]
-\Cref{fig:klbern} plots it with $p = 0.645$ fixed.
+\Cref{fig:klbern} plots it with $p = 0.645$ fixed, in both orders, beside the total variation $\abs{p - q}$.
+On the left, over the whole range of $q$, total variation is a tent with straight sides; the two KL divergences are smooth at $q = p$ and differ from each other away from it, and $\KL(\Bern(p), \Bern(q))$ goes to infinity as $q$ approaches $0$ or $1$, where $\Bern(q)$ calls one of the two outcomes impossible.
+At $q = \frac12$ the total variation is $0.145$ and the two KL divergences are $0.0428$ and $0.0440$.
 Two values to keep: $\KL(\Bern(\frac12), \Bern(\frac1{10})) = 0.511$ and $\KL(\Bern(\frac1{10}), \Bern(\frac12)) = 0.368$.
 \item \textbf{Two Gaussians with the same variance.} For $\Pr = \Gauss(a, \sigma^2)$ and $\Qr = \Gauss(b, \sigma^2)$ the normalizing constants cancel in the ratio, and
 \[
@@ -464,7 +470,8 @@ Hence
 \[
 \KL(\Bern(p), \Bern(q)) \approx \frac12 f''(p) (q - p)^2 = \frac{(p - q)^2}{2p(1 - p)} \quad \text{for $q$ near $p$}.
 \]
-For the kiss data the approximation gives $0.0460$ against the exact $0.0428$.
+The right of \cref{fig:klbern} zooms in on $q$ near $p$, and both KL curves hug this parabola there.
+For the kiss data, at $q = \frac12$, the parabola gives $0.0460$ against the exact $0.0428$.
 
 Look at what the curvature is: $1/(p(1-p))$, one over the variance of a single Bernoulli observation.
 The Gaussian formula has the same shape, $(a - b)^2/(2\sigma^2)$, with curvature $1/\sigma^2$.
@@ -548,15 +555,16 @@ The estimated KL is smallest at the sample proportion, $\hat{p} = 0.645$, the es
 \Cref{fig:klestimate} shows the estimate at work.
 To draw it, the unknown constant has to be filled in, so the figure does what only a simulation can: it fixes the truth at $p^* = 0.645$ and draws samples from it.
 The black curve is the true $\KL(\Bern(p^*), \Bern(q))$.
-Each colored curve is the estimate from one simulated sample, $\frac1n \sum_i \log(p^*(R_i)/p_q(R_i))$, the same curve as the true one with the expectation replaced by an average.
-Each estimated curve has its minimum at its own sample proportion.
+Each colored curve is the estimate from one simulated sample, $\frac1n \sum_i \log(p^*(R_i)/p_q(R_i))$, the same curve as the true one with the expectation replaced by an average; there are five samples at each of $n = 20$, $124$ and $1{,}000$.
+Each estimated curve has its minimum, marked by a dot, at its own sample proportion, which is the maximum likelihood estimate.
+Every estimated curve passes through $0$ at $q = p^*$ and dips below zero near its minimum.
 As $n$ grows the estimated curves close in on the true one, and their minimizers close in on $p^*$, which is the true curve's minimizer.
 That is the argument \cref{ch:mle-properties} turns into a proof that the maximum likelihood estimator is consistent.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_kl_estimate}
-\caption{The true $\KL(\Bern(p^*), \Bern(q))$ for $p^* = 0.645$ (black) and five estimates of it, each from one simulated sample of $n$ couples (colors), for $n = 20$, $124$ and $1{,}000$. Each estimated curve is lowest at its own sample proportion (dots), which is the maximum likelihood estimate. Every estimated curve passes through $0$ at $q = p^*$ and dips below zero near its minimum. As $n$ grows the estimates close in on the true curve, and their minimizers on $p^*$.}
+\caption{The true $\KL(\Bern(p^*), \Bern(q))$ for $p^* = 0.645$ (black) and five estimates of it (colors), each from one simulated sample of $n$ couples, for $n = 20$, $124$ and $1{,}000$. The dots mark the minimizer of each estimate.}
 \label{fig:klestimate}
 \end{figure}
 
@@ -645,13 +653,14 @@ At the projection the divergence is $\frac12\log(2\pi) + \frac12 - 1 = 0.419$.
 The minimum is not $0$, since no Gaussian is an exponential.
 \Cref{fig:klprojection} shows the projection against two other candidates, $\Gauss(0.7, 0.6)$, which is taller and sits closer to the exponential's peak at $0$, and $\Gauss(1.5, 1.5)$, which covers its long right tail better.
 Both diverge more, $0.572$ and $0.538$.
+The right of the figure draws the divergence over a grid of means and variances: its minimum, $0.419$, is at mean $1$ and variance $1$, the exponential's own mean and variance, and the three dots are the three Gaussians on the left.
 The divergence weights each point by how often the truth produces it, and it penalizes a candidate that calls likely outcomes unlikely; matching the mean and the variance is the best a Gaussian can do on that criterion.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_kl_projection}
-\caption{Projecting $\Expo(1)$ onto the Gaussian family. Left: the exponential density (gray) and three Gaussians with their KL divergences from it. Right: $\KL(\Expo(1), \Gauss(\mu, \sigma^2))$ over a grid of means and variances, with its minimum $0.419$ at mean $1$ and variance $1$, the exponential's own mean and variance; the dots mark the three Gaussians on the left.}
+\caption{Projecting $\Expo(1)$ onto the Gaussian family. Left: the exponential density (gray) and three Gaussians, each labeled with its KL divergence from it. Right: $\KL(\Expo(1), \Gauss(\mu, \sigma^2))$ over a grid of means and variances, with dots at the three Gaussians on the left.}
 \label{fig:klprojection}
 \end{figure}
 

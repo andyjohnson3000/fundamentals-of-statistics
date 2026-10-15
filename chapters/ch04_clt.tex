@@ -55,13 +55,13 @@ The CDF $F_n$ of $T_n$ is $0$ to the left of the interval, rises linearly to $1$
 The CDF of the constant $5$ is the step function $F(t) = \ind(t \geq 5)$, with $F(5) = 1$.
 So $F_n(t) \to F(t)$ for every $t \neq 5$ but not at $t = 5$, the one point where $F$ jumps.
 With the continuity-point qualifier, $T_n \convd 5$; without it, $T_n$ wouldn't converge in distribution to anything.
-\Cref{fig:cdfcont} shows the picture.
+\Cref{fig:cdfcont} shows the picture: the $F_n$ close in on the step function everywhere except at the jump, where all of them pass through $\frac12$, and the definition of convergence in distribution excludes exactly that point.
 \end{example}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\textwidth]{fig_cdf_continuity_points}
-\caption{The CDFs of $T_n \sim \text{Unif}([5 - \frac{1}{2n}, 5 + \frac{1}{2n}])$ for several $n$ and the CDF of the limit, the constant $5$. The $F_n$ converge to the step function everywhere except at the jump, where all of them pass through $\frac12$. The definition of convergence in distribution excludes exactly that point.}
+\caption{The CDFs $F_n$ of $T_n \sim \text{Unif}([5 - \frac{1}{2n}, 5 + \frac{1}{2n}])$ for $n = 1, 2, 5, 20$, and the CDF $F$ of the constant $5$ in black. The orange square marks the point $(5, \frac12)$ that every $F_n$ passes through.}
 \label{fig:cdfcont}
 \end{figure}
 
@@ -204,10 +204,14 @@ This proves the result.
 \end{itemize}
 \end{proof}
 
+\Cref{fig:maxunif} shows the result by simulation.
+On the left, the maximum of $n = 50$ uniforms crowds the top of the interval.
+On the right, the magnified gap $n(1 - X_{(n)})$ is already very close to $\Expo(1)$ at $n = 50$.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_max_uniform_expo}
-\caption{\Cref{ex:max-unif} by simulation, $20{,}000$ replications. Left: the maximum of $n = 50$ uniforms crowds the top of the interval; its exact density $n x^{n-1}$ is drawn over the histogram. Right: the magnified gap $n(1 - X_{(n)})$ is already very close to $\Expo(1)$ at $n = 50$.}
+\caption{\Cref{ex:max-unif} by simulation, $20{,}000$ replications at $n = 50$. Left: histogram of the maximum $X_{(n)}$ of $n$ uniforms, with its exact density $n x^{n-1}$ in black. Right: histogram of $n(1 - X_{(n)})$, with the $\Expo(1)$ density in orange.}
 \label{fig:maxunif}
 \end{figure}
 
@@ -340,7 +344,7 @@ Standardizing pins the sum down, with $\E(Z_n) = 0$ and $\var(Z_n) = 1$ for all 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_clt_in_action}
-\caption{The CLT in action. Each panel shows the distribution of the standardized sample mean $\sqrt{n}(\bar{X}_n - \mu)/\sigma$ with the $\Gauss(0,1)$ density drawn over it. Top row: $\Expo(1)$ draws (histograms from $50{,}000$ simulated samples). The parent is strongly skewed and the skew is still visible at $n = 30$. Bottom row: the kiss experiment, $\Bern(0.645)$ draws, drawn from the exact Binomial distribution. Here the standardized mean lives on a lattice, visible as bars; by $n = 124$ the Gaussian is already an excellent description.}
+\caption{The standardized sample mean $\sqrt{n}(\bar{X}_n - \mu)/\sigma$, with the $\Gauss(0,1)$ density in black over it. Top row: $\Expo(1)$ draws at $n = 1, 5, 30, 200$, histograms from $50{,}000$ simulated samples. Bottom row: $\Bern(0.645)$ draws at $n = 5, 30, 124, 1000$, the exact Binomial distribution as bars.}
 \label{fig:cltaction}
 \end{figure}
 
@@ -349,6 +353,8 @@ Introductory courses offer a rule of thumb: the normal approximation to the samp
 The CLT contains no such number.
 It's a limit statement, and how fast the limit is reached depends on the parent distribution: above all on how asymmetric and heavy-tailed it is.
 \Cref{fig:cltaction} shows a skewed Exponential parent where $n = 30$ is visibly not enough, and a Bernoulli parent with $p = 0.645$ where it's plenty.
+In the top row the parent is the strongly skewed $\Expo(1)$, and the skew is still visible at $n = 30$.
+In the bottom row the parent is the kiss experiment's $\Bern(0.645)$; the standardized mean lives on a lattice, visible as bars, and by $n = 124$ the Gaussian is already an excellent description.
 For a symmetric parent, $n = 5$ can be enough; for a heavily skewed one, $n = 200$ may not be.
 The number $30$ is a convention, not a theorem.
 What is a theorem is the \textit{rate}: the Berry--Esseen bound says the gap between the CDF of $Z_n$ and $\Phi$ is at most a constant times $\E\abs{X - \mu}^3 / (\sigma^3 \sqrt{n})$, so the error shrinks like $1/\sqrt{n}$, with a constant that is large for heavy-tailed parents. A finer expansion (the Edgeworth expansion) shows that the leading term of the error is proportional to the parent's skewness, which is why symmetric parents reach the Gaussian faster in practice.
@@ -373,11 +379,14 @@ since, for every $n$, the two events are the same:
 The essence of the CLT is that, despite $\bar{X}_n - \mu$ being an r.v.\ with an unbounded support (when the $X_i$ are unbounded), it's \textit{stochastically} bounded in the sense that, with high probability, it's between $-3\sigma/\sqrt{n}$ and $3\sigma/\sqrt{n}$.
 Replace $3$ by $1.96$ and `overwhelming' by $95\%$ and you have the recipe for every confidence interval in \cref{ch:confidence-intervals}.
 \Cref{fig:funnel} draws the bound as a funnel around the running average, and it is also the chapter's two theorems in one picture.
+The funnel narrows like $1/\sqrt{n}$: that is the Law of Large Numbers.
+At any fixed $n$ past the first few dozen, about $5\%$ of the paths are outside the inner funnel and almost none outside the outer one (in this simulation, $6\%$ of the points with $n \geq 30$ are outside the inner funnel): that is the stochastic bound.
+The inner funnel at $n = 124$ is the width of the confidence interval of \cref{ch:confidence-intervals}.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_clt_funnel}
-\caption{The Law of Large Numbers and the CLT in one picture. Twenty realizations of the running proportion $\bar{R}_n$ in the kiss model ($p = 0.645$), with the curves $p \pm 1.96\,\sigma/\sqrt{n}$ and $p \pm 3\,\sigma/\sqrt{n}$, $\sigma = \sqrt{p(1-p)}$. The funnel narrows like $1/\sqrt{n}$: that is the Law of Large Numbers. At any fixed $n$ past the first few dozen, about $5\%$ of the paths are outside the inner funnel and almost none outside the outer one (in this simulation, $6\%$ of the points with $n \geq 30$ are outside the inner funnel): that is the stochastic bound. The inner funnel at $n = 124$ is the width of the confidence interval of \cref{ch:confidence-intervals}.}
+\caption{Twenty realizations of the running proportion $\bar{R}_n$ in the kiss model, $p = 0.645$, with the curves $p \pm 1.96\,\sigma/\sqrt{n}$ (orange) and $p \pm 3\,\sigma/\sqrt{n}$ (dashed black), where $\sigma = \sqrt{p(1-p)}$. The dotted line marks $n = 124$.}
 \label{fig:funnel}
 \end{figure}
 
@@ -416,13 +425,15 @@ With $n = 124$ and $\epsilon = 0.084$:
 \end{itemize}
 At this $n$ the exact Binomial probability is $0.05$, so the CLT approximation is right on and both bounds are loose, with Chebyshev slightly tighter than Hoeffding.
 \Cref{fig:bounds} shows that Hoeffding overtakes Chebyshev at about $n = 165$ and is far ahead by $n = 400$, as the exponential must eventually beat $1/n$.
+In the figure the CLT approximation sits on top of the exact probability for $n$ beyond a few dozen.
+The jaggedness of the exact curve is real: it comes from the lattice of possible values of $\bar{R}_n$ moving relative to the fixed $\epsilon$.
 The two bounds are guarantees; the CLT number is an approximation that happens, here, to be excellent.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{fig_bounds_vs_truth}
-\caption{$\Pr(\abs{\bar{R}_n - p} \geq 0.084)$ in the kiss model with $p = 0.645$, as a function of $n$: the exact Binomial probability, the CLT approximation (on top of it for $n$ beyond a few dozen), and the Chebyshev and Hoeffding upper bounds. The jaggedness of the exact curve is real: it comes from the lattice of possible values of $\bar{R}_n$ moving relative to the fixed $\epsilon$. The dots mark $n = 124$.}
+\caption{$\Pr(\abs{\bar{R}_n - p} \geq 0.084)$ in the kiss model with $p = 0.645$, as a function of $n$: the exact Binomial probability, the CLT approximation, and the Chebyshev and Hoeffding upper bounds. The dots mark $n = 124$.}
 \label{fig:bounds}
 \end{figure}
 

@@ -46,6 +46,8 @@ If $X \in \{1, 2, 3, 4, 5, 6, \geq 7\}$, each with a different probability $\Pr(
 \item Or you could assume that $X - 1 \sim \Pois(\lambda)$.
 That's only 1 parameter, $\lambda$, to learn.
 \Cref{fig:siblings} shows both on the siblings data.
+The empirical PMF is seven numbers, six of them free since they sum to one; the model is one number, $\hat\lambda$, set to the sample mean minus one.
+The model fits well here; where such a model didn't fit, the fault would be the assumption's, not the data's.
 
 \item \textbf{NB:} It's important to keep in mind that parameters define distributions.
 What is meant is that, suppose you're considering the family of Gaussian distributions.
@@ -57,7 +59,7 @@ Learning the parameter and learning the distribution are the same task.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{fig_siblings_model}
-\caption{The siblings data ($n = 24$ values) as an empirical PMF, next to the one-parameter model $X - 1 \sim \Pois(\hat\lambda)$ with $\hat\lambda$ set to the sample mean minus one. Seven numbers on the left, six of them free since they sum to one; one on the right. The model fits well here; where it didn't, that would be the assumption's fault, not the data's.}
+\caption{The siblings data ($n = 24$ values) as an empirical PMF (blue), next to the fitted one-parameter model $X - 1 \sim \Pois(\hat\lambda)$ (orange), with $\hat\lambda$ the sample mean minus one.}
 \label{fig:siblings}
 \end{figure}
 
@@ -101,11 +103,14 @@ A probability measure assigns probabilities to events in the sample space, while
 The two determine each other, so in practice you write down the family by writing down its PMFs or PDFs, as in the examples below, but the object in the definition is the distribution.
 
 \Cref{fig:modelfamilies} is the picture to keep in mind: a model is a family of distributions, and the parameter is the label that picks one out.
+In the top row, two one-parameter families; sliding the parameter moves you through the family.
+In the bottom row, the Gaussian family has a two-dimensional parameter space, drawn on the left, and each point of it is one distribution, drawn on the right.
+The arrow $\theta \mapsto \Pr_\theta$ from the left of the figure to the right is what the definition is about, and \cref{sec:models-identifiability} asks whether it ever sends two points to the same distribution.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_model_families}
-\caption{A statistical model as a family of candidate distributions. Top: two one-parameter families, Bernoulli and Poisson; sliding the parameter moves through the family. Bottom: the Gaussian family has a two-dimensional parameter space (left), and each point of it is one distribution (right). The arrow $\theta \mapsto \Pr_\theta$ from the left panel to the right one is what the definition is about, and \cref{sec:models-identifiability} asks whether it ever sends two points to the same distribution.}
+\caption{Top: the Bernoulli family at three values of $p$, and the Poisson family at three values of $\lambda$. Bottom: four points A to D in the Gaussian parameter space $(\mu, \sigma^2)$, left, and the densities they map to, right.}
 \label{fig:modelfamilies}
 \end{figure}
 
@@ -162,11 +167,15 @@ When a method fails in practice, it's almost always because the data came from o
 The definition says the observations live in a sample space $E$, and a random variable is, by definition, a function on a sample space $S$ \toolkit{sec:math-rv}; \cref{ch:lln} returns to that definition when it needs sequences of random variables.
 These are two uses of the same phrase for two different sets, and the gap between them is where the single most common confusion in this subject lives: what is the relationship between the abstract space on which probability is defined and the concrete numbers in the data file?
 This section walks the chain once, slowly, for the kiss experiment, with \cref{fig:layers} as the map.
+On the left of the figure is the sample space $\Omega$, one point per complete possible outcome of the study, with the one that happened marked.
+In the middle, the data are a function on $\Omega$, one row of $0$s and $1$s per outcome, and the marked row is the data set you have.
+On the right, the statistic $\bar R_n$ is another function on $\Omega$; over all outcomes weighted by their probabilities it has a distribution, the bars, and the marked outcome gives the one value you observe, $\bar r_n = 8/12$.
+Nothing travels from right to left: the dashed arrow is inference, which holds the one value up against the distribution of the rule.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_sample_space_layers}
-\caption{Three layers between the sample space and a number, for a kiss experiment with $n = 12$ couples. Left: the sample space $\Omega$, one point per complete possible outcome of the study; the one that happened is marked. Middle: the data are a function on $\Omega$, one row of $0$s and $1$s per outcome, and the marked row is the data set you have. Right: the statistic $\bar R_n$ is another function on $\Omega$; over all outcomes weighted by their probabilities it has a distribution (the bars), and the marked outcome gives the one value you observe, $\bar r_n = 8/12$. Nothing travels from right to left: inference holds the one value up against the distribution of the rule.}
+\caption{The sample space $\Omega$ (left), the data as one row of $0$s and $1$s per outcome (middle), and the statistic $\bar R_n$ with its distribution (right), for a kiss experiment with $n = 12$. The outcome that happened is marked in orange.}
 \label{fig:layers}
 \end{figure}
 
@@ -207,7 +216,7 @@ For any fixed $n$, think $\Omega = E^n$ and nothing is lost.
 
 \begin{bridge}[the sampling distribution, defined rather than simulated]
 An introductory course introduces the sampling distribution of the sample mean by rerunning the study: draw many samples, compute $\bar{x}$ for each, draw the histogram.
-That histogram is the right panel of \cref{fig:layers}, approximated by simulation; this chapter defines it instead, without rerunning anything, by putting a probability on $\Omega$ and asking how $\bar{R}_n(\omega)$ is distributed under it.
+That histogram is the right of \cref{fig:layers}, approximated by simulation; this chapter defines it instead, without rerunning anything, by putting a probability on $\Omega$ and asking how $\bar{R}_n(\omega)$ is distributed under it.
 The two pictures agree: each simulated sample is one $\omega$, the intro course's `many samples' are many points of $\Omega$, and the limit of the histogram as the number of samples grows is the distribution of the random variable.
 \Cref{fig:twoaverages} in \cref{ch:lln} draws the same picture as rows and columns: a row is an $\omega$, the row average is $\bar{R}_n(\omega)$, and the column of row averages is the sampling distribution.
 Your data set is the one row nature handed you.
@@ -292,11 +301,14 @@ Here are two examples of nonparametric models:
 \left( [0,1],  (\Pr_F)_{\{F: F \text{ is an invertible CDF} \}} \right).
 \]
 \end{enumerate}
+\Cref{fig:paramnonparam} draws the difference.
+On the left, one number, $\lambda$, moves you along a single curve through the space of densities; the whole parametric family is this one-dimensional path.
+On the right are four members of the first nonparametric family, all unimodal densities; no finite set of numbers indexes them, the family is the whole space of such shapes, and these are four points in it.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_parametric_vs_nonparametric}
-\caption{Left: a parametric family. One number, $\lambda$, moves you along a single curve through the space of densities; the whole family is this one-dimensional path. Right: four members of the nonparametric family `all unimodal densities'. No finite set of numbers indexes them; the family is the whole space of such shapes, and these are four points in it.}
+\caption{Left: four members of the parametric family $\{\Expo(\lambda)\}_{\lambda > 0}$, at $\lambda = 0.5, 1, 2, 4$. Right: four members of the nonparametric family of all unimodal densities: Gaussian, Laplace, a skewed density and a triangular one.}
 \label{fig:paramnonparam}
 \end{figure}
 
@@ -412,11 +424,14 @@ Then:
 \]
 Hence different parameter vectors, $(1,4)$ and $(2,16)$, both yield the same Bernoulli parameter $p = \Phi(1/2) = 0.691$, so $\Pr_{(1,4)} = \Pr_{(2,16)}$ while $(1,4) \neq (2,16)$.
 \Cref{fig:identifiability} shows the two Gaussians, which look nothing alike, putting the same mass above zero, and shows in the parameter space what the counterexample is a sample of: a whole ray of parameters producing one distribution.
+On the left, $\Gauss(1, 4)$ and $\Gauss(2, 16)$ are different distributions, but the only thing you observe is whether $Y \geq 0$, and both put probability $\Phi(1/2) = 0.691$ there.
+On the right, in the $(\mu, \sigma)$ plane, every point on the orange ray $\mu/\sigma = 1/2$ produces that same Bernoulli, and every other ray produces some other one.
+The observable distribution identifies the ray, that is, $\mu/\sigma$, and nothing more; the counterexample above is two points on the orange ray.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_identifiability}
-\caption{\Cref{ex:nonidentifiable}. Left: $\Gauss(1, 4)$ and $\Gauss(2, 16)$ are different distributions, but the only thing you observe is whether $Y \geq 0$, and both put probability $\Phi(1/2) = 0.691$ there. Right: in the $(\mu, \sigma)$ plane every point on the ray $\mu/\sigma = 1/2$ produces that same Bernoulli, and every other ray produces some other one. The observable distribution identifies the ray (that is, $\mu/\sigma$) and nothing more; the counterexample in the text is two points on the orange ray.}
+\caption{\Cref{ex:nonidentifiable}. Left: the densities of $\Gauss(1, 4)$ and $\Gauss(2, 16)$, each with its mass above zero shaded. Right: the $(\mu, \sigma)$ plane, with the ray $\mu/\sigma = 1/2$ in orange, the counterexample's two points marked, and two other rays dotted.}
 \label{fig:identifiability}
 \end{figure}
 
@@ -448,11 +463,16 @@ The map $a \mapsto \Pr_a$ is constant, the worst possible failure of injectivity
 \end{example}
 
 \Cref{fig:identmaps} draws the three maps side by side; identifiability is the shape of the curve.
+In each example the observation is a Bernoulli whose parameter $p$ is a function of $\theta$.
+On the left, the censored Exponential has $p = e^{-5\lambda}$, strictly decreasing, so each $p$ comes from exactly one $\lambda$.
+In the middle, the uniform thresholded at half its range has $p = \frac12$ for every $a$, so the observation says nothing about $a$.
+On the right, the Gaussian sign example has $p = \Phi(\mu/\sigma)$, drawn against $\mu$ for three values of $\sigma$: one value of $p$ is reached by a whole ray of $(\mu, \sigma)$ pairs, the ray of \cref{fig:identifiability}.
+Identifiable means the curve never takes the same value twice.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_identifiable_maps}
-\caption{Identifiability as the shape of the map from the parameter to the distribution of what you observe. In each example the observation is a Bernoulli whose parameter $p$ is a function of $\theta$. Left: the censored Exponential, $p = e^{-5\lambda}$, strictly decreasing, so each $p$ comes from exactly one $\lambda$. Middle: the uniform thresholded at half its range, $p = \frac12$ for every $a$, so the observation says nothing about $a$. Right: the Gaussian sign example, $p = \Phi(\mu/\sigma)$, drawn against $\mu$ for three values of $\sigma$: one value of $p$ is reached by a whole ray of $(\mu, \sigma)$ pairs, the ray of \cref{fig:identifiability}. Identifiable means the curve never takes the same value twice.}
+\caption{The observable Bernoulli parameter $p$ as a function of $\theta$. Left: the censored Exponential, $p = e^{-5\lambda}$. Middle: the uniform thresholded at half its range, $p = \frac12$. Right: the Gaussian sign example, $p = \Phi(\mu/\sigma)$ against $\mu$, one line style per $\sigma$.}
 \label{fig:identmaps}
 \end{figure}
 
@@ -512,11 +532,13 @@ f(x) = \Pr(Z = 1) f_1(x) + \Pr(Z = 0) f_2(x) = \pi f_1(x) + (1-\pi) f_2(x),
 so both components contribute to the overall distribution, weighted by their probabilities.
 From the population perspective, if you generate $n$ samples from this model, approximately $n\pi$ of them come from $\Gauss(\mu_1, \sigma_1^2)$ and approximately $n(1 - \pi)$ from $\Gauss(\mu_2, \sigma_2^2)$.
 \Cref{fig:gmm} shows both perspectives.
+On the left, the mixture density is the sum of the two weighted components.
+On the right, each of the $400$ draws came from exactly one component, and its color records which; the black mixture density over the histogram is what you see when you cannot tell.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_gaussian_mixture}
-\caption{A two-component Gaussian mixture with $\pi = 0.3$, $\Gauss(-1.5, 0.5)$ and $\Gauss(2, 1)$. Left: the mixture density is the sum of the two weighted components. Right: $400$ draws from the generative model, histogrammed and colored by the latent $Z$ that produced each one. Each draw came from exactly one component; the mixture density (black) is what you see when you cannot tell which.}
+\caption{A two-component Gaussian mixture with $\pi = 0.3$, $\Gauss(-1.5, 0.5)$ (blue) and $\Gauss(2, 1)$ (orange). Left: the two weighted components and their sum, the mixture density (black). Right: $400$ draws, histogrammed and colored by the latent $Z$, with the mixture density over them.}
 \label{fig:gmm}
 \end{figure}
 

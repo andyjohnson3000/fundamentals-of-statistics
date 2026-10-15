@@ -44,14 +44,16 @@ A better rule puts a buffer around each mean and asks whether the buffers still 
 For the one-sample version, conclude $\mu > 30$ if $\bar{X}_n > 30 + \text{buffer}$.
 What should the buffer be?
 Something that measures the size of the random fluctuations of $\bar{X}_n$, and \cref{ch:clt} says what that is: a few multiples of $\sigma/\sqrt{n}$.
-\Cref{fig:testbuffer} draws the heuristic for the boarding data and for two one-sample examples.
-With $n = 72$ and $m = 56$ the buffers around $24.2$ and $15.9$ are a fraction of a minute wide, and the conclusion is not in doubt.
-For a coin tossed $30$ times with $13$ heads, the buffer around $\hat{p} = 0.43$ reaches well past $\frac12$, and the heuristic says nothing.
+\Cref{fig:testbuffer} draws the heuristic for the boarding data and for two one-sample examples, with a buffer of two standard errors around each estimate.
+With $n = 72$ and $m = 56$ the buffers around $24.2$ and $15.9$ minutes reach about half a minute (R2F) and a third of a minute (WilMA) on each side, nowhere near each other, and the conclusion is not in doubt.
+For a coin tossed $30$ times with $13$ heads, the buffer $0.43 \pm 0.18$ reaches well past $\frac12$, and the heuristic says nothing.
+For a survey of $4{,}971$ Americans in which $32\%$ get news on YouTube, the buffer $0.32 \pm 0.013$ just reaches the $33\%$ being tested, and again the heuristic is silent.
+For a proportion the buffer is $2\sqrt{\hat{p}(1-\hat{p})/n}$, and it shrinks like $1/\sqrt{n}$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_test_buffer}
-\caption{A first heuristic: put a buffer of two standard errors around each estimate and see whether it reaches the value being tested. Left: the boarding data; the buffers around $24.2$ and $15.9$ minutes reach about half a minute (R2F) and a third of a minute (WilMA) on each side and are nowhere near each other, so the two methods differ. Right: two one-sample examples, each with the value being tested drawn as a tick. A coin with $13$ heads in $30$ tosses has a buffer $0.43 \pm 0.18$ that reaches $\frac12$ easily; a survey of $4{,}971$ Americans in which $32\%$ get news on YouTube has a buffer $0.32 \pm 0.013$ that just reaches the $33\%$ being tested. In both the heuristic is silent. The buffer is $2\sqrt{\hat{p}(1-\hat{p})/n}$, and shrinks like $1/\sqrt{n}$.}
+\caption{Buffers of two standard errors around each estimate (dot). Left: the boarding data, R2F (blue) and WilMA (orange). Right: two one-sample proportions, the coin (blue) and the YouTube survey (aqua), each with the value being tested as a black tick.}
 \label{fig:testbuffer}
 \end{figure}
 
@@ -191,14 +193,17 @@ For a test $\psi$ of $H_0: \theta \in \Theta_0$ against $H_1: \theta \in \Theta_
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_test_two_errors}
-\caption{One threshold, two distributions, two errors, for the one-sided test on the kiss data `reject $p = \frac12$ if the count is $72$ or more'. Top: if $p = \frac12$ the count is $\mathrm{Bin}(124, \frac12)$, centered at $62$, and the orange mass at $72$ and above is the type 1 error, $0.044$. Bottom: if instead $p = 0.645$ the count is $\mathrm{Bin}(124, 0.645)$, centered at $80$; the gray mass below $72$ is the type 2 error at that $p$, $0.057$, and the blue mass is the power there, $0.943$. Moving the threshold right shrinks the orange and grows the gray. The scale along the top is the test statistic $T_n = (\text{count} - 62)/\sqrt{31}$ of \cref{sec:tests-clt}: the threshold $72$ is $T_n = 1.80$, and the observed $80$ is $3.23$.}
+\caption{The test `reject $p = \frac12$ if the count is $72$ or more', threshold dashed. Top: the count under $p = \frac12$, mass at $72$ and above in orange. Bottom: the count under $p = 0.645$, mass below $72$ in gray, the rest in blue.}
 \label{fig:twoerrors}
 \end{figure}
 
 \Cref{fig:twoerrors} is the picture to hold on to.
 The same threshold cuts two different distributions of the count: the one $H_0$ predicts and one of the many $H_1$ allows.
+At the top, if $p = \frac12$ the count is $\mathrm{Bin}(124, \frac12)$, centered at $62$, and the orange mass at $72$ and above is the type 1 error, $0.044$.
+At the bottom, if instead $p = 0.645$ the count is $\mathrm{Bin}(124, 0.645)$, centered at $80$; the gray mass below $72$ is the type 2 error at that $p$, $0.057$, and the blue mass is the power there, $0.943$.
 What falls on the wrong side of the cut under each is the corresponding error.
-And the picture shows the trade: sliding the threshold to the right makes the type 1 error smaller and the type 2 error larger, sliding it left does the reverse, and at a fixed $n$ you cannot shrink both.
+The scale along the top of each is the test statistic $T_n = (\text{count} - 62)/\sqrt{31}$ of \cref{sec:tests-clt}: the threshold $72$ is $T_n = 1.80$, and the observed $80$ is $3.23$.
+And the picture shows the trade: sliding the threshold to the right makes the type 1 error smaller and the type 2 error larger (the orange shrinks and the gray grows), sliding it left does the reverse, and at a fixed $n$ you cannot shrink both.
 The two distributions pull apart as $n$ grows (their standard deviations are $\sqrt{p(1-p)/n}$ on the proportion scale), and that is the only lever that lowers both errors at once.
 
 Rather than two functions on two sets, it is often clearer to look at one function on all of $\Theta$, the probability of rejecting,
@@ -206,13 +211,16 @@ Rather than two functions on two sets, it is often clearer to look at one functi
 \theta \mapsto \Pr_\theta(\psi = 1),
 \]
 which is $\alpha_\psi$ on $\Theta_0$ and $1 - \beta_\psi$ on $\Theta_1$.\footnote{Two conventions for the letter $\beta$ are in common use. This book writes $\beta_\psi$ for the type 2 error, as in \cref{def:errors}. Elsewhere $\beta(\theta)$ names this rejection probability itself, the power function, which is $1 - \beta_\psi(\theta)$ on $\Theta_1$ and $\alpha_\psi(\theta)$ on $\Theta_0$. Check which one a source means before carrying a formula across.}
-\Cref{fig:powercurve} draws it for the kiss data.
+\Cref{fig:powercurve} draws it for the kiss data, computed exactly from the Binomial distribution of the count.
+On the left, at $n = 124$, the one-sided test rejects for a count of $72$ or more and the two-sided test for $74$ or more or $50$ or fewer.
+At $p = \frac12$ both curves are at or below $0.05$ (they are $0.044$ and $0.038$); to the right both climb to $1$, the one-sided test faster since it spends its whole $5\%$ on that side; to the left the two-sided test climbs and the one-sided test, which does not watch that side, stays at $0$.
+On the right, the one-sided test at $n = 30$ (threshold $20$) sits beside the same test at $n = 124$: more data makes the curve steeper, so both errors fall at once.
 A good test has a rejection curve that is low on $\Theta_0$ and climbs quickly to $1$ on $\Theta_1$; the level, defined next, caps the low part, and the power is the lowest point of the high part.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_power_curve}
-\caption{The probability of rejecting as a function of the true $p$, computed exactly from the Binomial distribution of the count. Left: the one-sided test (reject if the count is $\geq 72$) and the two-sided test (reject if $\geq 74$ or $\leq 50$) at $n = 124$. At $p = \frac12$ both curves are at or below $0.05$ (they are $0.044$ and $0.038$); to the right both climb to $1$, the one-sided test faster since it spends its whole $5\%$ on that side; to the left the two-sided test climbs and the one-sided test, which does not watch that side, stays at $0$. Right: the one-sided test at $n = 30$ (threshold $20$) and $n = 124$. More data makes the curve steeper: both errors fall at once.}
+\caption{The probability of rejecting against the true $p$, with the level $0.05$ dotted. Left, $n = 124$: one-sided, count $\geq 72$ (solid), and two-sided, $\geq 74$ or $\leq 50$ (dashed). Right: one-sided at $n = 124$ (solid) and $n = 30$ (dash-dot).}
 \label{fig:powercurve}
 \end{figure}
 
@@ -373,13 +381,15 @@ So the one-sided thresholds agree and the two-sided ones differ by one count.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_exact_vs_clt}
-\caption{Why the exact and CLT thresholds can differ. Left: the upper tail of $\mathrm{Bin}(124, \frac12)$ (bars) and the $\Gauss(62, 31)$ density the CLT replaces it with (curve), with the two exact thresholds marked. Right: the tail probability $\Pr_{1/2}(\text{count} \geq k)$ as a function of the threshold $k$, a staircase for the exact distribution and a smooth curve for the Gaussian. The exact threshold is the first step at or below the level line ($72$ for $0.05$, $74$ for $0.025$); the CLT threshold is where the curve crosses it ($71.2$ and $72.9$, rounded up to $72$ and $73$). At $k = 73$ the exact tail is $0.029$ and the Gaussian tail $0.024$: one is above the $0.025$ line and the other below, and that is the whole disagreement.}
+\caption{Left: the upper tail of $\mathrm{Bin}(124, \frac12)$ (bars) and the $\Gauss(62, 31)$ density (curve), with the exact thresholds $72$ (orange) and $74$ (aqua) dashed. Right: $\Pr_{1/2}(\text{count} \geq k)$ against $k$, exact (staircase) and Gaussian (dashed), with the levels $0.05$ and $0.025$ dotted.}
 \label{fig:exactclt}
 \end{figure}
 
 \textbf{Why they differ.}
 \Cref{fig:exactclt} shows the two tail probabilities side by side.
-The Gaussian curve is a good approximation of the staircase, off by about $0.005$ at $k = 73$, but $0.005$ is enough to put the exact tail ($0.029$) above the line $0.025$ and the Gaussian tail ($0.024$) below it.
+On the left is the $\Gauss(62, 31)$ density the CLT puts in place of the $\mathrm{Bin}(124, \frac12)$ bars; on the right is the tail probability $\Pr_{1/2}(\text{count} \geq k)$ as a function of the threshold $k$, a staircase for the exact distribution and a smooth curve for the Gaussian.
+The exact threshold is the first step at or below the level line, $72$ for $0.05$ and $74$ for $0.025$; the CLT threshold is where the curve crosses the line, $71.2$ and $72.9$, rounded up to $72$ and $73$.
+The Gaussian curve is a good approximation of the staircase, off by about $0.005$ at $k = 73$, but $0.005$ is enough to put the exact tail ($0.029$) above the line $0.025$ and the Gaussian tail ($0.024$) below it, and that is the whole disagreement.
 The gap is mostly discreteness, not the CLT's inaccuracy: the Gaussian approximates the probability of the count being $\geq 73$ better if the threshold is placed at $72.5$ (the \textbf{continuity correction} of an introductory course), and with it the two-sided threshold becomes $62 + 0.5 + 10.9 = 73.4$, rounding up to $74$, in agreement with the exact test.
 This book does not use the correction. For a proportion, whenever the Gaussian approximation lands close enough to the line that the correction would change the decision, the exact Binomial test is available and settles the question outright. An asymptotic level $5\%$ is not an exact level $5\%$, and at a threshold where the exact tail is near the line the two can round in different directions.
 For $80$ right turns, far from either threshold, the decision is the same every way: reject.
@@ -414,11 +424,14 @@ It is random: it depends on the sample.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_pvalue}
-\caption{The $p$-value two ways, for $T_n = 3.23$. Left: the density of $T_n$ under $H_0$ (standard Gaussian by the CLT), the $5\%$ rejection region $\abs{T_n} > 1.96$ shaded lightly, and the observed value marked. The $p$-value is the area beyond $\pm 3.23$, too small to see at this scale, the probability under $H_0$ of something at least this extreme: $0.0012$. Right: the threshold $q_{\alpha/2}$ as a function of the level, with the observed value as a horizontal line. The test rejects at every level whose threshold lies below the line; the smallest such level, where the curve crosses, is the $p$-value. Left and right say the same thing: $3.23$ is far out.}
+\caption{The $p$-value for $T_n = 3.23$. Left: the density of $T_n$ under $H_0$, the rejection region at $5\%$ (light orange), the area beyond $\pm 3.23$ (dark orange), the observed value (dashed). Right: the threshold $q_{\alpha/2}$ against the level $\alpha$, with the observed value dashed.}
 \label{fig:pvalue}
 \end{figure}
 
-The two readings in \cref{fig:pvalue} are the same number because of how the thresholds are built.
+\Cref{fig:pvalue} shows the $p$-value two ways.
+On the left, the density of $T_n$ under $H_0$ is the standard Gaussian by the CLT, the $5\%$ rejection region is $\abs{T_n} > 1.96$, and the $p$-value is the area beyond $\pm 3.23$, too small to see at this scale: the probability under $H_0$ of something at least this extreme, $0.0012$.
+On the right, the threshold $q_{\alpha/2}$ is drawn as a function of the level, with the observed value as a horizontal line; the test rejects at every level whose threshold lies below the line, and the smallest such level, where the curve crosses, is the $p$-value.
+The two readings are the same number because of how the thresholds are built.
 For the two-sided test, $\psi_\alpha$ rejects when $\abs{T_n} > q_{\alpha/2}$, and $q_{\alpha/2}$ decreases as $\alpha$ grows, so the levels at which the test rejects are exactly those with $q_{\alpha/2} < \abs{t}$ for the observed $t$, that is, those with $\alpha/2 > \Pr(Z > \abs{t})$, that is, $\alpha > \Pr(\abs{Z} > \abs{t})$.
 The smallest such $\alpha$ is $\Pr(\abs{Z} > \abs{t})$, the tail area.
 For a one-sided test with $H_1: \mu > \mu_0$ the same argument gives $\Pr(Z > t)$.
@@ -485,11 +498,14 @@ The asymptotic version replaces each probability by its limit.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_test_ci_duality}
-\caption{The duality for the kiss data. For each candidate $p_0$ on the horizontal axis, the vertical segment is the set of sample proportions the level-$5\%$ test of $H_0: p = p_0$ does not reject, $p_0 \pm 1.96\sqrt{p_0(1-p_0)/124}$. The horizontal line is the observed $\bar{R}_n = 0.645$. A candidate whose segment crosses the line is not rejected (blue); one whose segment misses it is rejected (orange). The set of candidates not rejected (shaded) is $[0.558, 0.724]$, the solve interval of \cref{ch:confidence-intervals} exactly, and $\frac12$ is orange.}
+\caption{The duality for the kiss data. At each candidate $p_0$ (horizontal axis), a vertical segment $p_0 \pm 1.96\sqrt{p_0(1-p_0)/124}$; the horizontal line is the observed $\bar{R}_n = 0.645$. Segments crossing the line are blue, segments missing it are orange, and the shaded strip is $[0.558, 0.724]$.}
 \label{fig:duality}
 \end{figure}
 
-\Cref{fig:duality} draws part (1) for the kiss data, running the test for every $p_0$ at once. The test being inverted is
+\Cref{fig:duality} draws part (1) for the kiss data, running the test for every $p_0$ at once.
+Each vertical segment is the set of sample proportions the level-$5\%$ test of $H_0: p = p_0$ does not reject; a candidate whose segment crosses the line of the observed $\bar{R}_n = 0.645$ is not rejected, one whose segment misses it is rejected, and $\frac12$ misses.
+The shaded strip of candidates not rejected is $[0.558, 0.724]$, the solve interval of \cref{ch:confidence-intervals} exactly.
+The test being inverted is
 \[
 \psi(p_0) = \ind\left\{ \abs{\bar{R}_n - p_0} > q_{\alpha/2}\sqrt{p_0(1 - p_0)/n} \right\},
 \]

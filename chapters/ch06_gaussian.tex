@@ -52,11 +52,14 @@ It is zero at $x = \mu$ and negative everywhere else, so the density peaks at $\
 If $\sigma$ is small, that is, if the standard deviation is small, then the quadratic is more negative at the same distance from $\mu$, so the exponential falls off faster and the density is narrower.
 A small standard deviation and a narrow density are the same thing seen twice.
 \Cref{fig:gaussdensity} shows the effect of each parameter.
+On the left, $\Gauss(0, 4)$ is $\Gauss(0, 1)$ stretched to twice the width, and its peak drops to half the height to keep the area at $1$; $\Gauss(10, 4)$ is $\Gauss(0, 4)$ moved ten units to the right with no change of shape.
+So $\mu$ moves the density without changing its shape, and $\sigma$ stretches it without moving its center.
+On the right, the three shaded regions of the standard Gaussian have probabilities $0.6827$, $0.9545$ and $0.9973$: the `$68$--$95$--$99.7$ rule' of an introductory course, stated exactly.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_gaussian_density}
-\caption{Left: $\mu$ moves the density without changing its shape; $\sigma$ stretches it without moving its center, and the height drops to keep the area at $1$. Right: the standard Gaussian with the regions within one, two and three standard deviations of the mean. Their probabilities are $0.6827$, $0.9545$ and $0.9973$, which is the `$68$--$95$--$99.7$ rule' of an introductory course stated exactly.}
+\caption{Left: the densities of $\Gauss(0, 1)$ (solid), $\Gauss(0, 4)$ (dashed) and $\Gauss(10, 4)$ (dash-dot). Right: the standard Gaussian density, shaded within one, two and three standard deviations of the mean.}
 \label{fig:gaussdensity}
 \end{figure}
 
@@ -167,12 +170,15 @@ Since the CDF has no formula, every Gaussian probability is computed by standard
 There are two directions.
 \textit{Forwards:} given a value, find a probability; standardize to a $z$-score and read $\Phi(z)$.
 \textit{Backwards:} given a probability, find the value; read the table in reverse to get $z = \Phi^{-1}(\text{probability})$ and unstandardize, $x = \mu + \sigma z$.
-\Cref{fig:gausscdf} shows both on the graph of $\Phi$.
+\Cref{fig:gausscdf} shows both on the graph of $\Phi$, with the numbers of the exam example that follows.
+Forwards, a $z$-score goes in on the horizontal axis and a probability comes out on the vertical axis: $\Phi(2.5) = 0.9938$.
+Backwards, a probability goes in on the vertical axis and a $z$-score comes out on the horizontal axis: $\Phi^{-1}(0.90) = 1.28$.
+Tables print the forward direction; for the backward direction you scan the table for the probability, or ask software for the quantile directly.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.72\textwidth]{fig_gaussian_cdf}
-\caption{The standard Gaussian CDF read in both directions, with the exam example below. Forwards: a $z$-score goes in on the horizontal axis and a probability comes out, $\Phi(2.5) = 0.9938$. Backwards: a probability goes in on the vertical axis and a $z$-score comes out, $\Phi^{-1}(0.90) = 1.28$. Tables print the forward direction; the backward direction is found by scanning the table for the probability, or by asking software for the quantile directly.}
+\caption{The standard Gaussian CDF $\Phi$ with the two readings of the exam example below: forwards from $z = 2.5$ to $\Phi(2.5) = 0.9938$ (blue dashes), backwards from $0.90$ to $\Phi^{-1}(0.90) = 1.28$ (orange dots).}
 \label{fig:gausscdf}
 \end{figure}
 
@@ -219,7 +225,7 @@ The \textbf{quantile of order $1 - \alpha$} of an r.v.\ $X$ is the number $q_\al
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_quantile_def}
-\caption{The definition as a picture, for $\alpha = 0.05$. Left: $q_\alpha$ is the cutoff on the horizontal axis with area $\alpha$ to its right and $1 - \alpha$ to its left; the subscript is the area of the upper tail. Right: to find it, read the CDF backwards. Start at height $1 - \alpha$ on the vertical axis, go across to the curve, then drop down to the horizontal axis: the number you land on is $q_\alpha$. For the standard Gaussian and $\alpha = 0.05$ that number is $1.645$.}
+\caption{The definition of $q_\alpha$ for the standard Gaussian, $\alpha = 0.05$. Left: the density, with area $1 - \alpha$ below $q_\alpha$ (blue) and area $\alpha$ above it (orange). Right: the CDF, with the backward reading from $1 - \alpha$ to $q_\alpha$ (orange dashes).}
 \label{fig:quantiledef}
 \end{figure}
 
@@ -232,6 +238,8 @@ The \textbf{quantile of order $1 - \alpha$} of an r.v.\ $X$ is the number $q_\al
 \textbf{How to read the notation.}
 The symbol $q_\alpha$ carries two numbers and it is easy to attach the subscript to the wrong one.
 The subscript $\alpha$ is a \textit{probability}, the area of the upper tail in \cref{fig:quantiledef}; the value $q_\alpha$ is a \textit{number on the horizontal axis}, a cutoff in the same units as $X$.
+The left of the figure shows the first as a shaded area and the second as the cutoff that leaves area $\alpha$ to its right and $1 - \alpha$ to its left.
+The right shows how to find the cutoff: read the CDF backwards, starting at height $1 - \alpha$ on the vertical axis, going across to the curve, then dropping down to the horizontal axis; the number you land on is $q_\alpha$, and for the standard Gaussian and $\alpha = 0.05$ it is $1.645$.
 So $q_{0.05} = 1.645$ says: the probability that a standard Gaussian exceeds $1.645$ is $0.05$.
 The phrase `quantile of order $1 - \alpha$' in the definition refers to the area \textit{below} the cutoff, $0.95$ for $q_{0.05}$, which is how the inverse CDF is indexed; the subscript refers to the area \textit{above}.
 Both describe the same point.
@@ -259,11 +267,13 @@ This is the symmetry property: $\Pr(\abs{Z} > q_{\alpha/2}) = 2\Pr(Z > q_{\alpha
 
 The last property is the two-sided version, and the difference between it and the one-sided definition is drawn in \cref{fig:gaussquantiles}.
 For a one-sided statement (`$Z$ exceeds the cutoff') the cutoff is $q_\alpha$; for a two-sided statement (`$Z$ is beyond the cutoff in either direction') the cutoff is $q_{\alpha/2}$ because the probability $\alpha$ has to be split between two tails.
+With $\alpha = 0.05$: on the left of the figure, $q_{0.05} = 1.645$ leaves $5\%$ of the mass in the upper tail; on the right, $q_{0.025} = 1.96$ leaves $2.5\%$ in each tail, so $\abs{Z} > 1.96$ has probability $5\%$.
+Same $\alpha$, different cutoff.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_gaussian_quantiles}
-\caption{Quantiles of the standard Gaussian in this book's convention, for $\alpha = 0.05$. Left: $q_{0.05} = 1.645$ leaves $5\%$ of the mass in the upper tail. Right: $q_{0.025} = 1.96$ leaves $2.5\%$ in each tail, so $\abs{Z} > 1.96$ has probability $5\%$. Same $\alpha$, different cutoff; which one you need depends on whether the question is one-sided or two-sided.}
+\caption{The standard Gaussian density with $\alpha = 0.05$. Left: the one-sided cutoff $q_{0.05} = 1.645$, with the tail of area $0.05$ in orange. Right: the two-sided cutoffs $\pm q_{0.025} = \pm 1.96$, with the two tails of area $0.025$ each in orange.}
 \label{fig:gaussquantiles}
 \end{figure}
 
@@ -303,12 +313,14 @@ x &= -\frac{\ln(1-p)}{\lambda}.
 So, for example, the 50th percentile, or median, of an Exponential r.v.\ with parameter $\lambda$ is $x = -\ln(1/2)/\lambda = \ln 2 / \lambda \approx 0.69/\lambda$, which is less than the mean $1/\lambda$ because the distribution is skewed to the right.
 In this book's notation, $q_\alpha = -\ln(\alpha)/\lambda$: the subway inter-arrival time of \cref{ch:limit-tools}, with $\hat{\lambda} = 0.16$ per minute, exceeds $q_{0.05} = -\ln(0.05)/0.16 \approx 19$ minutes about one time in twenty.
 \Cref{fig:expoquantile} shows the three numbers on the density.
+The median, $\ln 2/\lambda = 4.3$ minutes, splits the mass in half and sits left of the mean of $1/\lambda = 6.2$ minutes because the long right tail pulls the mean up; the quantile $q_{0.05} = 18.7$ minutes leaves $5\%$ of the mass above it.
+For the Gaussian the median and the mean coincide; for a skewed distribution they don't.
 \end{example}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{fig_expo_quantile}
-\caption{Quantiles of a skewed distribution: the $\Expo(\lambda)$ density of the subway inter-arrival times with $\lambda = 0.16$ per minute. The median, $\ln 2/\lambda = 4.3$ minutes, splits the mass in half and sits left of the mean, $1/\lambda = 6.2$ minutes because the long right tail pulls the mean up. The quantile $q_{0.05} = 18.7$ minutes leaves $5\%$ of the mass above it. For the Gaussian the median and the mean coincide; for a skewed distribution they don't, and quantiles are the honest summary.}
+\caption{The $\Expo(\lambda)$ density of the subway inter-arrival times, $\lambda = 0.16$ per minute, with the median, the mean and $q_{0.05}$ marked by dotted lines. The half of the mass below the median is blue; the $5\%$ above $q_{0.05}$ is orange.}
 \label{fig:expoquantile}
 \end{figure}
 

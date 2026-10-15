@@ -142,13 +142,16 @@ f \left( \sqrt{n}(\bar{R}_n - p) \right) \convd f(Y).
 That is a true statement, and almost never the one you want.
 What you want is the limit of $\sqrt{n} \left( f(\bar{R}_n) - f(p) \right)$: the magnified error of the transformed \textit{estimator}, not a transformation of the magnified error.
 The CMT is silent on this.
-The delta method is the tool, and \cref{fig:cmtpitfall} shows the two objects side by side.
+The delta method is the tool, and \cref{fig:cmtpitfall} shows the two objects side by side, for $f(x) = x^2$ in the kiss model with $p = 0.645$ and $n = 124$; $p^2$ is the probability that two independent couples both turn right.
+On the left is $f$ applied to the magnified error, $(\sqrt{n}(\bar{R}_n - p))^2$, which by the CMT converges to the square of a Gaussian, $\sigma^2 \chi^2_1$ with $\sigma^2 = p(1-p)$, a chi-squared shape.
+True, and useless for saying how accurate $\bar{R}_n^2$ is.
+On the right is the magnified error of the transformed estimator, $\sqrt{n}(\bar{R}_n^2 - p^2)$, which the delta method says is $\Gauss(0, (2p)^2 p(1-p))$, standard deviation $0.62$.
 \end{pitfall}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_cmt_pitfall}
-\caption{Two different random variables, for $f(x) = x^2$ in the kiss model ($p = 0.645$, $n = 124$; $p^2$ is the probability that two independent couples both turn right). Left: $f$ applied to the magnified error, $(\sqrt{n}(\bar{R}_n - p))^2$, which by the CMT converges to the square of a Gaussian, $\sigma^2 \chi^2_1$ with $\sigma^2 = p(1-p)$, a chi-squared shape (the curve). True, and useless for saying how accurate $\bar{R}_n^2$ is. Right: the magnified error of the transformed estimator, $\sqrt{n}(\bar{R}_n^2 - p^2)$, which the delta method says is $\Gauss(0, (2p)^2 p(1-p))$, standard deviation $0.62$ (the curve). The bars in both panels are the exact Binomial distribution of $n\bar{R}_n$, binned.}
+\caption{Two different random variables for $f(x) = x^2$ in the kiss model, $p = 0.645$, $n = 124$. Left: $(\sqrt{n}(\bar{R}_n - p))^2$ with its CMT limit (black curve). Right: $\sqrt{n}(\bar{R}_n^2 - p^2)$ with its delta-method limit (orange curve). The bars are the exact Binomial distribution of $n\bar{R}_n$, binned.}
 \label{fig:cmtpitfall}
 \end{figure}
 
@@ -179,6 +182,7 @@ Then:
 
 \begin{intuition}[a differentiable function is locally linear]
 \Cref{fig:delta} is the whole idea.
+It is drawn for $g(x) = 1/x$ with the numbers of the subway example below, $\theta = 6.23$ and $\sigma/\sqrt{n} = 0.78$; the dotted lines map $\theta \pm 2\sigma/\sqrt{n}$ across.
 For large $n$, $Z_n$ sits in a narrow Gaussian blob of width $\sigma/\sqrt{n}$ around $\theta$.
 On a blob that narrow, the curve $g$ is indistinguishable from its tangent line at $\theta$, which has slope $g'(\theta)$.
 A linear function maps a Gaussian to a Gaussian, shifting the center to $g(\theta)$ and multiplying the width by the slope.
@@ -189,7 +193,7 @@ Where $g$ is steep, errors in $Z_n$ are amplified; where it's flat, they're damp
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{fig_delta_method}
-\caption{The delta method for $g(x) = 1/x$, with $\theta = 6.23$ and $\sigma/\sqrt{n} = 0.78$ (the subway example below). The Gaussian around $\theta$ on the horizontal axis is pushed through $g$. Because the blob is narrow, $g$ acts like its tangent line, and the image on the vertical axis is a Gaussian around $g(\theta)$ whose width is the input width times $\abs{g'(\theta)}$. The dotted lines map $\theta \pm 2\sigma/\sqrt{n}$ across.}
+\caption{The delta method for $g(x) = 1/x$, $\theta = 6.23$, $\sigma/\sqrt{n} = 0.78$: the input Gaussian in blue on the horizontal axis, its image in green on the vertical axis, the tangent at $\theta$ dashed in orange, and dotted guides at $\theta \pm 2\sigma/\sqrt{n}$.}
 \label{fig:delta}
 \end{figure}
 
@@ -242,12 +246,16 @@ With $g(p) = p/(1-p)$ you get $g'(p) = 1/(1-p)^2$, and the CLT gives asymptotic 
 At $p = 0.645$ and $n = 124$: $\hat{\omega} = 1.82$ and the standard error is $\sqrt{0.645/0.355^3/124} \approx 0.34$.
 The derivative $1/(1-p)^2 \approx 7.9$ is large, so the odds are estimated far less precisely, in absolute terms, than the proportion they're computed from: a steep $g$ amplifies the error.
 \Cref{fig:steepflat} puts this next to a flat $g$, where the same input error nearly disappears.
+The input on both sides is $\bar{R}_n \approx \Gauss(p, p(1-p)/n)$ with standard deviation $0.043$.
+On the left, the odds have slope $7.9$ at $p = 0.645$, and the output standard deviation is $7.9 \times 0.043 = 0.34$.
+On the right, the variance $g(p) = p(1-p)$ has slope $-0.29$ there, and the output standard deviation is $0.29 \times 0.043 = 0.012$.
+Same data and the same precision in $p$; the delta method's $\abs{g'(\theta)}$ is the whole difference in the precision of $g(p)$.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_delta_steep_flat}
-\caption{The same input, $\bar{R}_n \approx \Gauss(p, p(1-p)/n)$ with standard deviation $0.043$, pushed through two functions. Left: the odds $g(p) = p/(1-p)$ have slope $7.9$ at $p = 0.645$, and the output standard deviation is $7.9 \times 0.043 = 0.34$. Right: the variance $g(p) = p(1-p)$ has slope $-0.29$ there, and the output standard deviation is $0.29 \times 0.043 = 0.012$. Same data, same precision in $p$, very different precision in $g(p)$: the delta method's $\abs{g'(\theta)}$ is the whole difference.}
+\caption{The input $\bar{R}_n \approx \Gauss(p, p(1-p)/n)$, in blue on the horizontal axis, pushed through two functions, with the output in green on the vertical axis and the tangent at $p$ dashed in orange. Left: the odds $g(p) = p/(1-p)$. Right: the variance $g(p) = p(1-p)$.}
 \label{fig:steepflat}
 \end{figure}
 

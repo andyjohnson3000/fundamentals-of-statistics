@@ -49,15 +49,16 @@ The sign of $g'(q)$ is therefore the sign of $q - p$: $g$ decreases until $q = p
 Its smallest value is $g(p) = 0$, so $g(q) \geq 0$ for every $q$.
 \end{proof}
 
-\Cref{fig:pinsker} draws the lemma.
+\Cref{fig:pinsker} draws the lemma, for $p = 0.645$ on the left.
 The divergence curve sits above the parabola $2(p - q)^2$ and touches it only at $q = p$.
 Near $q = p$ the two are close: the divergence is approximately $(p - q)^2/(2p(1 - p))$ (\cref{sec:dist-kl}), and $1/(2p(1-p)) \geq 2$, with equality only for $p = \frac12$.
 The parabola $2(p-q)^2$ is the divergence's own parabola for the hardest case, the fair coin, and every other Bernoulli curves up faster.
+The right of the figure draws the gap $g(q)$ for $p = 0.2$, $0.5$ and $0.645$: each is $0$ at $q = p$ and positive everywhere else.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_pinsker}
-\caption{The Bernoulli case of Pinsker's inequality. Left: with $p = 0.645$, $\KL(\Bern(p), \Bern(q))$ (blue) lies above $2(p - q)^2$ (orange, dashed) and touches it only at $q = p$. Right: the gap between the two for $p = 0.2$ (aqua, dash-dot), $0.5$ (gray, dotted) and $0.645$ (blue, solid); each gap is $0$ at $q = p$ and positive elsewhere.}
+\caption{The Bernoulli case of Pinsker's inequality. Left: $\KL(\Bern(p), \Bern(q))$ (blue) and $2(p - q)^2$ (orange, dashed) for $p = 0.645$. Right: the gap between the two, as a function of $q$, for $p = 0.2$ (aqua, dash-dot), $0.5$ (gray, dotted) and $0.645$ (blue, solid).}
 \label{fig:pinsker}
 \end{figure}
 

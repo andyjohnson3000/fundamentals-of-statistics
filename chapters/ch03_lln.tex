@@ -78,7 +78,7 @@ A \textit{realization} of the sequence is what you see when the experiment is ru
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_sequence_vs_random}
-\caption{Left: a sequence of numbers converging to $2$. For the band of half-width $\epsilon$ there is an index $N$ past which every term is inside. Right: five realizations of the running sample mean $\bar{X}_n$ of Exponential draws with mean $2$, one path per outcome of the experiment. Each path eventually settles inside the band, but at a different index, and no $N$ works for every path: some realization will leave the band after any $N$ you name. The modes of convergence are different ways of saying `the orange points become rare.'}
+\caption{Left: the sequence $x_n = 2 + (-1)^n/\sqrt{n}$, with the band of half-width $\epsilon$ around $2$ and the index $N$ dashed. Right: five realizations of the running mean $\bar{X}_n$ of Exponential draws with mean $2$; blue points are inside the band, orange points outside.}
 \label{fig:seqrand}
 \end{figure}
 
@@ -87,6 +87,8 @@ Why are there different modes of convergence?
 Remember that to say a sequence $(X_i)_{i=1}^{\infty}$ converges to $X$ means that the $X_i$'s are getting `closer and closer' to $X$.
 Different modes of convergence relate to different ways of defining what `closer' means.
 \Cref{fig:seqrand} shows the difficulty: for a sequence of numbers there is a single index $N$ past which every term is within $\epsilon$ of the limit, while for a sequence of r.v.s the index that works depends on the outcome of the experiment and may not exist for some outcomes.
+On the right of the figure, each path is one outcome of the experiment, and each eventually settles inside the band, but at a different index; no $N$ works for every path, since some realization will leave the band after any $N$ you name.
+The modes of convergence are different ways of saying `the orange points become rare.'
 
 Two of the modes, convergence almost surely and convergence in probability, compare the \textit{values} of $X_n$ and $X$ outcome by outcome, so $X_n$ and $X$ must live on the same sample space.
 The third, convergence in distribution, compares the CDFs of $X_n$ and $X$ and never looks at values at all; $X_n$ and $X$ can be defined on entirely different probability spaces.
@@ -119,7 +121,7 @@ Specifically:
 \[
 \var(\bar{X}_n) = \frac{1}{n^2} \var(X_1 + \cdots + X_n) = \frac{n \sigma^2}{n^2} = \frac{\sigma^2}{n}.
 \]} it follows that $\var( \bar{X}_n ) \to 0$ as $n \to \infty$.
-Because the variance of $\bar{X}_n$ eventually vanishes as $n$ increases, the limit tells you nothing about the \textit{shape} of the distribution of $\bar{X}_n$: every density in the left panel of \cref{fig:twoviews} is on its way to becoming a spike at $\mu$.
+Because the variance of $\bar{X}_n$ eventually vanishes as $n$ increases, the limit tells you nothing about the \textit{shape} of the distribution of $\bar{X}_n$: every density on the left of \cref{fig:twoviews} is on its way to becoming a spike at $\mu$.
 
 It's possible though to look at the difference between $\bar{X}_n$ and $\mu$ on a `magnified' scale.
 To that end, multiply the difference $\bar{X}_n - \mu$ by $\sqrt{n}$, which makes the mean and variance of the resulting r.v.\ constant.
@@ -149,10 +151,15 @@ Multiplying by $n$ instead would scale the variance by $n^2$ and the result woul
 The standard deviation of $\bar{X}_n$ is $\sigma/\sqrt{n}$, so $\sqrt{n}$ is the magnification that holds the spread fixed.
 \end{intuition}
 
+\Cref{fig:twoviews} shows the same sample mean of $\Expo(1)$ draws on both scales.
+On the left, the density of $\bar{X}_n$ collapses onto $\mu = 1$ as $n$ grows; this is the Law of Large Numbers.
+On the right, after the $\sqrt{n}$ magnification, the density of $\sqrt{n}(\bar{X}_n - \mu)$ keeps a fixed spread and its shape settles down to a Gaussian; this is the Central Limit Theorem.
+At $n = 1$ the magnified density is the skewed exponential itself, shifted; by $n = 64$ it is hard to tell from $\Gauss(0, \sigma^2)$.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_lln_clt_two_views}
-\caption{The same sample mean of $\Expo(1)$ draws on two scales. Left: the density of $\bar{X}_n$ collapses onto $\mu = 1$ as $n$ grows (this is the Law of Large Numbers). Right: after the $\sqrt{n}$ magnification the density of $\sqrt{n}(\bar{X}_n - \mu)$ keeps a fixed spread and its shape settles down to a Gaussian (this is the Central Limit Theorem). At $n = 1$ the magnified density is the skewed exponential itself, shifted; by $n = 64$ it is hard to tell from $\Gauss(0, \sigma^2)$.}
+\caption{The sample mean of $\Expo(1)$ draws at $n = 1, 4, 16, 64$. Left: the density of $\bar{X}_n$, with $\mu = 1$ marked. Right: the density of $\sqrt{n}(\bar{X}_n - \mu)$, with the $\Gauss(0, \sigma^2)$ density dotted in black.}
 \label{fig:twoviews}
 \end{figure}
 
@@ -199,7 +206,7 @@ It may not come as a surprise that $Z_n$ converges in distribution to a standard
 
 \begin{bridge}[the standard error]
 An introductory course states, usually without proof, that the sampling distribution of the sample mean has mean $\mu$, has standard deviation $\sigma/\sqrt{n}$ (the \textit{standard error} of the mean), and is approximately normal when $n$ is large.
-The two panels of \cref{fig:twoviews} are the two halves of that statement.
+The two halves of \cref{fig:twoviews} are the two halves of that statement.
 The standard error shrinking to zero is what drives the Law of Large Numbers.
 The shape becoming normal is the Central Limit Theorem.
 Dividing $\bar{X}_n - \mu$ by the standard error $\sigma/\sqrt{n}$ is exactly the standardization that produces $Z_n$:
@@ -256,11 +263,13 @@ If $(X_n)_{n \geq 1}$ converges in probability to some r.v.\ $X$, then this is d
 \textbf{For the kiss data.} $\bar{R}_n \convp p$ means: pick any tolerance, say $0.01$; the probability that the sample proportion turning right misses $p$ by more than $0.01$ can be made as small as you like by observing enough couples. It does not say how many couples; \cref{sec:wlln} and \cref{ch:clt} do.
 \end{inwords}
 \Cref{fig:convpband} shows the picture for the sample mean, where $X$ is the constant $\mu$.
+The orange mass outside the band is $\Pr(\abs{\bar{X}_n - \mu} \geq \epsilon)$, and it goes from about one half at $n = 5$ to essentially zero at $n = 100$.
+Shrink $\epsilon$ and the same thing happens, only it takes a larger $n$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_conv_prob_band}
-\caption{Convergence in probability as a picture. The density of $\bar{X}_n$ for $\Expo(1)$ draws at three sample sizes, with the band $[\mu - \epsilon, \mu + \epsilon]$ for $\epsilon = 0.3$. The shaded orange mass is $\Pr(\abs{\bar{X}_n - \mu} \geq \epsilon)$; it goes from about one half at $n = 5$ to essentially zero at $n = 100$. Shrink $\epsilon$ and the same thing happens, only it takes a larger $n$.}
+\caption{The density of $\bar{X}_n$ for $\Expo(1)$ draws at $n = 5$, $20$ and $100$, with the band $[\mu - \epsilon, \mu + \epsilon]$ for $\epsilon = 0.3$ between the dashed lines. The orange shading is the mass outside the band.}
 \label{fig:convpband}
 \end{figure}
 
@@ -321,10 +330,15 @@ and hence $X_{(1)} \convp 0$, as desired.
 \end{itemize}
 \end{proof}
 
+\Cref{fig:minunif} is the proof as a picture.
+The density of $X_{(1)}$ is $n(1-x)^{n-1}$ on $[0,1]$; as $n$ grows the mass piles up against $0$, and the mass beyond $\epsilon$, which is the $(1-\epsilon)^n$ of the proof, goes to zero.
+The proof computes the shaded tail; the picture shows why it has to shrink.
+(The peaks of the $n = 10$ and $n = 30$ curves are at $10$ and $30$, above the top of the plot.)
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{fig_min_uniform}
-\caption{\Cref{ex:min-unif} as a picture. The density of $X_{(1)} = \min(X_1, \ldots, X_n)$ is $n(1-x)^{n-1}$ on $[0,1]$. As $n$ grows the mass piles up against $0$, and the mass beyond $\epsilon$, which is the $(1-\epsilon)^n$ of the proof, goes to zero. The proof computes the shaded tail; the picture shows why it has to shrink. (The $n = 10$ and $n = 30$ curves are cut off at the top; their peaks are at $10$ and $30$.)}
+\caption{The density $n(1-x)^{n-1}$ of $X_{(1)} = \min(X_1, \ldots, X_n)$ for $\text{Unif}([0,1])$ draws at $n = 1, 3, 10, 30$, with the mass beyond $\epsilon = 0.2$ shaded for each. The $n = 10$ and $n = 30$ curves are cut off at the top.}
 \label{fig:minunif}
 \end{figure}
 
@@ -422,11 +436,14 @@ The sample mean, $\bar{X}_n$, averages over the $n$ draws of one experiment.
 The expectation, $\E[\bar{X}_n]$, averages over \textit{all} possible outcomes of that experiment, weighted by their probabilities, which is a theoretical average because you never observe all possible outcomes.
 The statement $\E[\bar{X}_n] = \mu$ says that the second kind of average of the first kind of average lands on the true mean.
 \Cref{fig:twoaverages} draws the two directions.
+Each row is one run of the experiment; averaging along the row gives that run's sample mean, a different number each time.
+The expectation averages down the column, over every possible run weighted by its probability; only eight runs are shown, and the expectation uses all $2^{10}$ of them.
+The first average is a random variable; the second is the number $p$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_two_averages}
-\caption{Two kinds of averaging. Each row is one run of the experiment, here $n = 10$ Bernoulli draws with $p = 0.645$; averaging along the row gives that run's sample mean, a different number each time. The expectation averages down the column, over every possible run weighted by its probability (only eight runs are shown; the expectation uses all $2^{10}$ of them). The first average is a random variable; the second is the number $p$.}
+\caption{Eight runs of $n = 10$ Bernoulli draws with $p = 0.645$, one run per row, with each run's sample mean $\bar{x}_{10}$ at the right end of its row. The orange arrows mark the two averages: along a row and down the column.}
 \label{fig:twoaverages}
 \end{figure}
 
@@ -444,12 +461,14 @@ Then $\bar{X}_n = \mu + \bar{U}_n$, and the errors in $\bar{U}_n$ have no reason
 Dividing by $n$ then leaves a typical error of size $\sigma \sqrt{n}/n = \sigma/\sqrt{n}$.
 That's why $\var(\bar{X}_n) = \sigma^2/n$ and why doubling the precision costs four times the data.
 \Cref{fig:whyrootn} is that claim drawn: the sum of $n$ cancelling errors reaches about $\sqrt{n}$, not $n$.
+On the left, if the steps never cancelled, the sum after $n$ steps would be $n$, which leaves the top of the figure by step $70$; because they cancel, the sum stays inside a band that widens like $\sqrt{n}$.
+On the right, the simulated points sit on $\sqrt{n}$, which is exact here: $\E[S_n^2] = n$, since each step has variance $1$ and the cross terms have expectation zero.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_why_root_n}
-\caption{Where the $\sqrt{n}$ in every formula in this book comes from. Left: twenty running sums of steps of $+1$ and $-1$, each step equally likely, with the band $\pm\sqrt{n}$ drawn over them. If the steps never cancelled, the sum after $n$ steps would be $n$, which leaves the top of this figure by step $70$. Because they cancel, the sum stays inside a band that widens like $\sqrt{n}$. Right: the root-mean-square distance of the sum from zero, measured over $20{,}000$ simulated runs at each $n$, against $\sqrt{n}$ and against $n$ on logarithmic axes. The simulated points sit on $\sqrt{n}$, which is exact here: $\E[S_n^2] = n$, since each step has variance $1$ and the cross terms have expectation zero.}
+\caption{Left: twenty running sums $S_n$ of equally likely $\pm 1$ steps, with the band $\pm\sqrt{n}$ in orange. Right: the root-mean-square distance of $S_n$ from zero over $20{,}000$ simulated runs (blue dots), with $\sqrt{n}$ (orange) and $n$ (dashed gray), on logarithmic axes.}
 \label{fig:whyrootn}
 \end{figure}
 
@@ -526,9 +545,9 @@ The CLT and Hoeffding's inequality, both in \cref{ch:clt}, handle the second que
 \label{sec:lln-next}
 
 The Law of Large Numbers says where $\bar{X}_n$ ends up: at $\mu$, with the variance $\sigma^2/n$ shrinking to nothing.
-That's the left panel of \cref{fig:twoviews}, and it leaves the obvious question open.
-If every density in that panel is on its way to becoming a spike, what does $\bar{X}_n$ look like \textit{along the way}?
-The right panel already gave the answer in a picture: magnify the error by $\sqrt{n}$ and its shape settles down to a Gaussian, whatever the parent distribution.
+That is the left of \cref{fig:twoviews}, and it leaves the obvious question open.
+If every density on that side is on its way to becoming a spike, what does $\bar{X}_n$ look like \textit{along the way}?
+The right of the figure already gave the answer in a picture: magnify the error by $\sqrt{n}$ and its shape settles down to a Gaussian, whatever the parent distribution.
 Making that picture into a theorem needs the second mode of convergence, and it's the subject of the next chapter.
 
 \section{Summary}

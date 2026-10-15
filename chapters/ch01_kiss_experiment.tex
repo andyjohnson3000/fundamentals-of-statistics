@@ -45,15 +45,17 @@ Then in a study of $100$ patients you can anticipate that on average $80$ will b
 You will be able to conclude, by the end of \cref{ch:confidence-intervals}, that you are $95\%$ confident the drug is effective on between $69.9\%$ and $86.1\%$ of patients.
 (That sentence is the standard shorthand for a confidence interval; \cref{sec:ci-meaning} says exactly what it does and does not claim.)
 \Cref{fig:probstat} draws both halves.
+On the left, the effectiveness $p = 0.80$ is known, so the number cured out of $100$ has a known distribution, the Binomial, and the darker bars from $65$ upward carry the computable $0.9999$.
+On the right, $78$ of $100$ were cured and $p$ is unknown; the curve shows how plausible each value of $p$ makes the data (it is the likelihood of \cref{ch:likelihood}, scaled to peak at $1$), and the shaded band beneath it is the $95\%$ confidence interval $[0.70, 0.86]$ of \cref{ch:confidence-intervals}.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_probability_vs_statistics}
-\caption{The drug example in both directions. Left, probability: the effectiveness $p = 0.80$ is known, so the number cured out of $100$ has a known distribution (Binomial), and the probability of at least $65$ cures is a computable $0.9999$. Right, statistics: $78$ of $100$ were cured and $p$ is unknown; the curve shows how plausible each value of $p$ makes the data (it is the likelihood of \cref{ch:likelihood}, scaled to peak at $1$), and the shaded band is the $95\%$ confidence interval $[0.70, 0.86]$ of \cref{ch:confidence-intervals}.}
+\caption{The drug trial. Left: the Binomial distribution of the number cured out of $100$ when $p = 0.80$; the bars from $65$ up are darker. Right: the scaled likelihood of $p$ after $78$ cures; the shaded band is the $95\%$ confidence interval.}
 \label{fig:probstat}
 \end{figure}
 
-Notice what the right-hand panel is \textit{not}.
+Notice what the right of the figure is \textit{not}.
 It isn't a probability distribution for $p$: in this book $p$ is a fixed unknown number, not a random variable, and the curve is a plausibility ranking of candidate truths, not a density.
 The one place where $p$ does get a distribution is \cref{ch:bayes-intro}, and the difference is the whole point of that chapter.
 
@@ -148,11 +150,13 @@ Assume there is a total population of $5{,}000$ couples who kiss in airports, an
 What do samples of size $124$ look like in each case?
 \Cref{fig:kisssamples} answers by drawing the exact distribution of $\bar{R}_n$ under the i.i.d.\ model for each assumed $p$, together with the distribution for samples of size $3$.
 (For a population of $5{,}000$ the draws are without replacement, which changes the standard deviation of the picture by about one percent; the bridge box below says why the book works with the i.i.d.\ model instead.)
+With $n = 3$, on the left of the figure, the two distributions overlap heavily: two or more right turns out of $3$ has probability $0.28$ under $p = 0.35$ and $0.72$ under $p = 0.65$, so three couples settle nothing.
+With $n = 124$, on the right, the distributions have separated, and the observed $0.645$ is typical under $p = 0.65$ and essentially impossible under $p = 0.35$: a proportion that large has probability about $2 \times 10^{-11}$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_kiss_samples}
-\caption{What samples look like under two hypothetical truths. The bars are the exact (Binomial) distribution of the sample proportion $\bar{R}_n$ when the true proportion is $p = 0.35$ (orange) and when it is $p = 0.65$ (blue). With $n = 3$ (left) the two distributions overlap heavily: two or more right turns out of $3$ has probability $0.28$ under $p = 0.35$ and $0.72$ under $p = 0.65$, so three couples settle nothing. With $n = 124$ (right) the distributions have separated, and the observed $0.645$ (dotted line) is typical under $p = 0.65$ and essentially impossible under $p = 0.35$ (probability about $2 \times 10^{-11}$ of a proportion that large).}
+\caption{The exact Binomial distribution of the sample proportion $\bar{R}_n$ when $p = 0.35$ (orange) and when $p = 0.65$ (blue), for samples of size $n = 3$ (left) and $n = 124$ (right). The dotted line is the observed $0.645$.}
 \label{fig:kisssamples}
 \end{figure}
 
@@ -219,11 +223,16 @@ So $72$ is the threshold at the conventional $5\%$ level for this one-sided ques
 
 All three are statements about the same random variable $\bar{R}_n$, built from the same three modeling assumptions, and \cref{fig:trinity} draws them on one axis.
 Change an assumption, for instance drop independence, and all three change.
+In the figure, every statement is about where $p$ sits on the line.
+The estimate is a point, $\hat{p} = 0.645$.
+The $95\%$ confidence interval is a bracket around it, $[0.56, 0.73]$: the truths under which the data are not surprising.
+The test compares the data to one particular truth, $p = \frac12$: if the observed proportion lands at or beyond the threshold $72/124 = 0.581$, in the shaded region, the data count as evidence against $p = \frac12$ and for $p > \frac12$, and the threshold is set so that this happens only $5\%$ of the time when $p = \frac12$ really is the truth.
+\Cref{ch:confidence-intervals} and \cref{ch:tests-foundations} build the bracket and the threshold; the point is where both start.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_trinity_axis}
-\caption{The trinity on one axis. Every statement is about where $p$ sits on the line. The estimate is a point, $\hat{p} = 0.645$. The $95\%$ confidence interval is a bracket around it, $[0.56, 0.73]$: the truths under which the data are not surprising. The test compares the data to one particular truth, $p = \frac12$: if the observed proportion lands at or beyond the threshold $72/124 = 0.581$ (shaded), the data count as evidence against $p = \frac12$ and for $p > \frac12$. The threshold is set so that this happens only $5\%$ of the time when $p = \frac12$ really is the truth. \Cref{ch:confidence-intervals} and \cref{ch:tests-foundations} build the bracket and the threshold; the point is where both start.}
+\caption{The trinity on the $p$ axis for the kiss data: the estimate $\hat{p} = 0.645$ (orange dot), the $95\%$ confidence interval $[0.56, 0.73]$ (blue bracket), and the test of $p = \frac12$ with its threshold $0.581$ and rejection region (orange shading).}
 \label{fig:trinity}
 \end{figure}
 

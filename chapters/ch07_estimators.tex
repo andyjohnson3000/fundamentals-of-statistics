@@ -59,11 +59,14 @@ yield the mean $\bar{x} = 8$, and thus the hyperplane is the set.
 But there are of course many values that $\bar{X}_n$ can take, and thus there are many such sets.
 In this sense, the sample mean, or any statistic, partitions the sample space into a collection of sets (equivalence classes).
 \Cref{fig:partition} draws this for $n = 2$, where the sample space is the plane and the hyperplanes are lines, next to the quite different partition induced by the maximum.
+On the left, the samples $(1.5, 4.5)$ and $(4.5, 1.5)$ lie on the same line and are the same sample to anyone who only sees $\bar{x} = 3$.
+On the right, the level sets of the maximum are L-shapes, and $(1.5, 4.5)$ and $(4.5, 4.5)$ are the same sample to anyone who only sees $\max = 4.5$.
+Each statistic keeps one number and discards the rest, and which rest is discarded depends on the statistic.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_statistic_partition}
-\caption{A statistic partitions the sample space. With $n = 2$ observations the sample is a point in the plane. Left: the level sets of the sample mean are the lines $x_1 + x_2 = 2t$; the samples $(1.5, 4.5)$ and $(4.5, 1.5)$ lie on the same line and are the same sample to anyone who only sees $\bar{x} = 3$. Right: the level sets of the maximum are L-shapes; $(1.5, 4.5)$ and $(4.5, 4.5)$ are the same sample to anyone who only sees $\max = 4.5$. Each statistic keeps one number and discards the rest; which rest is discarded depends on the statistic.}
+\caption{Level sets of the sample mean (left, the lines $x_1 + x_2 = 2t$) and of the maximum (right, L-shapes) for a sample of size $n = 2$, a point in the plane. Orange dots mark two samples on one level set.}
 \label{fig:partition}
 \end{figure}
 
@@ -190,11 +193,13 @@ Its variance is $\var(\bar{X}_n) = \sigma^2/n$, and hence, as $n \to \infty$, it
 It'd be silly to let `asymptotic variance' refer to something that's always 0.
 Hence, the asymptotic variance $\sigma^2$ is \textit{not} the limit of the variance of $\ethn$.
 \Cref{fig:asympvar} shows the two quantities side by side for the kiss estimator.
+On the left, $\var(\hat{p}) = p(1-p)/n$ goes to zero, and its limit carries no information about precision.
+On the right, $n \cdot \var(\hat{p}) = p(1-p) = 0.229$ is constant, and that constant is the asymptotic variance, the variance of the limiting Gaussian of $\sqrt{n}(\hat{p} - p)$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_asymptotic_variance}
-\caption{For $\hat{p} = \bar{R}_n$ with $p = 0.645$. Left: $\var(\hat{p}) = p(1-p)/n$ goes to zero; its limit carries no information about precision. Right: $n \cdot \var(\hat{p}) = p(1-p) = 0.229$ is constant, and it is the asymptotic variance, the variance of the limiting Gaussian of $\sqrt{n}(\hat{p} - p)$. Dots are variances estimated from $4{,}000$ simulated samples at each $n$.}
+\caption{For $\hat{p} = \bar{R}_n$ with $p = 0.645$, against $n$. Left: $\var(\hat{p}) = p(1-p)/n$. Right: $n \cdot \var(\hat{p})$, with the asymptotic variance as a gray dashed line. Blue curves are exact; orange dots are variances estimated from $4{,}000$ simulated samples at each $n$.}
 \label{fig:asympvar}
 \end{figure}
 
@@ -283,10 +288,14 @@ For a concave $g$ the inequality reverses.
 \end{theorem}
 The two-point argument above is the whole idea; the general case replaces the chord by the tangent line at $\E[X]$, which for a convex $g$ lies below the curve everywhere \toolkit{sec:math-convex}; evaluating that line at $X$ and taking expectations kills its linear term and leaves exactly $g(\E[X]) \leq \E[g(X)]$.
 
+\Cref{fig:jensen} draws the two-point case for $g(x) = 1/x$ and an $X$ equal to $1$ or $4$ with probability $\frac12$ each.
+The point $(\E[X], \E[g(X)])$ is the midpoint of the chord, and the chord lies above the curve, so $\E[g(X)] = 0.625$ exceeds $g(\E[X]) = 0.4$.
+For any convex $g$, averaging first and transforming second gives less than transforming first and averaging second.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.7\textwidth]{fig_jensen}
-\caption{Jensen's inequality for $g(x) = 1/x$ and an $X$ equal to $1$ or $4$ with probability $\frac12$ each. The point $(\E[X], \E[g(X)])$ is the midpoint of the chord, and the chord lies above the curve, so $\E[g(X)] = 0.625$ exceeds $g(\E[X]) = 0.4$. For any convex $g$, averaging first and transforming second gives less than transforming first and averaging second.}
+\caption{Jensen's inequality for $g(x) = 1/x$ (solid curve) and an $X$ equal to $1$ or $4$ with probability $\frac12$ each. The orange dashed line is the chord; the blue dot is $(\E[X], g(\E[X]))$ and the orange square is $(\E[X], \E[g(X)])$.}
 \label{fig:jensen}
 \end{figure}
 
@@ -327,12 +336,17 @@ For the same four estimators, with $\var(X_i) = p(1-p)$:
 The first three are unbiased, so among them the comparison is purely on variance, and $\bar{X}_n$ wins by a factor of $n$ over $X_1$.
 This is the sense in which using all the data matters: an unbiased estimator that ignores observations is paying in variance for no return in bias.
 \Cref{fig:fourestimators} draws all four sampling distributions on one axis.
+$\bar{X}_n$ is a narrow spike at $p$.
+$X_1$ is two bars, at $0$ and $1$: unbiased, since its mean is $p$, and never anywhere near $p$.
+$(X_1 + X_2)/2$ is three bars.
+The square-root indicator is two bars with its mean at $p^2 = 0.42$, off the truth.
+Bias is where the triangle sits relative to the orange line, variance is how spread out the bars are, and only the first estimator does well on both.
 \end{worked}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_four_estimators}
-\caption{The four estimators of $p$ at $n = 124$, $p = 0.645$: the exact sampling distribution of each. $\bar{X}_n$ is a narrow spike at $p$. $X_1$ is two bars, at $0$ and $1$: unbiased, since its mean is $p$, and never anywhere near $p$. $(X_1 + X_2)/2$ is three bars. The square-root indicator is two bars with its mean at $p^2 = 0.42$, off the truth. Bias is where the triangle sits relative to the orange line; variance is how spread out the bars are; only the first estimator does well on both.}
+\caption{The exact sampling distributions (blue bars) of the four estimators of $p$ at $n = 124$, $p = 0.645$. The orange line is the true $p$; the black triangle under each axis is the estimator's mean.}
 \label{fig:fourestimators}
 \end{figure}
 
@@ -385,11 +399,16 @@ In the second term, $\E[\ethn] - \theta$ is a number, so its expectation is itse
 The decomposition is the reason a biased estimator can be the better one: if accepting a little bias buys a large reduction in variance, the risk goes down.
 It also makes a point that is easy to miss when you only ever compute bias and variance separately: the risk is a function of $\theta$, through both terms, and an estimator that is best for one value of $\theta$ need not be best for another.
 \Cref{fig:biasvariance} shows both facts in the kiss model.
+On the left, at $p = 0.645$ and $n = 124$, $\bar{R}_n$ is unbiased with standard deviation $0.043$.
+The shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$ pulls the estimate toward $\frac12$, as if $20$ extra coin flips had come up half heads; it is biased by $-0.020$ but has standard deviation $0.037$, and its risk, $0.00177$, is smaller than $\bar{R}_n$'s $0.00185$.
+On the right, the risk of four estimators is plotted against the true $p$.
+Shrinkage beats $\bar{R}_n$ for $p$ between $0.34$ and $0.66$ and loses outside; the constant $0.5$ is unbeatable at $p = 0.5$ and terrible elsewhere; $X_1$ is unbiased and hopeless everywhere.
+No curve lies below all the others, so `best estimator' is not a well-posed question without saying for which $p$.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_bias_variance}
-\caption{The trade-off in the kiss model, $n = 124$. Left: at $p = 0.645$, the sampling distributions (drawn as their Gaussian approximations) of the unbiased $\bar{R}_n$ (standard deviation $0.043$) and of the shrinkage estimator $(n\bar{R}_n + 10)/(n + 20)$, which pulls the estimate toward $\frac12$ as if $20$ extra coin flips had come up half heads. The shrinkage estimator is biased by $-0.020$ but has standard deviation $0.037$, and its risk, $0.00177$, is smaller than $\bar{R}_n$'s $0.00185$. Right: risk against the true $p$ for four estimators, on a log scale. Shrinkage beats $\bar{R}_n$ for $p$ between $0.34$ and $0.66$ and loses outside; the constant $0.5$ is unbeatable at $p = 0.5$ and terrible elsewhere; $X_1$ is unbiased and hopeless everywhere. No curve lies below all the others, so `best estimator' is not a well-posed question without saying for which $p$.}
+\caption{The kiss model, $n = 124$. Left: Gaussian approximations to the sampling distributions of $\bar{R}_n$ (solid) and the shrinkage estimator (dashed) at $p = 0.645$. Right: risk against the true $p$, log scale: $\bar{R}_n$ (solid), shrinkage (dashed), the constant $0.5$ (dash-dot), $X_1$ (dotted).}
 \label{fig:biasvariance}
 \end{figure}
 
@@ -398,14 +417,16 @@ Think of the truth $\theta$ as the bull's-eye and each estimate as a shot.
 Variance is how tight the group is; bias is how far the center of the group is from the bull's-eye.
 The risk is the average squared distance of a shot from the bull's-eye, and the decomposition says it's the squared distance of the group's center plus the group's spread: a tight group off to one side can be closer on average than a loose group centered on the target.
 The shrinkage estimator in \cref{fig:biasvariance} is the tight group off to one side.
-What the target picture doesn't show is that moving the bull's-eye (changing $p$) changes which group is closer, and that's the right-hand panel.
+What the target picture doesn't show is that moving the bull's-eye (changing $p$) changes which group is closer, and that's the right of \cref{fig:biasvariance}.
 \Cref{fig:target} draws the four combinations.
+The cross in each is $\E[\ethn]$, so bias is the distance from the cross to the bull's-eye, variance is the spread of the dots around the cross, and the risk is the average squared distance from a dot to the bull's-eye, which the decomposition splits into the two.
+Lower left is the shrinkage estimator of \cref{fig:biasvariance}: a tight group slightly off center, closer on average than the loose group centered on the target at upper right.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{fig_target}
-\caption{Bias and variance as a target. The bull's-eye is the truth $\theta$; each dot is the estimate from one sample; the cross is the center of the group, $\E[\ethn]$. Bias is the distance from the cross to the bull's-eye, variance is the spread of the dots around the cross, and the risk is the average squared distance from a dot to the bull's-eye, which the decomposition splits into the two. Lower left is the shrinkage estimator of \cref{fig:biasvariance}: a tight group slightly off center, closer on average than the loose group centered on the target at upper right.}
+\caption{Bias and variance as a target, in the four combinations. The bull's-eye is the truth $\theta$; each blue dot is the estimate from one sample; the black cross is the center of the group, $\E[\ethn]$.}
 \label{fig:target}
 \end{figure}
 

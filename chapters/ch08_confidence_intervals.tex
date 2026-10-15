@@ -64,12 +64,16 @@ Once you apply the rule to your one sample you get two numbers, $[0.56, 0.73]$.
 Those numbers are not random and the parameter is not random, so the pair has no probability attached: $[0.56, 0.73]$ either contains $p$ or it doesn't, and you will never know which.
 What you know is that the rule that produced it is right $95\%$ of the time.
 \Cref{fig:cirepeated} is this sentence as a picture.
+The kiss experiment was simulated $100$ times with $n = 124$ and $p = 0.645$, and the plug-in interval of \cref{sec:ci-three-solutions} was computed each time.
+The parameter is the fixed vertical line; the intervals move, and each is centered at its own $\hat{p}$.
+Sorted by $\hat{p}$, the six that miss are the samples whose proportion came out unusually low or high.
+Ninety-four of the hundred contain $0.645$ and six don't, and the level $95\%$ is the long-run rate of the first kind, not a statement about any one of the hundred intervals.
 \end{intuition}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_ci_repeated}
-\caption{The frequentist meaning of `$95\%$'. The kiss experiment was simulated $100$ times with $n = 124$ and $p = 0.645$, and the plug-in interval of \cref{sec:ci-three-solutions} was computed each time. The parameter is the fixed vertical line; the intervals move, and each is centered at its own $\hat{p}$ (dot). Sorted by $\hat{p}$, the six that miss are the samples whose proportion came out unusually low or high. The level $95\%$ is the long-run hit rate of the rule; it is not a statement about any one of the hundred intervals, each of which either contains $0.645$ or doesn't.}
+\caption{One hundred simulated kiss experiments with $n = 124$ and $p = 0.645$, sorted by $\hat{p}$ (dot), each with its $95\%$ plug-in interval. The black vertical line is $p$; intervals that contain it are blue, the six that miss are orange.}
 \label{fig:cirepeated}
 \end{figure}
 
@@ -143,7 +147,7 @@ The pivot's scale depends on the parameter, and the recipe's step 3 is stuck.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_ci_inversion}
-\caption{Where the three intervals come from. Horizontal axis: the true $p$. Vertical axis: the sample proportion. For each $p$, \cref{eq:ci-not-a-ci} says $\bar{R}_n$ lands in the band $p \pm q_{\alpha/2}\sqrt{p(1-p)/n}$ about $95\%$ of the time; the band is a lens, widest at $p = \frac12$ and pinched at the ends. We observed $\bar{R}_n = 0.645$: the horizontal line. The set of $p$ whose band contains the observed value is the chord the line cuts out of the lens, and that chord is the solve interval. The conservative interval replaces the lens by the widest band it fits in (gray dashes), and gets a longer chord. The plug-in interval replaces the lens by a band of constant width $q_{\alpha/2}\sqrt{\hat{p}(1-\hat{p})/n}$ (dotted), the width the lens has at $p = \hat{p}$, and gets a chord of nearly the same length, centered at $\hat{p}$. Right: the three chords, to scale, with $n = 124$.}
+\caption{Sample proportion against the true $p$, $n = 124$. Left: the CLT band $p \pm q_{\alpha/2}\sqrt{p(1-p)/n}$ (blue), the widest band (gray dashes), a band of constant width (aqua dots) and the observed $\bar{R}_n = 0.645$ (orange line). Right: the three chords, to scale.}
 \label{fig:ciinversion}
 \end{figure}
 
@@ -151,10 +155,14 @@ The pivot's scale depends on the parameter, and the recipe's step 3 is stuck.
 \label{sec:ci-three-solutions}
 
 \Cref{fig:ciinversion} is the picture to hold on to.
-For each candidate value of $p$ on the horizontal axis, the CLT band is the set of sample proportions that value would plausibly produce.
+For each candidate value of $p$ on the horizontal axis, the CLT band is the set of sample proportions that value would plausibly produce: by \cref{eq:ci-not-a-ci}, $\bar{R}_n$ lands in $p \pm q_{\alpha/2}\sqrt{p(1-p)/n}$ about $95\%$ of the time, and the band is a lens, widest at $p = \frac12$ and pinched at the ends.
 Reading the picture downwards, from a $p$ to its band, is probability.
-Reading it sideways, from the observed $\bar{R}_n$ to the set of $p$ whose bands reach it, is statistics, and that set is the confidence interval.
+Reading it sideways, from the observed $\bar{R}_n = 0.645$ (the horizontal line) to the set of $p$ whose bands reach it, is statistics, and that set is the confidence interval.
+With the lens itself, it is the chord the line cuts out of the lens, and that chord is the solve interval.
 The three solutions differ in which band they read.
+The conservative interval replaces the lens by the widest band it fits in, and gets a longer chord.
+The plug-in interval replaces the lens by a band of constant width $q_{\alpha/2}\sqrt{\hat{p}(1-\hat{p})/n}$, the width the lens has at $p = \hat{p}$, and gets a chord of nearly the same length, centered at $\hat{p}$.
+The right of the figure shows the three chords to scale, with $n = 124$.
 
 \subsection*{Solution 1: conservative}
 
@@ -274,11 +282,15 @@ For a proportion you can check what it delivers at the $n$ you have because the 
 \]
 where $\mathcal{I}(k)$ is the interval the rule produces when $k$ of the $n$ couples turn right.
 \Cref{fig:cicoverage} plots this against $p$ for the three intervals, at $n = 124$ and at $n = 20$.
+The conservative interval over-covers away from $p = \frac12$: its coverage is $0.99995$ at $p = 0.05$.
+The plug-in interval under-covers, mildly at $n = 124$ ($0.939$ at $p = 0.645$) and badly at $n = 20$ near the edges.
+The solve interval stays near $0.95$ at $n = 124$ ($0.952$ at $p = 0.645$) and above $0.92$ at $n = 20$ for $p$ between $0.01$ and $0.99$, where the plug-in interval falls as low as $0.33$, below the bottom of the plot.
+The saw teeth are real, not noise: $\bar{R}_n$ takes only $n + 1$ values, so there are only $n + 1$ possible intervals, and the coverage jumps whenever $p$ crosses an endpoint of one of them.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_ci_coverage}
-\caption{Exact coverage probability $\Pr_p(\mathcal{I} \ni p)$ of the three $95\%$ intervals, as a function of the true $p$, from the Binomial distribution of $n\bar{R}_n$. Left, $n = 124$; right, $n = 20$. The conservative interval over-covers away from $p = \frac12$ (its coverage is $0.99995$ at $p = 0.05$). The plug-in interval under-covers, mildly at $n = 124$ ($0.939$ at $p = 0.645$) and badly at $n = 20$ near the edges. The solve interval stays near $0.95$ at $n = 124$ ($0.952$ at $p = 0.645$) and above $0.92$ at $n = 20$ for $p$ between $0.01$ and $0.99$, where the plug-in interval falls as low as $0.33$ (below the bottom of the plot). The saw teeth are real, not noise: $\bar{R}_n$ takes only $n + 1$ values, so there are only $n + 1$ possible intervals, and the coverage jumps whenever $p$ crosses an endpoint of one of them.}
+\caption{Exact coverage probability $\Pr_p(\mathcal{I} \ni p)$ of the three $95\%$ intervals against the true $p$: conservative (gray dashes), plug-in (aqua) and solve (blue), with the nominal $0.95$ as a dotted line. Left, $n = 124$; right, $n = 20$.}
 \label{fig:cicoverage}
 \end{figure}
 
@@ -304,11 +316,15 @@ $T_1, \ldots, T_n \iid \Expo(\lambda)$, $\hat{\lambda} = 1/\bar{T}_n$, and the d
 \limn \Pr_\lambda \left( \abs{\hat{\lambda} - \lambda} \leq q_{\alpha/2} \frac{\lambda}{\sqrt{n}} \right) = 1 - \alpha.
 \]
 Again the half-width involves the parameter, now as a factor $\lambda$ rather than $\sqrt{p(1-p)}$, and \cref{fig:ciwedge} shows the consequence: the band is a wedge, not a lens.
+For each true $\lambda$, the delta method says $\hat{\lambda}$ lands in $\lambda \pm q_{\alpha/2}\lambda/\sqrt{n}$ about $95\%$ of the time, and that band keeps opening as $\lambda$ grows, with no widest point.
+The observed $\hat{\lambda} = 1/6.23 = 0.1605$ is the horizontal line, and the solve interval is the chord it cuts from the wedge, which is not centered at $\hat{\lambda}$ because the wedge is wider to the right.
+The plug-in interval uses a band of constant width $q_{\alpha/2}\hat{\lambda}/\sqrt{n}$ and is centered.
+No band of constant width contains the wedge, so there is nothing for a conservative interval to read.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.62\textwidth]{fig_ci_wedge}
-\caption{The inversion picture for the subway rate. For each true $\lambda$, the delta method says $\hat{\lambda}$ lands in $\lambda \pm q_{\alpha/2}\lambda/\sqrt{n}$ about $95\%$ of the time: a wedge that keeps opening as $\lambda$ grows, with no widest point. The observed $\hat{\lambda} = 1/6.23 = 0.1605$ is the horizontal line, and the solve interval is the chord it cuts from the wedge, which is not centered at $\hat{\lambda}$ because the wedge is wider to the right. The plug-in interval uses a band of constant width $q_{\alpha/2}\hat{\lambda}/\sqrt{n}$ (dotted) and is centered. There is no conservative interval: no band of constant width contains the wedge.}
+\caption{The subway rate, $n = 64$: $\hat{\lambda}$ against the true $\lambda$. The delta-method band $\lambda \pm q_{\alpha/2}\lambda/\sqrt{n}$ (blue), the plug-in band of constant width (aqua dots), the observed $\hat{\lambda} = 0.1605$ (orange line) and the two chords below it.}
 \label{fig:ciwedge}
 \end{figure}
 
@@ -351,12 +367,13 @@ The two factors are the two things you control.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_ci_width}
-\caption{Left: the half-width of the plug-in interval for the kiss data as a function of the confidence level. The quantile $q_{\alpha/2}$ does the work: $0.67$ at $50\%$, $1.645$ at $90\%$, $1.96$ at $95\%$, $2.58$ at $99\%$, $3.29$ at $99.9\%$, and infinite at $100\%$. Right: the half-width at $95\%$ as a function of $n$, for the plug-in interval at $\hat{p} = 0.645$ and the conservative interval, whose half-width $q_{0.025}/(2\sqrt{n}) = 0.98/\sqrt{n}$ is the pollster's `about $1/\sqrt{n}$'. The curve is $1/\sqrt{n}$: four times the data halves the width, and a margin of $\pm 3$ points needs $n \approx 1{,}067$.}
+\caption{Left: the half-width of the plug-in interval at $\hat{p} = 0.645$, $n = 124$, against the confidence level, with orange dots at the usual levels. Right: the half-width at $95\%$ against $n$, plug-in at $\hat{p} = 0.645$ (blue) and conservative (gray dashes).}
 \label{fig:ciwidth}
 \end{figure}
 
 \textbf{The level.}
 Raising the confidence level widens the interval, through the quantile, and the cost accelerates (\cref{fig:ciwidth}, left).
+The quantile $q_{\alpha/2}$ does the work: $0.67$ at $50\%$, $1.645$ at $90\%$, $1.96$ at $95\%$, $2.58$ at $99\%$, $3.29$ at $99.9\%$, and infinite at $100\%$.
 Going from $90\%$ to $95\%$ costs $19\%$ more width; from $95\%$ to $99\%$, $31\%$ more; and $100\%$ confidence costs the whole parameter space, since $q_{\alpha/2} \to \infty$ as $\alpha \to 0$.
 This is why $95\%$ is a convention and not a law: it is a point on a curve where the interval is still informative and the miss rate is still small.
 A $98\%$ interval of the same type always contains the $95\%$ one because $q_{0.01} > q_{0.025}$; but a $98\%$ interval need not contain a $95\%$ interval built differently. $[0, \, \bar{R}_n + q_{0.02}\,\widehat{\sigma}/\sqrt{n}]$ has asymptotic level $98\%$ and does not contain the $95\%$ lower-bound interval $[\bar{R}_n - q_{0.05}\,\widehat{\sigma}/\sqrt{n}, \, 1]$, nor the other way around: the $98\%$ interval reaches down to $0$ but stops short of $1$, the $95\%$ one reaches up to $1$ but stops short of $0$, so each contains points the other does not.
@@ -364,6 +381,7 @@ Nesting holds within one family of intervals indexed by $\alpha$, not between tw
 
 \textbf{The sample size.}
 The width shrinks like $1/\sqrt{n}$ (\cref{fig:ciwidth}, right), which is the rate of the CLT and the rate of every interval in this book built from a sample mean.
+Both curves on the right fall at that rate, the plug-in half-width at $\hat{p} = 0.645$ and the conservative half-width $q_{0.025}/(2\sqrt{n}) = 0.98/\sqrt{n}$, which is the pollster's `about $1/\sqrt{n}$'; the marked point is the $n \approx 1{,}067$ that a margin of $\pm 3$ points needs.
 The practical form of $1/\sqrt{n}$: to halve the width you need four times the data; to get one more decimal place you need a hundred times the data.
 Intervals that shrink faster exist when the model has special structure (\cref{ex:ci-shifted-expo} has one that shrinks like $1/n$), but they are built on the model's exact distribution rather than on the CLT, and they are fragile when the model is wrong.
 
