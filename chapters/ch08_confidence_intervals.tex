@@ -268,7 +268,7 @@ Solve and plug-in need not nest with each other; here the solve interval is shif
 \begin{intuition}[which one to use]
 Use the solve interval for a proportion, the plug-in interval for everything else.
 The defense: the solve interval has the exact asymptotic level with one approximation, has a closed form (\cref{eq:wilson}) and, as \cref{fig:cicoverage} shows, holds up at finite $n$ far better than the plug-in interval near $p = 0$ or $1$, where the latter breaks; the only reason it isn't universal is that `solve for the parameter' is a quadratic here and may be intractable elsewhere.
-The plug-in interval is the one every formula sheet gives, is what the rest of this book uses, and is fine whenever $n\hat{p}(1-\hat{p})$ is comfortably large.
+The plug-in interval is the one every formula sheet gives, is what the next chapters use, and is fine whenever $n\hat{p}(1-\hat{p})$ is comfortably large; \cref{ch:wald-lrt} identifies it as an inverted Wald test and, for models other than the proportion, recommends the likelihood ratio interval in its place.
 The conservative interval is for two jobs: a guaranteed level, and planning sample sizes before any data exist (\cref{sec:ci-width}), since it is the only one of the three whose width you know in advance.
 \end{intuition}
 

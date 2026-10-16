@@ -99,13 +99,13 @@ Then
 For $d = 1$: $\Gamma = \big((M^{-1})'(m_1)\big)^2 \var_{\theta^*}(X)$.
 \end{theorem}
 
-\coreproof{The vector of sample moments is an average of i.i.d.\ vectors, so the multivariate CLT gives $\sqrt{n}(\hat{m} - M(\theta^*)) \convd \Gauss_d(0, \Sigma)$. The estimator is $M^{-1}(\hat{m})$, and the multivariate delta method pushes the Gaussian through $M^{-1}$: the covariance gets multiplied by the derivative matrix on both sides.}
+\optionalproof{The vector of sample moments is an average of i.i.d.\ vectors, so the multivariate CLT gives $\sqrt{n}(\hat{m} - M(\theta^*)) \convd \Gauss_d(0, \Sigma)$. The estimator is $M^{-1}(\hat{m})$, and the multivariate delta method pushes the Gaussian through $M^{-1}$: the covariance gets multiplied by the derivative matrix on both sides.}
 \begin{proof}
 The $i$th observation contributes the vector $(X_i, X_i^2, \ldots, X_i^d)$; these vectors are i.i.d.\ with mean $M(\theta^*)$ and covariance $\Sigma(\theta^*)$, finite by the moment condition, and $\hat{m} = (\hat{m}_1, \ldots, \hat{m}_d)$ is their average.
 The multivariate CLT of the recall gives $\sqrt{n}(\hat{m} - M(\theta^*)) \convd \Gauss_d(0, \Sigma(\theta^*))$.
 For $d = 1$ the delta method applied to $g = M^{-1}$ finishes the proof.
 For general $d$, the multivariate delta method is the same argument coordinate by coordinate: the mean value theorem writes $M^{-1}(\hat{m}) - M^{-1}(M(\theta^*))$ as a matrix of derivatives, evaluated at in-between points that converge to $M(\theta^*)$, times $\hat{m} - M(\theta^*)$; the derivative matrix converges in probability to $\nabla M^{-1}$ by continuity, and Slutsky's theorem (\cref{thm:slutsky}) multiplies it into the Gaussian limit.
-A matrix $A$ times a Gaussian vector $Z$ with covariance $\Sigma$ is Gaussian with covariance $A\Sigma A^\top$: each linear combination $a^\top AZ = (A^\top a)^\top Z$ is Gaussian with variance $a^\top A \Sigma A^\top a$.
+A matrix $A$ times a Gaussian vector $Z$ with covariance $\Sigma$ is Gaussian with covariance $A\Sigma A^\top$: each linear combination $a^\top AZ = (A^\top a)^\top Z$ is Gaussian with variance $a^\top A \Sigma A^\top a$, and when $A$ is invertible, the linear-map rule of the Toolkit \toolkit{sec:math-gaussquad} shows that $AZ$ is $\Gauss_d(0, A\Sigma A^\top)$ in the sense defined there.
 \end{proof}
 
 \begin{worked}[the exponential rate, both ways]
@@ -269,7 +269,7 @@ Then
 For $d = 1$ the asymptotic variance is $K(\mu^*)/J(\mu^*)^2$.
 \end{theorem}
 
-\coreproof{Word for word the proof of \cref{thm:mle-normal}, with $\rho$ in place of $-\log p_\theta$. The gradient of the empirical loss is zero at $\hat{\mu}_n$ and, by the CLT, approximately $\Gauss(0, K/n)$ at $\mu^*$ (its mean is zero there because $\mu^*$ minimizes $Q$). The curvature between is about $J$ by the LLN. Displacement is push over resistance: $(\text{sd } \sqrt{K/n})/J$.}
+\optionalproof{Word for word the proof of \cref{thm:mle-normal}, with $\rho$ in place of $-\log p_\theta$. The gradient of the empirical loss is zero at $\hat{\mu}_n$ and, by the CLT, approximately $\Gauss(0, K/n)$ at $\mu^*$ (its mean is zero there because $\mu^*$ minimizes $Q$). The curvature between is about $J$ by the LLN. Displacement is push over resistance: $(\text{sd } \sqrt{K/n})/J$.}
 \begin{proof}
 Consistency is \cref{thm:mle-consistent} with $-\log p_\theta$ replaced by $\rho$: the proof there used the uniform LLN and the unique minimizer of the limit, and nothing about the likelihood.
 For normality, take $d = 1$.

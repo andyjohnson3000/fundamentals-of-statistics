@@ -1,4 +1,653 @@
-\chapter{Wald and Likelihood Ratio Tests}
+\chapter{Wald, Likelihood Ratio and Score Tests}
 \label{ch:wald-lrt}
 
-% Not yet written. Source material: notes sections Wald's Test, Recitation: Comparisons of Two Proportions; unit 4 slides (likelihood ratio test)
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item Three general-purpose tests for any regular parametric model, all read off the log-likelihood: Wald's test measures how far the maximum likelihood estimate is from the null value, the likelihood ratio test how far the log-likelihood drops from its top to the null, the score test how steeply the log-likelihood climbs at the null.
+\item Gaussian vectors in several dimensions, and the one fact the tests need about them: the squared length of a Gaussian vector, measured in units of its own noise, is chi-squared.
+\item Each statistic is approximately chi-squared when the null is true, with one degree of freedom per constraint the null imposes. Wilks' theorem for the likelihood ratio is proved by a second-order Taylor expansion.
+\item The Neyman--Pearson lemma: for one null value against one alternative, the likelihood ratio test is the most powerful test of its level. The one-sided test of the kiss data in \cref{ch:tests-foundations} is the best test of its level against every $p > \frac12$ at once.
+\item The three tests agree in large samples and can disagree near the threshold in small ones. The likelihood ratio test does not depend on how the parameter is written and usually keeps its level best, and it is the one to use when both fits are available.
+\item Nuisance parameters and implicit hypotheses: the constrained maximum, the profile likelihood and two-sample comparisons. The $t$-test, the two-proportion test and the chi-squared tests for a table of counts are all instances.
+\end{itemize}
+\Cref{ch:t-test} built exact tests for Gaussian data. This chapter builds approximate tests for every regular model, from the asymptotic normality of the maximum likelihood estimator proved in \cref{ch:mle-properties}.
+\end{chaptergoals}
+
+\section{Three ways to measure the distance to a null}
+\label{sec:wlr-three}
+
+Every test in \cref{ch:tests-foundations} asked one question: is the estimate far from the null value, measured in standard errors?
+For the kiss data the estimate is $\hat{p} = 0.645$, the null value is $p_0 = \frac12$, and the answer was yes.
+But `far, in standard errors' can be measured in more than one way, and \cref{ch:distances} already met three numbers for the same question, $11.41$, $10.60$ and $10.45$, each compared with the same cutoff $3.84$.
+This chapter says where the three come from, why each is approximately chi-squared, and which to use.
+
+All three are read off the log-likelihood $\ell_n(p) = 80\log p + 44\log(1 - p)$ of \cref{ch:likelihood}, which peaks at $\hat{p} = 0.645$.
+\Cref{fig:threetests} draws it measured from its top.
+On the left, the blue curve falls from its top to the null value by $5.30$.
+That drop, doubled, is the \textbf{likelihood ratio} statistic, $10.60$: it compares how well the best value under the null and the best value overall explain the data, on the log scale.
+The orange parabola is the one that matches the log-likelihood at its top, with the same peak and the same curvature $nI(\hat{p}) = 541.7$ (\cref{ch:mle-properties}).
+Its drop to the null, doubled, is \textbf{Wald's} statistic, $nI(\hat{p})(\hat{p} - p_0)^2 = 11.41$: the squared distance from estimate to null value in units of the standard error $1/\sqrt{nI(\hat{p})} = 0.043$.
+On the right, the \textbf{score} statistic never visits the top.
+It stands at the null value and measures the slope there, $\ell_n'(\frac12) = 72$ (\cref{ex:mle-score-kiss}), against the curvature $nI(\frac12) = 496$ that the model predicts there: $72^2/496 = 10.45$.
+The aqua parabola has the log-likelihood's slope at $p_0$ and that curvature, and the score statistic is twice its rise from $p_0$ to its own top.
+A steep climb at the null says the top is far away.
+For a proportion that top is exactly at $\hat{p}$, since $72/496 = 0.145 = \hat{p} - p_0$, so Wald's parabola and the score parabola differ only in their curvature, and $11.41/10.45 = 541.7/496 = 1.09$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_three_tests}
+\caption{The kiss data's log-likelihood $\ell_n(p) - \ell_n(\hat{p})$ (blue). Left: Wald's parabola, fitted at the top (orange, dashed). Right: the tangent at $p_0 = \frac12$ (aqua) and the score parabola (aqua, dash-dot), fitted at the null.}
+\label{fig:threetests}
+\end{figure}
+
+If the log-likelihood were exactly a parabola, the three numbers would be one number: a parabola drops from its top by half its curvature times the squared distance, and its slope at a point is its curvature times the distance to the top.
+They differ only as much as the log-likelihood departs from a parabola between $p_0$ and $\hat{p}$, which for the kiss data is little.
+
+\begin{intuition}[near its top, every log-likelihood is a Gaussian one]
+\Cref{ch:mle-properties} showed that the curvature of the log-likelihood near its top is about $nI(\theta^*)$, and that $\hat{\theta}_n$ is approximately $\Gauss(\theta^*, 1/(nI(\theta^*)))$.
+A parabola with that curvature is exactly the log-likelihood of one observation $\hat{\theta}$ from a Gaussian with known variance $1/(nI)$, and for that model the three ways of measuring distance give the same number, the squared standardized distance $nI(\hat{\theta} - \theta_0)^2$, which is a squared standard Gaussian when $\theta_0$ is the truth.
+So for large $n$ every regular model, seen from near its top, is that Gaussian model, and all three statistics are approximately $\chi^2_1$.
+The rest of the chapter makes this precise, and repeats it in $d$ dimensions, where the squared standardized distance becomes $\chi^2_d$.
+\end{intuition}
+
+\section{Gaussian vectors and the chi-squared distribution}
+\label{sec:wlr-gaussvec}
+
+With one parameter, a squared standardized distance is a squared standard Gaussian, which is $\chi^2_1$ (\cref{ch:t-test}).
+With $d$ parameters the estimate is a vector, the errors in its coordinates have different sizes and are correlated, and `standardized distance' needs a definition.
+The limits in \cref{ch:mle-properties,ch:mom-mestimation} are Gaussian vectors $\Gauss_d(m, \Sigma)$, and the Toolkit \toolkit{sec:math-gaussquad} gives the definition this book uses: $Z$ has the distribution of $m + AW$, where $W$ has $d$ independent standard Gaussian coordinates and $A$ is an invertible matrix with $AA^\top = \Sigma$, a positive definite matrix.
+The distribution depends on $A$ only through $\Sigma$, every nonzero linear combination of the coordinates is Gaussian, and $\Sigma$ is the covariance matrix of $Z$.
+One fact about such vectors carries every test in this chapter.
+
+\begin{lemma}[The quadratic form of a Gaussian vector]
+\label{lem:gauss-quadform}
+If $Z \sim \Gauss_d(m, \Sigma)$ with $\Sigma$ positive definite, then $(Z - m)^\top\Sigma^{-1}(Z - m) \sim \chi^2_d$.
+\end{lemma}
+
+\coreproof{Represent $Z - m$ as $AW$. The matrix $\Sigma^{-1}$ undoes $A$ on both sides, and what is left is the squared length of $W$.}
+\begin{proof}
+By definition $Z - m$ has the distribution of $AW$, with $AA^\top = \Sigma$, so the quadratic form has the distribution of $(AW)^\top\Sigma^{-1}AW$.
+Since $\Sigma^{-1} = (AA^\top)^{-1} = (A^\top)^{-1}A^{-1}$,
+\[
+(AW)^\top\Sigma^{-1}AW = W^\top A^\top (A^\top)^{-1}A^{-1}A\,W = W^\top W = W_1^2 + \cdots + W_d^2,
+\]
+a sum of $d$ squared independent standard Gaussians, which is $\chi^2_d$ by \cref{def:chisq}.
+\end{proof}
+
+\Cref{fig:gaussquad} shows what the quadratic form measures.
+On the left are $2{,}000$ draws of a two-dimensional Gaussian vector whose coordinates have standard deviations $1$ and $1.5$ and correlation $0.8$: an elongated, tilted cloud.
+The ellipse is the set where $z^\top\Sigma^{-1}z = 5.99$, the $95\%$ quantile of $\chi^2_2$, and $102$ of the $2{,}000$ points fall outside it, close to the $100$ the lemma predicts.
+On the right are the same points mapped back by $A^{-1}$: the round cloud of $W$, with the ellipse mapped to the circle of radius $\sqrt{5.99} = 2.45$.
+A point is outside the ellipse exactly when its image is outside the circle.
+So $(z - m)^\top\Sigma^{-1}(z - m)$ is the squared distance from the center after the correlation and the unequal spreads have been undone: distance in units of the noise, direction by direction.
+Two points at the same ordinary distance from the center can be at very different statistical distances: $(1, 1)$ lies along the cloud and is well inside the ellipse, while $(1, -1)$ lies across it and is outside (\cref{ex:wlr-quadform}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_gaussian_quadratic}
+\caption{Left: $2{,}000$ draws of $Z = AW$, with $\Sigma = AA^\top$ having standard deviations $1$ and $1.5$ and correlation $0.8$, and the ellipse $z^\top\Sigma^{-1}z = 5.99$. Right: the same points mapped by $A^{-1}$, and the circle of radius $2.45$. Orange: points outside.}
+\label{fig:gaussquad}
+\end{figure}
+
+\section{Wald's test}
+\label{sec:wlr-wald}
+
+\recall{Asymptotic normality of the MLE (\cref{thm:mle-normal}): in a regular model with $\theta^*$ interior and $I(\theta^*)$ invertible, $\sqrt{n}(\hat{\theta}_n - \theta^*) \convd \Gauss_d(0, I(\theta^*)^{-1})$. The continuous mapping theorem for vectors (\cref{thm:cmt} and the vector-versions remark of \cref{ch:limit-tools}): if $V_n \convd V$ in $\real^d$ and $g: \real^d \to \real^k$ is continuous, then $g(V_n) \convd g(V)$; if $Y_n \convp y$ and $g$ is continuous at $y$, then $g(Y_n) \convp g(y)$. A matrix counts as the vector of its entries, so this covers sums, products and inverses of random matrices that converge entry by entry. Slutsky's theorem (\cref{thm:slutsky}): if $X_n \convd X$ and $Y_n \convp y$, a constant, then $X_n + Y_n \convd X + y$ and $X_nY_n \convd yX$. Convergence in distribution to a constant is convergence in probability to it (\cref{prop:convd-constant}).}
+
+\begin{definition}[Wald's test]
+\label{def:wald}
+Let $(E, (\Pr_\theta)_{\theta \in \Theta})$ with $\Theta \subset \real^d$ be a regular model (\cref{sec:mle-regularity}) with Fisher information $I(\theta)$, let $\hat{\theta}_n$ be the maximum likelihood estimator, and let $\theta_0$ be a fixed interior point of $\Theta$.
+To test $H_0: \theta = \theta_0$ against $H_1: \theta \neq \theta_0$, \textbf{Wald's statistic} is
+\[
+T^{\mathrm{W}}_n = n\,(\hat{\theta}_n - \theta_0)^\top I(\hat{\theta}_n)\,(\hat{\theta}_n - \theta_0),
+\]
+and \textbf{Wald's test} of asymptotic level $\alpha$ rejects when $T^{\mathrm{W}}_n > q_\alpha(\chi^2_d)$.
+For $d = 1$, $T^{\mathrm{W}}_n = (Z^{\mathrm{W}}_n)^2$ with $Z^{\mathrm{W}}_n = \sqrt{nI(\hat{\theta}_n)}\,(\hat{\theta}_n - \theta_0)$, and the one-sided tests reject $H_0: \theta \leq \theta_0$ when $Z^{\mathrm{W}}_n > q_\alpha$ and $H_0: \theta \geq \theta_0$ when $Z^{\mathrm{W}}_n < -q_\alpha$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Estimate $\theta$ by maximum likelihood, measure how far the estimate is from the null value in units of its own estimated noise (one standard error in one dimension, the estimated noise ellipse in several), square, and compare with the chi-squared quantile with as many degrees of freedom as the parameter has coordinates.
+\par\smallskip
+\textbf{For the kiss data.} $I(p) = 1/(p(1 - p))$, so $Z^{\mathrm{W}} = \sqrt{124}\,(0.645 - 0.5)/\sqrt{0.645 \times 0.355} = 3.38$ and $T^{\mathrm{W}} = 11.41 > 3.84$: reject $p = \frac12$, with $p$-value $\Pr(\chi^2_1 > 11.41) = 0.0007$. The subscript $n$ is dropped for a value computed from data: $T^{\mathrm{W}}_n$ is a random variable, a function of the sample, and $T^{\mathrm{W}} = 11.41$ is the number it takes for the $124$ couples observed. This is the test of \cref{ch:tests-foundations} with the standard error estimated at $\hat{p}$ instead of computed at $p_0$, and \cref{sec:tests-duality} showed that it inverts to the plug-in interval $[0.561, 0.729]$.
+\end{inwords}
+
+Wald's statistic and the likelihood ratio statistic below both have the form $V_n^\top M_n V_n$, a scaled estimation error measured by a matrix that converges to the Fisher information.
+One lemma handles both.
+
+\begin{lemma}[Quadratic forms in the limit]
+\label{lem:quad-limit}
+Let $V_n$ be random vectors in $\real^d$ with $V_n \convd \Gauss_d(0, I^{-1})$ for a positive definite matrix $I$, and let $M_n$ be random $d \times d$ matrices with $M_n \convp I$ entry by entry.
+Then $V_n^\top M_n V_n \convd \chi^2_d$, and $V_n^\top M_n V_n - V_n^\top I V_n \convp 0$.
+\end{lemma}
+
+\optionalproof{$V_n^\top I V_n$ converges to the quadratic form of a Gaussian vector, which is $\chi^2_d$. The difference $V_n^\top(M_n - I)V_n$ is at most the squared length of $V_n$ times the size of $M_n - I$, a sequence that converges in distribution times one that goes to zero.}
+\begin{proof}
+The map $v \mapsto v^\top I v$ is continuous, so $V_n^\top I V_n \convd Z^\top I Z$ with $Z \sim \Gauss_d(0, I^{-1})$, and $Z^\top I Z \sim \chi^2_d$ by \cref{lem:gauss-quadform} with $\Sigma = I^{-1}$, which is positive definite since $I$ is \toolkit{sec:math-gaussquad}.
+For the difference, write $B_n = M_n - I$.
+For any vectors $u$, $v$ and matrix $B$,
+\begin{equation}
+\label{eq:wlr-bound}
+\abs{u^\top B v} = \Big|\sum_{j,k} u_j B_{jk} v_k\Big| \leq \sum_{j,k}\abs{u_j}\abs{v_k}\abs{B_{jk}} \leq \norm{u}\,\norm{v} \sum_{j,k}\abs{B_{jk}},
+\end{equation}
+since $\abs{u_j} \leq \norm{u}$ and $\abs{v_k} \leq \norm{v}$.
+Take $u = v = V_n$ and $B = B_n$.
+The squared length $\norm{V_n}^2$ converges in distribution to $\norm{Z}^2$ by the continuous mapping theorem, and $\sum_{j,k}\abs{B_{n,jk}} \convp 0$ since each entry does.
+By Slutsky's product rule the product $\norm{V_n}^2\sum_{j,k}\abs{B_{n,jk}}$ converges in distribution to $0 \cdot \norm{Z}^2 = 0$, which is convergence in probability to $0$.
+Since $\abs{V_n^\top B_n V_n}$ is at most that product, $\Pr(\abs{V_n^\top B_n V_n} > \epsilon)$ is at most the probability that the product exceeds $\epsilon$, which tends to $0$ for every $\epsilon > 0$.
+So $V_n^\top M_n V_n - V_n^\top I V_n = V_n^\top B_n V_n \convp 0$, and Slutsky's additive rule gives $V_n^\top M_n V_n \convd \chi^2_d$.
+\end{proof}
+
+\begin{theorem}[Wald's test]
+\label{thm:wald}
+In the setting of \cref{def:wald}, suppose also that $I(\theta)$ is continuous at $\theta_0$ and invertible there.
+\begin{enumerate}[nosep]
+\item If $H_0$ is true, $T^{\mathrm{W}}_n \convd \chi^2_d$, so $\Pr_{\theta_0}(T^{\mathrm{W}}_n > q_\alpha(\chi^2_d)) \to \alpha$: Wald's test has asymptotic level $\alpha$. For $d = 1$, $Z^{\mathrm{W}}_n \convd \Gauss(0, 1)$ and the one-sided tests have asymptotic level $\alpha$.
+\item If $\theta^* \neq \theta_0$ is an interior point at which $I$ is continuous and invertible, $\Pr_{\theta^*}(T^{\mathrm{W}}_n > q_\alpha(\chi^2_d)) \to 1$.
+\end{enumerate}
+\end{theorem}
+
+\optionalproof{Under the null the scaled estimation error is approximately $\Gauss_d(0, I(\theta_0)^{-1})$, and $I(\hat{\theta}_n)$ estimates $I(\theta_0)$; apply \cref{lem:quad-limit}. Under an alternative, $T^{\mathrm{W}}_n/n$ settles at a positive number, so $T^{\mathrm{W}}_n$ grows like $n$.}
+\begin{proof}
+(1) Under $H_0$, $V_n = \sqrt{n}(\hat{\theta}_n - \theta_0) \convd \Gauss_d(0, I(\theta_0)^{-1})$ by \cref{thm:mle-normal}.
+Since $\hat{\theta}_n \convp \theta_0$ (\cref{thm:mle-consistent}) and $I$ is continuous at $\theta_0$, the continuous mapping theorem gives $M_n = I(\hat{\theta}_n) \convp I(\theta_0)$ entry by entry.
+So $T^{\mathrm{W}}_n = V_n^\top M_n V_n \convd \chi^2_d$ by \cref{lem:quad-limit}, and since the $\chi^2_d$ CDF is continuous, $\Pr_{\theta_0}(T^{\mathrm{W}}_n > q) \to \Pr(\chi^2_d > q)$ for every $q$.
+For $d = 1$, $Z^{\mathrm{W}}_n = \sqrt{I(\hat{\theta}_n)}\cdot\sqrt{n}(\hat{\theta}_n - \theta_0)$, where the first factor converges in probability to $\sqrt{I(\theta_0)}$ and the second in distribution to $\Gauss(0, 1/I(\theta_0))$, so by Slutsky $Z^{\mathrm{W}}_n \convd \Gauss(0, 1)$.
+For the one-sided null $\theta \leq \theta_0$ and a true $\theta < \theta_0$: the factor $\sqrt{nI(\hat{\theta}_n)}$ is never negative and $q_\alpha > 0$ (as $\alpha < \frac12$), so $Z^{\mathrm{W}}_n > q_\alpha$ forces $\hat{\theta}_n > \theta_0$, and $\Pr_\theta(\hat{\theta}_n > \theta_0) \leq \Pr_\theta(\abs{\hat{\theta}_n - \theta} \geq \theta_0 - \theta) \to 0$ by consistency (\cref{thm:mle-consistent}); at $\theta_0$ itself the probability tends to $\alpha$.
+The other one-sided test is the mirror image.
+
+(2) Under $\theta^*$, $\hat{\theta}_n \convp \theta^*$, so by the continuous mapping theorem $T^{\mathrm{W}}_n/n = (\hat{\theta}_n - \theta_0)^\top I(\hat{\theta}_n)(\hat{\theta}_n - \theta_0) \convp c = (\theta^* - \theta_0)^\top I(\theta^*)(\theta^* - \theta_0)$, and $c > 0$ since $I(\theta^*)$ is positive definite \toolkit{sec:math-gaussquad}.
+Then $\Pr(T^{\mathrm{W}}_n > q) \geq \Pr(T^{\mathrm{W}}_n/n > c/2) \to 1$ as soon as $nc/2 > q$.
+\end{proof}
+
+\begin{sanitycheck}[Why does the cutoff grow with the number of parameters?]
+The $5\%$ cutoffs are $q_{0.05}(\chi^2_1) = 3.84 = 1.96^2$, $q_{0.05}(\chi^2_2) = 5.99$, $q_{0.05}(\chi^2_3) = 7.81$ and $q_{0.05}(\chi^2_5) = 11.07$.
+Each coordinate contributes its own squared standardized error, with mean $1$, so a statistic that adds up $d$ of them is about $d$ by chance alone, and the cutoff must sit above that: for large $d$ it is roughly $d + 1.645\sqrt{2d}$, the mean plus $1.645$ standard deviations of $\chi^2_d$.
+Testing two parameters jointly is not the same as testing each at $5\%$: with independent estimates, rejecting when either of two $5\%$ tests rejects has type 1 error $1 - 0.95^2 = 9.75\%$, the multiple-testing effect of \cref{ch:t-test}, and the joint cutoff $5.99$ is what keeps the chance at $5\%$.
+\end{sanitycheck}
+
+\section{The likelihood ratio test}
+\label{sec:wlr-lrt}
+
+Wald's test standardizes a distance, and the standardization is a choice: the curvature is taken at $\hat{\theta}_n$, and the distance is measured in whatever coordinates the parameter happens to be written in.
+A test can be built from the likelihood itself, by asking how much better the data are explained by the best value overall than by the best value under the null.
+When both hypotheses are single points, that comparison is not only natural but optimal.
+
+\begin{proposition}[Neyman--Pearson lemma]
+\label{prop:neyman-pearson}
+Let $H_0: \theta = \theta_0$ and $H_1: \theta = \theta_1$ be simple hypotheses, let $L_n(\theta)$ be the likelihood, and for a constant $c > 0$ let
+\[
+\psi^* = \ind\big\{L_n(\theta_1) > c\,L_n(\theta_0)\big\}.
+\]
+Every test $\psi$ with $\Pr_{\theta_0}(\psi = 1) \leq \Pr_{\theta_0}(\psi^* = 1)$ has $\Pr_{\theta_1}(\psi = 1) \leq \Pr_{\theta_1}(\psi^* = 1)$: no test with at most the type 1 error of $\psi^*$ has more power.
+\end{proposition}
+
+\coreproof{$\psi^*$ rejects exactly on the data sets where the alternative explains the data more than $c$ times better than the null. So $\psi^* - \psi$ always has the sign of $L_n(\theta_1) - cL_n(\theta_0)$, and summing over data sets turns that into a comparison of the two powers.}
+\begin{proof}
+For a possible data set $x = (x_1, \ldots, x_n)$ write $L_1(x)$ and $L_0(x)$ for its likelihood (the joint PMF or density) under $\theta_1$ and $\theta_0$.
+At every $x$,
+\[
+\big(\psi^*(x) - \psi(x)\big)\big(L_1(x) - cL_0(x)\big) \geq 0:
+\]
+if $\psi^*(x) = 1$, then $L_1(x) - cL_0(x) > 0$ and $\psi^*(x) - \psi(x) = 1 - \psi(x) \geq 0$; if $\psi^*(x) = 0$, then $L_1(x) - cL_0(x) \leq 0$ and $\psi^*(x) - \psi(x) = -\psi(x) \leq 0$.
+Sum over all $x$ (integrate, for densities):
+\[
+\sum_x \big(\psi^*(x) - \psi(x)\big)L_1(x) \geq c\sum_x\big(\psi^*(x) - \psi(x)\big)L_0(x).
+\]
+The left side is $\Pr_{\theta_1}(\psi^* = 1) - \Pr_{\theta_1}(\psi = 1)$, and the right side is $c$ times $\Pr_{\theta_0}(\psi^* = 1) - \Pr_{\theta_0}(\psi = 1) \geq 0$.
+\end{proof}
+
+For the kiss data with $\theta_0 = \frac12$ and any $p_1 > \frac12$, the likelihood ratio is $L_n(p_1)/L_n(\frac12) = (2p_1)^S\big(2(1 - p_1)\big)^{n - S}$, where $S$ is the number of right turns.
+Since $2p_1 > 1 > 2(1 - p_1)$, the ratio increases with $S$, so `the ratio exceeds $c$' is the same event as `$S$ is at least some cutoff'.
+The test of \cref{ch:tests-foundations} that rejects when $S \geq 72$, whose exact type 1 error is $0.0438$, is therefore $\psi^*$ for every $p_1 > \frac12$ at once, with $c$ depending on $p_1$ and the rejection region not: for $p_1 = 0.645$, every $c$ with $0.93 \leq c < 1.69$ gives it.
+So against every alternative $p > \frac12$ it is the most powerful test whose type 1 error is at most its own: its power is $0.943$ at $p = 0.645$ and $0.704$ at $p = 0.6$, and no test of $124$ couples with a type 1 error no larger than this test's does better at either.
+The best test of \cref{prop:tv-best-test}, which minimized the sum of the two error probabilities by rejecting where the alternative's PMF exceeds the null's, is $\psi^*$ with $c = 1$.
+
+With composite hypotheses there is no single alternative to compare with, and the natural substitute compares the best fit under each.
+
+\begin{definition}[Likelihood ratio test]
+\label{def:lrt}
+Let $\Theta_0 \subset \Theta$ be the null set, $\hat{\theta}_n$ the maximum likelihood estimator over $\Theta$, and $\hat{\theta}^{\mathrm{c}}_n$ the \textbf{constrained maximum likelihood estimator}, the maximizer of the likelihood over $\Theta_0$.
+The \textbf{likelihood ratio statistic} is
+\[
+T^{\mathrm{LR}}_n = 2\log\frac{L_n(\hat{\theta}_n)}{L_n(\hat{\theta}^{\mathrm{c}}_n)} = 2\big(\ell_n(\hat{\theta}_n) - \ell_n(\hat{\theta}^{\mathrm{c}}_n)\big) \geq 0,
+\]
+and the \textbf{likelihood ratio test} of asymptotic level $\alpha$ rejects when $T^{\mathrm{LR}}_n > q_\alpha(\chi^2_k)$, where $k$ is the number of constraints the null imposes (\cref{thm:wilks,thm:three-nuisance}).
+For a simple null $\Theta_0 = \{\theta_0\}$, $\hat{\theta}^{\mathrm{c}}_n = \theta_0$ and $k = d$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Fit the model twice, once freely and once with the null imposed, and compare the two maximized log-likelihoods. The statistic is never negative, since maximizing over a larger set can only do better, and it is twice the log of how many times better the free fit explains the data. Only this difference means anything: a maximized log-likelihood on its own carries an unknown constant (\cref{ch:distances}).
+\par\smallskip
+\textbf{For the kiss data.} The free fit is $\hat{p} = 0.645$ with $\ell_n = -80.65$, the null fit is $p = \frac12$ with $\ell_n = -85.95$, and $T^{\mathrm{LR}} = 2 \times 5.30 = 10.60$, the $G^2$ statistic of \cref{ch:distances}. The free fit explains the data $e^{5.30} \approx 200$ times better, and the $p$-value is $\Pr(\chi^2_1 > 10.60) = 0.0011$.
+\end{inwords}
+
+\recall{The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ random variables with mean $\mu$ and finite variance, $\bar{X}_n \convp \mu$. Applied entry by entry, it holds for averages of i.i.d.\ random vectors and matrices.}
+
+\begin{theorem}[Wilks' theorem, simple null]
+\label{thm:wilks}
+In a regular model with $H_0: \theta = \theta_0$, $\theta_0$ interior, $I(\theta_0)$ invertible and $I$ continuous at $\theta_0$: if $H_0$ is true, $T^{\mathrm{LR}}_n \convd \chi^2_d$, and $T^{\mathrm{LR}}_n - T^{\mathrm{W}}_n \convp 0$.
+\end{theorem}
+
+\coreproof{Expand the log-likelihood to second order around its top. The first-order term vanishes there, since the slope at the top is zero, and what is left is the drop of a parabola: the squared distance $\hat{\theta}_n - \theta_0$ weighted by the curvature at an in-between point, which converges to the Fisher information. That is Wald's statistic with the curvature measured somewhere else.}
+\begin{proof}
+With probability tending to $1$, $\hat{\theta}_n$ is interior and $\nabla\ell_n(\hat{\theta}_n) = 0$.
+Apply Taylor's theorem with the Lagrange remainder \toolkit{sec:math-mvt} to $h(t) = \ell_n\big(\hat{\theta}_n + t(\theta_0 - \hat{\theta}_n)\big)$ on $[0, 1]$: $h(1) = h(0) + h'(0) + \frac12 h''(\tau)$ for some $\tau$ between $0$ and $1$.
+Here $h'(0) = \nabla\ell_n(\hat{\theta}_n)^\top(\theta_0 - \hat{\theta}_n) = 0$ and $h''(\tau) = (\theta_0 - \hat{\theta}_n)^\top\nabla^2\ell_n(\tilde{\theta}_n)(\theta_0 - \hat{\theta}_n)$, with $\tilde{\theta}_n = \hat{\theta}_n + \tau(\theta_0 - \hat{\theta}_n)$ on the segment between $\hat{\theta}_n$ and $\theta_0$ \toolkit{sec:math-multivar}.
+So
+\[
+T^{\mathrm{LR}}_n = 2\big(h(0) - h(1)\big) = V_n^\top H_n V_n, \qquad V_n = \sqrt{n}(\hat{\theta}_n - \theta_0), \quad H_n = -\tfrac1n\nabla^2\ell_n(\tilde{\theta}_n).
+\]
+Since $\hat{\theta}_n \convp \theta_0$, with probability tending to $1$ the whole segment from $\hat{\theta}_n$ to $\theta_0$, and $\tilde{\theta}_n$ with it, lies in the neighborhood of $\theta_0$ where the bound $K(X)$ on third derivatives of condition 4 holds.
+Then $H_n \convp I(\theta_0)$ entry by entry, by the step in the proof of \cref{thm:mle-normal}: $-\frac1n\nabla^2\ell_n(\theta_0) \convp -\E_{\theta_0}[\nabla^2\ell(\theta_0)] = I(\theta_0)$ by the Law of Large Numbers and \cref{thm:fisher-curvature}, and the bound on third derivatives controls the move from $\theta_0$ to $\tilde{\theta}_n$.
+And $V_n \convd \Gauss_d(0, I(\theta_0)^{-1})$ by \cref{thm:mle-normal}.
+\Cref{lem:quad-limit} gives $T^{\mathrm{LR}}_n \convd \chi^2_d$.
+Finally, with $I = I(\theta_0)$, $T^{\mathrm{LR}}_n - T^{\mathrm{W}}_n = V_n^\top(H_n - I)V_n - V_n^\top(I(\hat{\theta}_n) - I)V_n$, and both terms converge in probability to $0$ by the second part of \cref{lem:quad-limit}.
+\end{proof}
+
+In one dimension the proof reads $T^{\mathrm{LR}}_n = \big(-\frac1n\ell_n''(\tilde{\theta}_n)\big)\cdot n(\hat{\theta}_n - \theta_0)^2$: the drop of the log-likelihood is the squared distance times the curvature somewhere between estimate and null value.
+At finite $n$ the exact distribution of $T^{\mathrm{LR}}_n$ depends on the model and has a closed form only in special cases (\cref{ex:wlr-gauss-known} and \cref{ex:wlr-t}); Wilks' theorem has no finite-sample version, and the chi-squared limit is the general answer.
+\Cref{sec:wlr-compare} measures how good it is.
+
+\begin{pitfall}[a null on the boundary]
+Wilks' theorem needs the null value in the interior of $\Theta$, condition 3 of \cref{sec:mle-regularity}.
+Testing whether a variance is zero, or whether a mixture needs its second component, puts the null on the edge of the parameter set, and the limit changes.
+For Gaussian data with known variance, $\Theta = [0, \infty)$ and $H_0: \mu = 0$, the constrained and free fits coincide whenever $\bar{X}_n \leq 0$, so $T^{\mathrm{LR}}_n$ is exactly $0$ half the time, and it is $n\bar{X}_n^2/\sigma^2$ the other half: a 50:50 mixture of $0$ and $\chi^2_1$.
+The cutoff $3.84$ then gives level $2.5\%$, not $5\%$ (\cref{ex:wlr-boundary}).
+\end{pitfall}
+
+\section{The score test}
+\label{sec:wlr-score}
+
+\begin{definition}[Score test]
+\label{def:score-test}
+In a regular model with $H_0: \theta = \theta_0$, let $U_n(\theta_0) = \frac{1}{\sqrt{n}}\nabla\ell_n(\theta_0)$ be the standardized score at the null value.
+The \textbf{score statistic} is
+\[
+T^{\mathrm{S}}_n = U_n(\theta_0)^\top I(\theta_0)^{-1}U_n(\theta_0),
+\]
+and the \textbf{score test} of asymptotic level $\alpha$ rejects when $T^{\mathrm{S}}_n > q_\alpha(\chi^2_d)$.
+For $d = 1$, $T^{\mathrm{S}}_n = (Z^{\mathrm{S}}_n)^2$ with $Z^{\mathrm{S}}_n = \ell_n'(\theta_0)/\sqrt{nI(\theta_0)}$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Stand at the null value and ask how steeply the log-likelihood climbs there, in units of how steeply it climbs by chance when the null is true. Nothing is estimated: the slope and its yardstick are both computed at the null.
+\par\smallskip
+\textbf{For the kiss data.} $\ell_n'(\frac12) = 80/0.5 - 44/0.5 = 72$ and $nI(\frac12) = 124 \times 4 = 496$ (\cref{ex:mle-score-kiss}), so $Z^{\mathrm{S}} = 72/\sqrt{496} = 3.23$ and $T^{\mathrm{S}} = 10.45$. This is the statistic of \cref{ch:tests-foundations} and Pearson's chi-squared statistic for the right and left counts (\cref{ch:distances}), and it inverts to the solve interval $[0.558, 0.724]$ (\cref{sec:tests-duality}).
+\end{inwords}
+
+\recall{The Central Limit Theorem for vectors (the vector-versions remark of \cref{ch:limit-tools}): for i.i.d.\ random vectors $Y_i$ with mean $m$ and positive definite covariance matrix $\Sigma$, $\sqrt{n}(\bar{Y}_n - m) \convd \Gauss_d(0, \Sigma)$.}
+
+\begin{theorem}[The score test]
+\label{thm:score}
+In a regular model with $I(\theta_0)$ invertible, if $H_0: \theta = \theta_0$ is true, then $U_n(\theta_0) \convd \Gauss_d(0, I(\theta_0))$ and $T^{\mathrm{S}}_n \convd \chi^2_d$.
+\end{theorem}
+
+\coreproof{When the null is true, the score is a sum of i.i.d.\ vectors with mean zero and covariance $I(\theta_0)$. The CLT makes it Gaussian, and the quadratic form lemma makes the statistic $\chi^2_d$.}
+\begin{proof}
+Under $H_0$ the vectors $\nabla\log p_{\theta_0}(X_i)$ are i.i.d.\ with mean $0$ (\cref{prop:score-mean}, coordinate by coordinate) and covariance matrix $I(\theta_0)$ (\cref{def:fisher}), and $U_n(\theta_0)$ is $\sqrt{n}$ times their average.
+The multivariate CLT gives $U_n(\theta_0) \convd \Gauss_d(0, I(\theta_0))$, the continuous mapping theorem applied to $u \mapsto u^\top I(\theta_0)^{-1}u$ gives $T^{\mathrm{S}}_n \convd Z^\top I(\theta_0)^{-1}Z$ with $Z \sim \Gauss_d(0, I(\theta_0))$, and that is $\chi^2_d$ by \cref{lem:gauss-quadform}.
+\end{proof}
+
+The proof uses no estimator, only the Central Limit Theorem.
+That is the score test's practical attraction: when the model with the alternative is hard to fit and the null model is easy, the score test needs only the easy fit.
+
+\Cref{ch:tests-foundations} described the score test as the standardized estimate with the standard error computed at the null value.
+For a proportion the two descriptions agree: $\ell_n'(p_0)/\sqrt{nI(p_0)} = \sqrt{n}(\hat{p} - p_0)/\sqrt{p_0(1 - p_0)}$.
+In general they do not, and \cref{def:score-test} is the general one.
+For the subway model of the next section, $\ell_n'(\lambda_0) = n/\lambda_0 - n\bar{T}_n$, so $Z^{\mathrm{S}}_n = \sqrt{n}(1 - \lambda_0\bar{T}_n) = \sqrt{n}(\hat{\lambda} - \lambda_0)/\hat{\lambda}$, which is Wald's statistic in $\lambda$, with the standard error at $\hat{\lambda}$.
+
+\section{Three tests, one limit}
+\label{sec:wlr-compare}
+
+To compare the statistics write $o_\Pr(1)$ for any sequence of random quantities that converges in probability to $0$; for vectors and matrices, entry by entry.
+By Slutsky's theorem, adding $o_\Pr(1)$ to a sequence does not change its limit in distribution, and $o_\Pr(1)$ times a sequence that converges in distribution is again $o_\Pr(1)$.
+
+\begin{theorem}[Three tests, one limit]
+\label{thm:three-tests}
+In a regular model with $H_0: \theta = \theta_0$, $\theta_0$ interior, $I(\theta_0)$ invertible and $I$ continuous at $\theta_0$: if $H_0$ is true,
+\[
+T^{\mathrm{W}}_n = T^{\mathrm{S}}_n + o_\Pr(1), \qquad T^{\mathrm{LR}}_n = T^{\mathrm{S}}_n + o_\Pr(1),
+\]
+and all three converge in distribution to $\chi^2_d$.
+\end{theorem}
+
+\optionalproof{All three equal the score statistic plus something that vanishes. The proof of \cref{thm:mle-normal} writes the estimation error as the score divided by a curvature that converges to $I(\theta_0)$; substitute it into the likelihood ratio statistic and use \cref{lem:quad-limit} for the curvature's remaining error.}
+\begin{proof}
+The proof of \cref{thm:mle-normal} applies the mean value theorem to each coordinate of the gradient, between $\theta_0$ and $\hat{\theta}_n$.
+With probability tending to $1$ this gives $0 = \frac{1}{\sqrt{n}}\nabla\ell_n(\hat{\theta}_n) = U_n - H'_nV_n$, where $U_n = U_n(\theta_0)$, $V_n = \sqrt{n}(\hat{\theta}_n - \theta_0)$, and row $j$ of $H'_n$ is row $j$ of $-\frac1n\nabla^2\ell_n$ evaluated at its own in-between point.
+Those points converge in probability to $\theta_0$, so $H'_n \convp I = I(\theta_0)$ entry by entry.
+The matrix $H_n$ of the proof of \cref{thm:wilks} differs: it comes from one Taylor expansion of $\ell_n$ itself, so all its entries are evaluated at one point and it is symmetric, while $H'_n$, with its rows taken at different points, need not be.
+Since $\det H'_n \convp \det I \neq 0$, $H'_n$ is invertible with probability tending to $1$, and then $V_n = (H'_n)^{-1}U_n$.
+Writing $A^{-\top}$ for $(A^{-1})^\top$,
+\[
+T^{\mathrm{LR}}_n = V_n^\top H_n V_n = U_n^\top M_n U_n, \qquad M_n = (H'_n)^{-\top}H_n(H'_n)^{-1}.
+\]
+Matrix products and inverses are continuous where the inverses exist, so $M_n \convp I^{-1}II^{-1} = I^{-1}$ entry by entry.
+By the bound \eqref{eq:wlr-bound} with $u = v = U_n$, $\abs{U_n^\top(M_n - I^{-1})U_n} \leq \norm{U_n}^2\sum_{j,k}\abs{(M_n - I^{-1})_{jk}}$, where $\norm{U_n}^2$ converges in distribution (\cref{thm:score}) and the sum converges in probability to $0$; as in the proof of \cref{lem:quad-limit}, $T^{\mathrm{LR}}_n - T^{\mathrm{S}}_n = U_n^\top(M_n - I^{-1})U_n = o_\Pr(1)$.
+\Cref{thm:wilks} gives $T^{\mathrm{W}}_n - T^{\mathrm{LR}}_n = o_\Pr(1)$, and the limits are \cref{thm:wald,thm:wilks,thm:score}.
+\end{proof}
+
+At finite $n$ the three statistics differ, and near the cutoff the difference can decide the test.
+Suppose the subway line of \cref{ch:limit-tools} advertises a train every $5$ minutes on average.
+The $64$ observed gaps of \cref{ch:limit-tools} average $\bar{T}_n = 6.23$ minutes; with gaps modeled as $\Expo(\lambda)$, the null is $\lambda_0 = 0.2$ per minute and $\hat{\lambda} = 1/6.23 = 0.1605$.
+The log-likelihood is $\ell_n(\lambda) = n\log\lambda - \lambda n\bar{T}_n$ and $I(\lambda) = 1/\lambda^2$, and the three statistics are
+\[
+T^{\mathrm{W}} = \frac{n(\hat{\lambda} - \lambda_0)^2}{\hat{\lambda}^2} = 3.87, \qquad T^{\mathrm{LR}} = 2n\Big(\log\frac{\hat{\lambda}}{\lambda_0} - 1 + \frac{\lambda_0}{\hat{\lambda}}\Big) = 3.34, \qquad T^{\mathrm{S}} = n(1 - \lambda_0\bar{T}_n)^2 = 3.87,
+\]
+the score statistic equal to Wald's for this model, as the last section found.
+At level $5\%$ the cutoff is $3.84$: Wald and score reject, with $p$-value $0.049$, and the likelihood ratio test does not, with $p$-value $0.068$.
+Which is right?
+This model has a referee: $\lambda n\bar{T}_n$ is exactly $\mathrm{Gamma}(n, 1)$ (\cref{ex:ci-gamma}), which gives an exact test. Its two-sided $p$-value, twice the smaller tail, is $0.062$, siding with the likelihood ratio.
+
+\Cref{fig:testinversion} draws each statistic as a function of the null value.
+Each curve is zero at the estimate and grows away from it; the null values where a curve stays below $3.84$ form that test's $95\%$ confidence interval (\cref{prop:duality}), drawn as a bar underneath.
+For the kiss data, on the left, the three curves nearly coincide and the three intervals agree to within $0.006$: Wald's $[0.561, 0.729]$ (plug-in), the likelihood ratio's $[0.559, 0.726]$, and the score's $[0.558, 0.724]$ (solve).
+For the subway, on the right, they come apart near $\lambda_0 = 0.2$, which sits just outside Wald's interval $[0.1212, 0.1998]$ and just inside the likelihood ratio's $[0.1243, 0.2031]$.
+The likelihood ratio interval is within $0.001$ of the exact Gamma interval $[0.1236, 0.2022]$ at both ends; Wald's is off by about $0.0024$ at each.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_test_inversion}
+\caption{The statistics against the null value, with the cutoff $3.84$ (dotted) and the $95\%$ intervals (bars). Left: kiss data; Wald (orange), likelihood ratio (LR, blue), score (aqua). Right: subway; Wald in $\lambda$ (equal to score), LR, Wald in $\mu = 1/\lambda$ (yellow), exact (black).}
+\label{fig:testinversion}
+\end{figure}
+
+The yellow curve on the right is the most instructive.
+It is Wald's statistic for the same hypothesis written in the mean wait $\mu = 1/\lambda$ instead of the rate: $\mu_0 = 5$ minutes, $\hat{\mu} = 6.23$, $I(\mu) = 1/\mu^2$, and $T^{\mathrm{W}} = n(\hat{\mu} - \mu_0)^2/\hat{\mu}^2 = 2.49$, with $p$-value $0.114$.
+The hypothesis `a train every $5$ minutes' is one statement about one distribution, and Wald's test returns $3.87$ or $2.49$ depending on which letter is used to label it.
+
+\begin{pitfall}[Wald's test depends on how the parameter is written]
+\Cref{fig:waldparam} shows why.
+It draws the subway log-likelihood twice, against the rate $\lambda$ on the left and against the mean wait $\mu$ on the right, with Wald's parabola in each coordinate.
+The log-likelihood has the same value at the same distribution whatever the coordinate (\cref{prop:mle-invariance}), so the blue dots at the null sit at the same height, $-1.67$, in both, and the likelihood ratio statistic is $3.34$ either way.
+But a curve that is close to a parabola in $\lambda$ is a different shape in $1/\lambda$, and Wald replaces the log-likelihood by a parabola in whatever coordinate it is handed.
+In $\lambda$ its parabola falls below the curve at the null, at $-1.94$, and Wald overstates the evidence; in $\mu$ it stays above, at $-1.25$, and Wald understates it.
+The score statistic, being the slope over the curvature at the null, is also unchanged by relabeling (\cref{ex:wlr-invariance}).
+\end{pitfall}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_wald_parameterization}
+\caption{The subway log-likelihood minus its maximum (blue) against the rate $\lambda$ (left) and the mean wait $\mu = 1/\lambda$ (right), with Wald's parabola in each coordinate (orange, dashed; yellow, dotted) and the null $\lambda_0 = 0.2$, $\mu_0 = 5$ marked.}
+\label{fig:waldparam}
+\end{figure}
+
+How close each test's type 1 error is to its nominal level can be computed exactly for this model, since $\lambda_0 n\bar{T}_n$ has a known Gamma distribution under the null.
+Each statistic is a function of $\lambda_0\bar{T}_n$ alone, so the type 1 errors do not depend on $\lambda_0$, and \cref{fig:lrsizes} takes $\lambda_0 = 1$.
+On its left, the likelihood ratio statistic of $50{,}000$ samples of only $n = 10$ exponential observations already follows the $\chi^2_1$ density closely: $5.2\%$ of them exceed $3.84$.
+On its right is the exact type 1 error at nominal level $5\%$ of Wald's test in $\lambda$ (which is also the score test), the likelihood ratio test and Wald's test in $\mu$.
+The likelihood ratio test is at $5.4\%$ for $n = 5$, $5.2\%$ for $n = 10$ and $5.0\%$ for $n = 64$.
+Wald's test in $\lambda$ is a little conservative, at $4.4\%$ for $n = 5$.
+Wald's test in $\mu$ rejects a true null $13\%$ of the time at $n = 5$ and $7.4\%$ at $n = 20$, and is still at $5.8\%$ at $n = 64$.
+Of $1{,}000$ subway studies of $20$ gaps on a line that keeps its schedule, about $74$ would accuse it under Wald's test in $\mu$ and about $51$ under the likelihood ratio test.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_lr_sizes}
+\caption{Exponential data, $\lambda_0 = 1$. Left: the likelihood ratio statistic over $50{,}000$ null samples of $n = 10$, with the $\chi^2_1$ density (black). Right: exact type 1 error at nominal $5\%$ against $n$: Wald in $\lambda$ (equal to score), likelihood ratio, Wald in $\mu$.}
+\label{fig:lrsizes}
+\end{figure}
+
+\textbf{Which test to use.}
+When the model can be fitted both with and without the null, use the likelihood ratio test.
+The evidence is in this section's figures: it does not depend on how the parameter is written (\cref{fig:waldparam}); its type 1 error is usually the closest of the three to the nominal level in small samples (\cref{fig:lrsizes}); and its intervals follow the shape of the likelihood, which is why for the subway they nearly coincide with the exact interval (\cref{fig:testinversion}).
+Wald's statistic is what software prints beside every estimate, as estimate over standard error, and it is the natural screen when a model has many parameters; rerun any borderline case as a likelihood ratio test.
+The score test is the tool when only the null model is easy to fit, for instance when asking whether a term should be added to a model that has already been fitted without it.
+For intervals this replaces the default of \cref{ch:confidence-intervals}, where the plug-in interval, which is the inverted Wald test, served every model but the proportion.
+For a single proportion the solve interval of that chapter, the inverted score test, remains the choice: it has a closed form and holds its level well at small $n$ (\cref{fig:cicoverage}).
+
+\section{Nuisance parameters and implicit hypotheses}
+\label{sec:wlr-nuisance}
+
+Most hypotheses fix only part of the parameter.
+`Is the mean wind speed $10$?' says nothing about the variance, which must still be estimated; `is the heart-attack rate the same with aspirin as with placebo?' says nothing about what the common rate is.
+Write the parameter as $\theta = (\nu, \beta)$, with $\nu \in \real^r$ the coordinates the null leaves free, called \textbf{nuisance parameters} ($\nu$ for nuisance), and $\beta \in \real^k$ the coordinates the null fixes, $H_0: \beta = \beta_0$, so that $d = r + k$.
+The constrained estimator is $\hat{\theta}^{\mathrm{c}}_n = (\hat{\nu}^{\mathrm{c}}_n, \beta_0)$, where $\hat{\nu}^{\mathrm{c}}_n$ maximizes $\ell_n(\nu, \beta_0)$ over $\nu$.
+Write the Fisher information in blocks, $I_{\nu\nu}$ ($r \times r$), $I_{\nu\beta}$, $I_{\beta\nu}$ and $I_{\beta\beta}$ ($k \times k$), and $(I^{-1})_{\beta\beta}$ for the $\beta\beta$ block of the inverse matrix, which by \cref{thm:mle-normal} is the asymptotic covariance matrix of $\sqrt{n}(\hat{\beta}_n - \beta^*)$.
+Its inverse is $I_{\beta|\nu} = I_{\beta\beta} - I_{\beta\nu}I_{\nu\nu}^{-1}I_{\nu\beta}$, as the proof of \cref{thm:three-nuisance} shows.
+That matrix is the covariance of the part of the score in the $\beta$ coordinates that the score in the $\nu$ coordinates cannot predict linearly: the information about $\beta$ that survives not knowing $\nu$.
+When $I_{\beta\nu} = 0$, not knowing $\nu$ costs nothing in the limit, and $I_{\beta|\nu} = I_{\beta\beta}$.
+
+\begin{definition}[The three tests with nuisance parameters]
+\label{def:three-nuisance}
+For $H_0: \beta = \beta_0$ with $\nu$ free,
+\[
+\begin{aligned}
+T^{\mathrm{W}}_n &= n\,(\hat{\beta}_n - \beta_0)^\top\big[(I(\hat{\theta}_n)^{-1})_{\beta\beta}\big]^{-1}(\hat{\beta}_n - \beta_0), \\
+T^{\mathrm{LR}}_n &= 2\big(\ell_n(\hat{\theta}_n) - \ell_n(\hat{\theta}^{\mathrm{c}}_n)\big), \\
+T^{\mathrm{S}}_n &= \tfrac1n\nabla\ell_n(\hat{\theta}^{\mathrm{c}}_n)^\top I(\hat{\theta}^{\mathrm{c}}_n)^{-1}\nabla\ell_n(\hat{\theta}^{\mathrm{c}}_n),
+\end{aligned}
+\]
+each compared with $q_\alpha(\chi^2_k)$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Wald measures the fixed coordinates' estimation error with their own asymptotic covariance, which already accounts for having to estimate the free ones. The likelihood ratio lets the free coordinates do their best under each hypothesis. The score test fits the null model, free coordinates and all, and asks how steeply the log-likelihood climbs from there. Each is compared with a chi-squared with one degree of freedom per fixed coordinate: what counts is the number of constraints, not the number of parameters.
+\par\smallskip
+\textbf{For the kiss data.} The Bernoulli model has one parameter and nothing left to free, so these reduce to the tests above. A nuisance parameter appears as soon as the question is comparative: `do couples in the United States and in Germany turn right equally often?' has $d = 2$ parameters and one constraint, and the common proportion is the nuisance parameter.
+\end{inwords}
+
+\begin{theorem}[The three tests with nuisance parameters]
+\label{thm:three-nuisance}
+In a regular model with $\theta^* = (\nu^*, \beta_0)$ interior, $I$ invertible at $\theta^*$ and continuous there: if $H_0: \beta = \beta_0$ is true, $T^{\mathrm{W}}_n$, $T^{\mathrm{LR}}_n$ and $T^{\mathrm{S}}_n$ all converge in distribution to $\chi^2_k$, and their differences are $o_\Pr(1)$.
+\end{theorem}
+
+\optionalproof{Expand the free and the constrained fits around $\theta^*$, as in \cref{thm:wilks}. Each statistic becomes, up to $o_\Pr(1)$, the same quadratic form in one Gaussian vector of dimension $k$: the part of the score in the fixed directions that the free directions cannot explain. A block factorization of $I$ identifies its covariance, and \cref{lem:gauss-quadform} finishes.}
+\begin{proof}
+Write $I = I(\theta^*)$ and $U_n = \frac{1}{\sqrt{n}}\nabla\ell_n(\theta^*) = (U_{n,\nu}, U_{n,\beta})$.
+The block $I_{\nu\nu}$ is positive definite, hence invertible \toolkit{sec:math-gaussquad}: for $a_\nu \neq 0$, take $a = (a_\nu, 0)$ in $a^\top Ia > 0$.
+Let $C = I_{\beta\nu}I_{\nu\nu}^{-1}$ and $I_{\beta|\nu} = I_{\beta\beta} - I_{\beta\nu}I_{\nu\nu}^{-1}I_{\nu\beta}$.
+
+\textit{A block identity.} With $L = \begin{pmatrix} \mathrm{Id}_r & 0 \\ C & \mathrm{Id}_k\end{pmatrix}$ and $D = \begin{pmatrix} I_{\nu\nu} & 0 \\ 0 & I_{\beta|\nu}\end{pmatrix}$, multiplying out gives $I = LDL^\top$, using $I_{\nu\beta} = I_{\beta\nu}^\top$.
+Both diagonal blocks of $D = L^{-1}IL^{-\top}$ are positive definite, since $I$ is.
+So $I^{-1} = L^{-\top}D^{-1}L^{-1}$, and since $L^{-1}u = (u_\nu, u_\beta - Cu_\nu)$ for any $u = (u_\nu, u_\beta)$,
+\[
+u^\top I^{-1}u = u_\nu^\top I_{\nu\nu}^{-1}u_\nu + v^\top I_{\beta|\nu}^{-1}v, \qquad v = u_\beta - Cu_\nu. \tag{$\dagger$}
+\]
+Multiplying out $L^{-\top}D^{-1}L^{-1}$ also shows that the $\beta$ rows of $I^{-1}u$ are $I_{\beta|\nu}^{-1}v$, and that $(I^{-1})_{\beta\beta} = I_{\beta|\nu}^{-1}$.
+
+\textit{The two fits.} As in the proofs of \cref{thm:mle-normal,thm:three-tests}, $\sqrt{n}(\hat{\theta}_n - \theta^*) = I^{-1}U_n + o_\Pr(1)$ and $2(\ell_n(\hat{\theta}_n) - \ell_n(\theta^*)) = U_n^\top I^{-1}U_n + o_\Pr(1)$.
+The null model, with parameter $\nu$ alone, is itself regular with score $U_{n,\nu}$ and information $I_{\nu\nu}$ at $\nu^*$, so the same two statements hold for it: $\sqrt{n}(\hat{\nu}^{\mathrm{c}}_n - \nu^*) = I_{\nu\nu}^{-1}U_{n,\nu} + o_\Pr(1)$ and $2(\ell_n(\hat{\theta}^{\mathrm{c}}_n) - \ell_n(\theta^*)) = U_{n,\nu}^\top I_{\nu\nu}^{-1}U_{n,\nu} + o_\Pr(1)$.
+
+\textit{The three statistics.} Let $v_n = U_{n,\beta} - CU_{n,\nu}$.
+Subtracting the two expansions and using $(\dagger)$, $T^{\mathrm{LR}}_n = v_n^\top I_{\beta|\nu}^{-1}v_n + o_\Pr(1)$.
+For Wald, the $\beta$ rows of $I^{-1}U_n$ give $\sqrt{n}(\hat{\beta}_n - \beta_0) = I_{\beta|\nu}^{-1}v_n + o_\Pr(1)$, and $[(I(\hat{\theta}_n)^{-1})_{\beta\beta}]^{-1} \convp I_{\beta|\nu}$, so $T^{\mathrm{W}}_n = v_n^\top I_{\beta|\nu}^{-1}I_{\beta|\nu}I_{\beta|\nu}^{-1}v_n + o_\Pr(1) = v_n^\top I_{\beta|\nu}^{-1}v_n + o_\Pr(1)$.
+For the score, expand the gradient at $\hat{\theta}^{\mathrm{c}}_n$ around $\theta^*$ as in \cref{thm:mle-normal}: $\frac{1}{\sqrt{n}}\nabla\ell_n(\hat{\theta}^{\mathrm{c}}_n) = U_n - I\sqrt{n}(\hat{\theta}^{\mathrm{c}}_n - \theta^*) + o_\Pr(1)$.
+Its $\nu$ part is exactly $0$, the first-order condition of the constrained fit, and its $\beta$ part is $U_{n,\beta} - I_{\beta\nu}I_{\nu\nu}^{-1}U_{n,\nu} + o_\Pr(1) = v_n + o_\Pr(1)$.
+With $I(\hat{\theta}^{\mathrm{c}}_n)^{-1} \convp I^{-1}$, whose $\beta\beta$ block is $I_{\beta|\nu}^{-1}$, $T^{\mathrm{S}}_n = v_n^\top I_{\beta|\nu}^{-1}v_n + o_\Pr(1)$.
+(Each $o_\Pr(1)$ step is the bound \eqref{eq:wlr-bound}: with $u = v$ for a quadratic form, and with $u \neq v$ for the cross terms that an $o_\Pr(1)$ vector creates inside one.)
+
+\textit{The limit.} $v_n = BU_n$ with $B = (-C \;\; \mathrm{Id}_k)$, a $k \times d$ matrix of rank $k$.
+By the multivariate CLT, $U_n \convd Z \sim \Gauss_d(0, I)$, so $v_n \convd BZ$, which is $\Gauss_k(0, BIB^\top)$ \toolkit{sec:math-gaussquad}, and multiplying out, $BIB^\top = I_{\beta|\nu}$.
+By the continuous mapping theorem and \cref{lem:gauss-quadform}, $v_n^\top I_{\beta|\nu}^{-1}v_n \convd \chi^2_k$, and Slutsky adds back the $o_\Pr(1)$ terms.
+\end{proof}
+
+\begin{worked}[the wind turbine, three ways]
+The twelve monthly wind speeds of \cref{ch:t-test} have mean $14.3$ and standard deviation $S = 4.7$; the question is $H_0: \mu = 10$ with $\sigma^2$ unknown.
+Here $\beta = \mu$, $\nu = \sigma^2$, $k = 1$.
+The free fit is $\hat{\mu} = 14.3$, $\hat{\sigma}^2 = \frac{11}{12}S^2 = 20.25$; the constrained fit keeps $\mu = 10$ and has $\hat{\sigma}^2_{\mathrm{c}} = \hat{\sigma}^2 + (14.3 - 10)^2 = 38.74$, the variance measured around $10$ instead of around $14.3$.
+With $I(\mu, \sigma^2) = \mathrm{diag}(1/\sigma^2, 1/(2\sigma^4))$ (\cref{ch:mle-properties}) the three statistics are
+\[
+T^{\mathrm{W}} = \frac{n(\hat{\mu} - 10)^2}{\hat{\sigma}^2} = 10.96, \qquad T^{\mathrm{LR}} = n\log\frac{\hat{\sigma}^2_{\mathrm{c}}}{\hat{\sigma}^2} = 7.78, \qquad T^{\mathrm{S}} = \frac{n(\hat{\mu} - 10)^2}{\hat{\sigma}^2_{\mathrm{c}}} = 5.73,
+\]
+with $\chi^2_1$ $p$-values $0.0009$, $0.0053$ and $0.017$.
+Here $I_{\mu\sigma^2} = 0$, so not knowing $\sigma^2$ costs nothing in the limit, and at $n = 12$ the statistics differ only through how they estimate it: Wald's and the score statistic are the same squared distance $n(\hat{\mu} - 10)^2/\sigma^2$, with $\sigma^2$ estimated at $20.25$ and at $38.74$.
+Each is an increasing function of the $t$ statistic $T = \sqrt{12}(14.3 - 10)/4.7 = 3.17$: $T^{\mathrm{W}}_n = \frac{n}{n-1}T^2$, $T^{\mathrm{LR}}_n = n\log\big(1 + \frac{T^2}{n-1}\big)$ (\cref{ex:wlr-t}) and $T^{\mathrm{S}}_n = \frac{nT^2}{n - 1 + T^2}$.
+With $x = T^2/(n - 1)$ these are $nx$, $n\log(1 + x)$ and $nx/(1 + x)$, and since $x/(1 + x) \leq \log(1 + x) \leq x$, the likelihood ratio statistic always lies between the other two.
+So all three reject exactly when $\abs{T}$ is large, as the $t$-test does, and differ only in where the chi-squared approximation puts the cutoff. The exact two-sided $t$-test gives $p = 0.0089$, twice the one-sided $0.0045$ of \cref{ch:t-test}, and once more the likelihood ratio is the closest.
+\end{worked}
+
+\Cref{fig:profile} shows what the constrained fit does.
+On the left are contours of the log-likelihood over $(\mu, \sigma^2)$, with the peak at the free fit.
+The dotted line is the null, $\mu = 10$, and the orange dot is the highest point on it, $(10, 38.7)$, where the line just touches a contour; that contour, dashed, is $3.89$ below the peak, half of $T^{\mathrm{LR}} = 7.78$.
+On the right is the \textbf{profile log-likelihood}, $\ell_n^{\mathrm{p}}(\mu) = \max_{\sigma^2}\ell_n(\mu, \sigma^2)$, the height of the highest point on each vertical line: a one-parameter log-likelihood for $\mu$ with the nuisance parameter maximized out.
+The likelihood ratio statistic is twice its drop from the top to $\mu_0 = 10$.
+Cutting the profile at $-3.84/2 = -1.92$ gives the $95\%$ likelihood ratio interval for the mean wind speed, $[11.5, 17.1]$, a little narrower than the exact $t$ interval $[11.3, 17.3]$: with $12$ observations the chi-squared approximation is still a little optimistic.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_profile_likelihood}
+\caption{Wind speeds, $n = 12$, $H_0: \mu = 10$. Left: contours of $\ell_n(\mu, \sigma^2)$ minus its maximum at $-1$, $-2$, $-3.89$ (orange, dashed) and $-6$, the peak (black) and the best point on $\mu = 10$ (orange). Right: the profile log-likelihood, with the likelihood ratio (LR) and exact $t$ intervals.}
+\label{fig:profile}
+\end{figure}
+
+\textbf{Implicit hypotheses.}
+Sometimes the null is a relation among the parameters rather than a fixed value of some of them: two proportions are equal, a mean equals a standard deviation.
+Write it as $H_0: g(\theta) = 0$ for a continuously differentiable $g: \real^d \to \real^k$ whose $d \times k$ matrix of partial derivatives $\nabla g(\theta)$ (the convention of \cref{ch:limit-tools}) has rank $k$, meaning that its $k$ columns are linearly independent: no constraint is a combination of the others.
+
+\recall{The delta method for vectors (\cref{thm:delta} and the vector-versions remark of \cref{ch:limit-tools}): if $\sqrt{n}(Z_n - \theta) \convd \Gauss_d(0, \Sigma)$ and $g$ is continuously differentiable at $\theta$, then $\sqrt{n}(g(Z_n) - g(\theta)) \convd \Gauss_k(0, \nabla g(\theta)^\top\Sigma\nabla g(\theta))$.}
+
+\begin{proposition}[Wald's test for an implicit hypothesis]
+\label{prop:wald-implicit}
+Let $g: \real^d \to \real^k$ be continuously differentiable, with $\nabla g(\theta^*)$ of rank $k$, and let $\Gamma(\theta) = \nabla g(\theta)^\top I(\theta)^{-1}\nabla g(\theta)$ and $T^{\mathrm{W}}_n = n\,g(\hat{\theta}_n)^\top\Gamma(\hat{\theta}_n)^{-1}g(\hat{\theta}_n)$. In a regular model with $\theta^*$ interior, $I(\theta^*)$ invertible and $I$ continuous at $\theta^*$, if $g(\theta^*) = 0$, then $T^{\mathrm{W}}_n \convd \chi^2_k$.
+\end{proposition}
+
+\optionalproof{The delta method makes $\sqrt{n}\,g(\hat{\theta}_n)$ approximately $\Gauss_k(0, \Gamma(\theta^*))$; Wald's statistic is its quadratic form with $\Gamma$ estimated.}
+\begin{proof}
+By \cref{thm:mle-normal} and the delta method, $V_n = \sqrt{n}\,g(\hat{\theta}_n) = \sqrt{n}(g(\hat{\theta}_n) - g(\theta^*)) \convd \Gauss_k(0, \Gamma(\theta^*))$.
+$\Gamma(\theta^*)$ is invertible: for $a \neq 0$, $\nabla g(\theta^*)a \neq 0$ since $\nabla g$ has rank $k$, so $a^\top\Gamma a = (\nabla g\,a)^\top I^{-1}(\nabla g\,a) > 0$.
+By continuity $\Gamma(\hat{\theta}_n)^{-1} \convp \Gamma(\theta^*)^{-1}$, and \cref{lem:quad-limit} with $I$ replaced by $\Gamma(\theta^*)^{-1}$ gives $T^{\mathrm{W}}_n = V_n^\top\Gamma(\hat{\theta}_n)^{-1}V_n \convd \chi^2_k$.
+\end{proof}
+
+The likelihood ratio and score tests need no new theory.
+Near $\theta^*$, $k$ independent smooth constraints can be turned into `fix $k$ coordinates' by a smooth one-to-one change of parameter $\theta = h(\eta)$ (the implicit function theorem of calculus, which this book takes as given), and \cref{thm:three-nuisance} applies in $\eta$.
+The likelihood ratio and score statistics are unchanged by such a change.
+The likelihood ratio statistic compares two maximized values of the same function, whatever its coordinates.
+For the score statistic, let $J$ be the $d \times d$ matrix with entries $\partial\theta_i/\partial\eta_j$, invertible since the change is one-to-one and smooth both ways; the chain rule makes the score in $\eta$ equal to $J^\top\nabla\ell_n$ and the information $J^\top IJ$, so $(J^\top\nabla\ell_n)^\top(J^\top IJ)^{-1}J^\top\nabla\ell_n = \nabla\ell_n^\top I^{-1}\nabla\ell_n$ (\cref{ex:wlr-invariance} does one dimension).
+The change of parameter is defined only near $\theta^*$, but both maximizers lie there with probability tending to $1$, so both statistics converge to $\chi^2_k$.
+The theorems of this chapter were proved for one i.i.d.\ sample, and they hold for several independent samples whose sizes grow in fixed proportions, each contributing its own information: $nI(\theta)$ becomes $n_1I_1(\theta) + n_2I_2(\theta)$ for two samples, and the proofs apply the CLT and the LLN to each sample.
+
+\begin{worked}[aspirin and heart attacks]
+The preliminary report of the Physicians' Health Study (Steering Committee of the Physicians' Health Study Research Group, \textit{New England Journal of Medicine} 318, 1988, 262--264) randomized $22{,}071$ male physicians to aspirin or placebo.
+Among $11{,}034$ on placebo, $189$ had a heart attack ($\hat{p}_1 = 0.0171$); among $11{,}037$ on aspirin, $104$ did ($\hat{p}_2 = 0.0094$).
+In natural frequencies: about $17$ heart attacks per $1{,}000$ physicians on placebo, $9$ per $1{,}000$ on aspirin.
+With $\theta = (p_1, p_2)$ and $g(\theta) = p_1 - p_2$, $\nabla g = (1, -1)^\top$, and since the samples are independent the delta method's variance for $\hat{p}_1 - \hat{p}_2$ is the sum of the two estimated variances, $\hat{p}_1(1 - \hat{p}_1)/n_1 + \hat{p}_2(1 - \hat{p}_2)/n_2$, so
+\[
+Z^{\mathrm{W}} = \frac{\hat{p}_1 - \hat{p}_2}{\sqrt{\hat{p}_1(1 - \hat{p}_1)/n_1 + \hat{p}_2(1 - \hat{p}_2)/n_2}} = \frac{0.00771}{0.00154} = 5.00, \qquad T^{\mathrm{W}} = 25.04.
+\]
+The score test fits the null, a common rate $\hat{p} = 293/22{,}071 = 0.0133$.
+There the score in $p_j$ is $n_j(\hat{p}_j - \hat{p})/(\hat{p}(1 - \hat{p}))$ and the information is diagonal with entries $n_j/(\hat{p}(1 - \hat{p}))$, so
+\[
+T^{\mathrm{S}} = \frac{n_1(\hat{p}_1 - \hat{p})^2 + n_2(\hat{p}_2 - \hat{p})^2}{\hat{p}(1 - \hat{p})} = \frac{(\hat{p}_1 - \hat{p}_2)^2}{\hat{p}(1 - \hat{p})(1/n_1 + 1/n_2)} = 25.01,
+\]
+the square of the pooled two-proportion statistic, and Pearson's chi-squared for the $2 \times 2$ table (\cref{ch:gof}).
+The likelihood ratio statistic compares the fits with two rates and with one: $T^{\mathrm{LR}} = 25.37$, the $G^2$ for the table.
+With $k = 1$ constraint, all three have $p$-values below $10^{-6}$.
+Wald's $95\%$ interval for the difference is $0.0077 \pm 1.96 \times 0.00154 = [0.0047, 0.0107]$: with $95\%$ confidence, aspirin prevented between about $5$ and $11$ heart attacks per $1{,}000$ physicians over the study.
+With samples this large the three statistics agree to within $1.5\%$.
+\end{worked}
+
+\begin{bridge}[the named tests are three recipes]
+Most of the tests in an introductory course are one of the three, applied to a particular model.
+The $z$-test for a mean with known variance is all three at once, since its log-likelihood is an exact parabola (\cref{ex:wlr-gauss-known}).
+The one-sample $t$-test is the likelihood ratio test for the Gaussian mean with unknown variance, with the exact $t$ distribution in place of the chi-squared limit (the worked example above).
+The one-proportion $z$-test with the null standard error is the score test, and with the estimated standard error it is Wald's.
+The two-proportion $z$-test with the pooled proportion is the score test, and Pearson's chi-squared test for a table of counts is its many-cell version; the $G$-test is the likelihood ratio test for the same table (\cref{ch:gof}).
+The $F$-test for a group of regression coefficients is the likelihood ratio test for a Gaussian linear model (\cref{ch:regression-multi}), and the deviance tests of generalized linear models are likelihood ratio tests (\cref{ch:glm-links}).
+That is what \cref{ch:kiss} meant by machinery that delivers whole families of tests at once.
+\end{bridge}
+
+\section{What comes next}
+\label{sec:wlr-next}
+
+Part V is complete: exact tests for small Gaussian samples and three general recipes for large samples from any regular model.
+Every test so far assumed the model.
+\Cref{ch:gof} tests the model itself for discrete data, and its two statistics are this chapter's score and likelihood ratio statistics for the table of observed counts, with $K - 1$ degrees of freedom for $K$ categories, one fewer for each parameter estimated from the counts.
+\Cref{ch:ks} does the same for continuous distributions, with a statistic that is not built from a likelihood.
+\Cref{ch:regression-multi} returns to the likelihood ratio test with Gaussian errors, where the general Cochran theorem makes it exact and it becomes the $F$-test.
+
+\section{Summary}
+\label{sec:wlr-summary}
+
+\begin{itemize}[nosep]
+\item Three statistics for $H_0: \theta = \theta_0$, read off the log-likelihood: Wald's $n(\hat{\theta}_n - \theta_0)^\top I(\hat{\theta}_n)(\hat{\theta}_n - \theta_0)$ (distance in units of the estimated noise); the likelihood ratio $2(\ell_n(\hat{\theta}_n) - \ell_n(\theta_0))$ (twice the drop from the top); the score $\frac1n\nabla\ell_n(\theta_0)^\top I(\theta_0)^{-1}\nabla\ell_n(\theta_0)$ (slope at the null over its yardstick). Kiss data: $11.41$, $10.60$, $10.45$.
+\item A Gaussian vector $Z \sim \Gauss_d(m, \Sigma)$ has the distribution of $m + AW$ with $AA^\top = \Sigma$; $(Z - m)^\top\Sigma^{-1}(Z - m) \sim \chi^2_d$, the squared distance in units of the noise.
+\item Under the null all three converge to $\chi^2_d$, and their differences converge in probability to $0$. Wilks' theorem for the likelihood ratio is a second-order Taylor expansion plus \cref{thm:mle-normal}; the score test needs only the CLT.
+\item Neyman--Pearson: for simple hypotheses, rejecting when $L_n(\theta_1)/L_n(\theta_0)$ is large is most powerful. The kiss test $S \geq 72$, with type 1 error $0.0438$, is the most powerful test against every $p > \frac12$ among tests whose type 1 error is no larger.
+\item In small samples the three can disagree near the cutoff (subway, $\lambda_0 = 0.2$: $3.87$, $3.34$, $3.87$). Wald depends on the parameterization ($3.87$ in $\lambda$, $2.49$ in $1/\lambda$); likelihood ratio and score do not. The likelihood ratio test is the default when both fits are available.
+\item With nuisance parameters, the degrees of freedom are the number of constraints; the likelihood ratio uses the constrained fit, equivalently the profile likelihood. Wind data: $10.96$, $7.78$, $5.73$, all increasing in $\abs{T}$. Implicit hypotheses $g(\theta) = 0$ use the delta method. Aspirin: $25.04$, $25.37$, $25.01$.
+\item Wilks' theorem needs an interior null; on the boundary the limit is a mixture.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:wlr-exercises}
+
+\begin{exercise}
+\label{ex:wlr-quadform}
+(a) Show that $\Pr(\chi^2_2 > q) = e^{-q/2}$, and deduce $q_{0.05}(\chi^2_2) = -2\log 0.05 = 5.99$. (b) Show that $q_\alpha(\chi^2_1) = q_{\alpha/2}^2$. (c) For $Z \sim \Gauss_2(0, \Sigma)$ with $\Sigma = \begin{pmatrix} 1 & 1.2 \\ 1.2 & 2.25\end{pmatrix}$, as in \cref{fig:gaussquad}, compute $z^\top\Sigma^{-1}z$ for $z = (1, 1)$ and $z = (1, -1)$, and say which is inside the $95\%$ ellipse.
+\end{exercise}
+\begin{solution}
+(a) $\chi^2_2$ is $\Expo(\frac12)$ (\cref{prop:chisq-props}), so $\Pr(\chi^2_2 > q) = e^{-q/2}$; setting this to $0.05$ gives $q = -2\log 0.05 = 5.99$. (b) $\Pr(Z^2 > c) = \Pr(\abs{Z} > \sqrt{c})$, which is $\alpha$ when $\sqrt{c} = q_{\alpha/2}$; so $q_\alpha(\chi^2_1) = q_{\alpha/2}^2$, and $3.84 = 1.96^2$. (c) $\det\Sigma = 2.25 - 1.44 = 0.81$ and $\Sigma^{-1} = \frac{1}{0.81}\begin{pmatrix} 2.25 & -1.2 \\ -1.2 & 1\end{pmatrix}$. For $(1, 1)$: $(2.25 - 2.4 + 1)/0.81 = 1.05$, inside. For $(1, -1)$: $(2.25 + 2.4 + 1)/0.81 = 6.98 > 5.99$, outside. Both are at ordinary distance $\sqrt{2}$ from the center; $(1, 1)$ points along the cloud, where the noise is large, and $(1, -1)$ across it, where the noise is small.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-drug}
+The drug of \cref{ch:kiss} was believed to be $80\%$ effective, and a new trial found it effective in $78$ of $100$ patients. Compute Wald's, the likelihood ratio and the score statistics for $H_0: p = 0.8$ against $H_1: p \neq 0.8$, and the $p$-values. What do you conclude, and does the choice of test matter here?
+\end{exercise}
+\begin{solution}
+$\hat{p} = 0.78$. Wald: $100(0.02)^2/(0.78 \times 0.22) = 0.233$. Score: $100(0.02)^2/(0.8 \times 0.2) = 0.250$. Likelihood ratio: $2\big(78\log\frac{0.78}{0.8} + 22\log\frac{0.22}{0.2}\big) = 2(-1.975 + 2.097) = 0.244$. The $\chi^2_1$ $p$-values are $0.63$, $0.62$ and $0.62$: the trial is entirely consistent with $80\%$ effectiveness, and the three tests agree because the null is far inside every reasonable interval and the log-likelihood is close to a parabola there.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-poisson}
+For $\Xton \iid \Pois(\lambda)$ and $H_0: \lambda = \lambda_0$, show that $T^{\mathrm{W}}_n = n(\hat{\lambda} - \lambda_0)^2/\hat{\lambda}$, $T^{\mathrm{S}}_n = n(\hat{\lambda} - \lambda_0)^2/\lambda_0$ and $T^{\mathrm{LR}}_n = 2n\big(\hat{\lambda}\log(\hat{\lambda}/\lambda_0) - (\hat{\lambda} - \lambda_0)\big)$, with $\hat{\lambda} = \bar{X}_n$. The siblings data of \cref{ch:models} are modeled as $X_i - 1 \sim \Pois(\lambda)$: evaluate the three statistics on the counts minus one ($n = 24$, $\hat{\lambda} = 1.0$) for $\lambda_0 = 1.5$.
+\end{exercise}
+\begin{solution}
+$\ell_n(\lambda) = n\bar{X}_n\log\lambda - n\lambda + \text{const}$, $\ell_n'(\lambda) = n\bar{X}_n/\lambda - n$, $I(\lambda) = 1/\lambda$ (\cref{ch:mle-properties}). Wald: $nI(\hat{\lambda})(\hat{\lambda} - \lambda_0)^2 = n(\hat{\lambda} - \lambda_0)^2/\hat{\lambda}$. Score: $\ell_n'(\lambda_0)^2/(nI(\lambda_0)) = n^2(\hat{\lambda}/\lambda_0 - 1)^2\lambda_0/n = n(\hat{\lambda} - \lambda_0)^2/\lambda_0$. Likelihood ratio: $2(\ell_n(\hat{\lambda}) - \ell_n(\lambda_0)) = 2n(\hat{\lambda}\log(\hat{\lambda}/\lambda_0) - \hat{\lambda} + \lambda_0)$. With $n = 24$, $\hat{\lambda} = 1$, $\lambda_0 = 1.5$: $T^{\mathrm{W}} = 6.0$, $T^{\mathrm{S}} = 4.0$, $T^{\mathrm{LR}} = 48(\log\frac23 + 0.5) = 4.54$, with $p$-values $0.014$, $0.046$ and $0.033$. All three reject at $5\%$, the score test only just: with $24$ observations the three can still differ by a factor of $1.5$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-np-coin}
+A coin lands heads with probability $0.25$ or $0.75$, and you test $H_0: p = 0.25$ against $H_1: p = 0.75$ with the likelihood ratio test $\psi^* = \ind\{L_n(0.75) > L_n(0.25)\}$ ($c = 1$). (a) Show that for $n$ flips with $S$ heads the test rejects exactly when $S > n/2$. (b) For $n = 16$, compute its level and its power, and decide for $6$ heads. (c) What does \cref{prop:neyman-pearson} say about any other test with level at most this one's?
+\end{exercise}
+\begin{solution}
+(a) $L_n(0.75)/L_n(0.25) = (0.75/0.25)^S(0.25/0.75)^{n - S} = 3^{2S - n}$, which exceeds $1$ exactly when $S > n/2$. (b) For $n = 16$ the test rejects when $S \geq 9$: level $\Pr_{0.25}(S \geq 9) = 0.0075$, power $\Pr_{0.75}(S \geq 9) = 0.973$. With $6$ heads the ratio is $3^{-4} = 0.012$: the null explains the data $81$ times better, and the test does not reject. (c) No test of $16$ flips with a type 1 error no larger than this test's has power above $0.973$ against $p = 0.75$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-gauss-known}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$ with $\sigma^2$ known and $H_0: \mu = \mu_0$, show that Wald's, the likelihood ratio and the score statistics are all equal to $n(\bar{X}_n - \mu_0)^2/\sigma^2$, and that under $H_0$ this is exactly $\chi^2_1$ at every $n$.
+\end{exercise}
+\begin{solution}
+$\ell_n(\mu) = -\frac{1}{2\sigma^2}\sum_i(X_i - \mu)^2 + \text{const} = -\frac{n}{2\sigma^2}(\bar{X}_n - \mu)^2 + \text{const}'$, an exact parabola in $\mu$ with curvature $n/\sigma^2 = nI$ for every $\mu$. Wald: $nI(\bar{X}_n - \mu_0)^2 = n(\bar{X}_n - \mu_0)^2/\sigma^2$. Likelihood ratio: twice the drop of the parabola, the same. Score: $\ell_n'(\mu_0) = n(\bar{X}_n - \mu_0)/\sigma^2$, squared and divided by $n/\sigma^2$, the same. Under $H_0$, $\sqrt{n}(\bar{X}_n - \mu_0)/\sigma \sim \Gauss(0, 1)$ exactly (\cref{ch:gaussian}), so its square is exactly $\chi^2_1$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-t}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$ with both unknown and $H_0: \mu = \mu_0$: (a) show that $T^{\mathrm{LR}}_n = n\log\big(1 + T^2/(n - 1)\big)$, where $T = \sqrt{n}(\bar{X}_n - \mu_0)/S_n$ is the $t$ statistic of \cref{ch:t-test}. (b) Conclude that the likelihood ratio test rejects exactly when $\abs{T}$ is large. (c) For $n = 12$, which cutoff on $\abs{T}$ does the $\chi^2_1$ cutoff $3.84$ correspond to, and what is its exact level?
+\end{exercise}
+\begin{solution}
+(a) For fixed $\mu$ the log-likelihood is maximized at $\sigma^2(\mu) = \frac1n\sum_i(X_i - \mu)^2 = \hat{\sigma}^2 + (\bar{X}_n - \mu)^2$, where it equals $-\frac{n}{2}\log(2\pi\sigma^2(\mu)) - \frac{n}{2}$. So $T^{\mathrm{LR}}_n = n\log\big(\sigma^2(\mu_0)/\hat{\sigma}^2\big) = n\log\big(1 + (\bar{X}_n - \mu_0)^2/\hat{\sigma}^2\big)$, and since $\hat{\sigma}^2 = \frac{n-1}{n}S_n^2$, $(\bar{X}_n - \mu_0)^2/\hat{\sigma}^2 = T^2/(n - 1)$. (b) $x \mapsto n\log(1 + x^2/(n-1))$ is increasing in $\abs{x}$. (c) $T^{\mathrm{LR}}_n > 3.84$ when $\abs{T} > \sqrt{11(e^{3.84/12} - 1)} = 2.04$, while the exact $5\%$ cutoff is $q_{0.025}(t_{11}) = 2.20$; the chi-squared version has exact level $\Pr(\abs{t_{11}} > 2.04) = 0.066$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-pareto}
+Let $X_1, \ldots, X_{100}$ be i.i.d.\ with density $\theta x^{-\theta - 1}$ for $x > 1$ (a Pareto distribution), and $H_0: \theta = 2$. (a) Find the maximum likelihood estimator and $I(\theta)$. (b) With $\hat{\theta} = 2.45$, compute $T^{\mathrm{LR}}$ and $T^{\mathrm{W}}$ and decide at $5\%$. (c) Show that $\log X_i \sim \Expo(\theta)$, and explain why the numbers resemble the subway's.
+\end{exercise}
+\begin{solution}
+(a) $\ell_n(\theta) = n\log\theta - (\theta + 1)\sum_i\log X_i$, so $\hat{\theta} = n/\sum_i\log X_i$ and $\ell''(\theta) = -1/\theta^2$, $I(\theta) = 1/\theta^2$. (b) $\sum_i\log X_i = n/\hat{\theta}$, so $T^{\mathrm{LR}} = 2n\big(\log(\hat{\theta}/\theta_0) - (\hat{\theta} - \theta_0)/\hat{\theta}\big) = 200(0.2029 - 0.1837) = 3.85 > 3.84$: reject, just ($p = 0.0496$). $T^{\mathrm{W}} = n(\hat{\theta} - \theta_0)^2/\hat{\theta}^2 = 100(0.45/2.45)^2 = 3.37$: do not reject ($p = 0.066$). (c) $\Pr(\log X > t) = \Pr(X > e^t) = e^{-\theta t}$, the $\Expo(\theta)$ tail. The model is the exponential rate model in disguise, and the two tests sit on either side of the cutoff for the same reason as in \cref{fig:testinversion}; here they disagree in the other direction, since $\hat{\theta} > \theta_0$ puts the null on the other side of the asymmetric log-likelihood.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-gauss2d}
+Five observations $0.2, -0.1, -1.9, -0.4, -1.8$ are modeled as $\Gauss(\mu, \sigma^2)$. Test $H_0: (\mu, \sigma^2) = (0, 1)$, a simple null with $d = 2$, by Wald's test (with $I$ at the estimate, and also with $I$ at the null value), the likelihood ratio test and the score test, using $I(\mu, \sigma^2) = \mathrm{diag}(1/\sigma^2, 1/(2\sigma^4))$.
+\end{exercise}
+\begin{solution}
+$\hat{\mu} = -0.8$ and $\hat{\sigma}^2 = 3.86/5 = 0.772$. Wald at the estimate: $5\big(0.64/0.772 + 0.228^2/(2 \times 0.772^2)\big) = 4.36$. Wald with $I(0, 1) = \mathrm{diag}(1, \frac12)$: $5(0.64 + 0.228^2/2) = 3.33$. Likelihood ratio: $2\big(-\frac52\log 0.772 - \frac52 + \frac12\sum_i X_i^2\big)$ with $\sum_i X_i^2 = 7.06$, which is $2(0.647 - 2.5 + 3.53) = 3.35$. Score: the gradient at $(0, 1)$ is $(\sum_i X_i, -\frac{5}{2} + \frac12\sum_i X_i^2) = (-4, 1.03)$, and $T^{\mathrm{S}} = \frac15\big(16/1 + 1.03^2/\frac12\big) = 3.62$. All are below $q_{0.05}(\chi^2_2) = 5.99$: five observations are consistent with $\Gauss(0, 1)$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-boundary}
+Let $\Xton \iid \Gauss(\mu, 1)$ with $\Theta = [0, \infty)$, and test $H_0: \mu = 0$. (a) Show that the maximum likelihood estimator is $\max(\bar{X}_n, 0)$ and that $T^{\mathrm{LR}}_n = n\bar{X}_n^2\ind\{\bar{X}_n > 0\}$. (b) Show that under $H_0$, $\Pr(T^{\mathrm{LR}}_n > c) = \frac12\Pr(\chi^2_1 > c)$ for $c > 0$, so that the cutoff $3.84$ gives level $2.5\%$. (c) Which cutoff gives level $5\%$?
+\end{exercise}
+\begin{solution}
+(a) $\ell_n(\mu) = -\frac{n}{2}(\bar{X}_n - \mu)^2 + \text{const}$ is maximized over $[0, \infty)$ at $\bar{X}_n$ if $\bar{X}_n > 0$ and at $0$ otherwise; then $T^{\mathrm{LR}}_n = n\bar{X}_n^2$ or $0$. (b) Under $H_0$, $Z = \sqrt{n}\bar{X}_n \sim \Gauss(0, 1)$ and for $c > 0$, $\Pr(T^{\mathrm{LR}}_n > c) = \Pr(Z > \sqrt{c}) = \frac12\Pr(Z^2 > c)$; at $c = 3.84$ this is $0.025$. (c) $\Pr(Z > \sqrt{c}) = 0.05$ when $\sqrt{c} = 1.645$, so $c = 2.71$: the one-sided test of \cref{ch:tests-foundations}, written in squares.
+\end{solution}
+
+\begin{exercise}
+\label{ex:wlr-invariance}
+Let $\theta = h(\eta)$ with $h$ one-to-one and differentiable with $h' \neq 0$, in a one-parameter model. (a) Show that the likelihood ratio statistic is the same whether computed in $\theta$ or in $\eta$. (b) Show that the score statistic is the same in both, using $\frac{\mathrm{d}}{\mathrm{d}\eta}\ell = \ell'(\theta)h'(\eta)$ and $I_\eta(\eta) = I_\theta(h(\eta))h'(\eta)^2$, the rule in the pitfall of \cref{sec:mle-fisher-examples}, which \cref{ex:mle-reparam} checks for the exponential. (c) Check (b) on the subway: compute the score statistic in the mean wait $\mu$ for $\mu_0 = 5$.
+\end{exercise}
+\begin{solution}
+(a) $\ell_n$ as a function of $\eta$ is $\ell_n(h(\eta))$; its maximum is the same number, attained at $\hat{\eta}$ with $h(\hat{\eta}) = \hat{\theta}$ (\cref{prop:mle-invariance}), and its value at $\eta_0$ is $\ell_n(\theta_0)$. (b) The score statistic in $\eta$ is $\big(\ell_n'(\theta_0)h'(\eta_0)\big)^2/\big(nI_\theta(\theta_0)h'(\eta_0)^2\big) = \ell_n'(\theta_0)^2/(nI_\theta(\theta_0))$. (c) $\ell_n(\mu) = -n\log\mu - n\bar{T}_n/\mu$, $\ell_n'(\mu_0) = n(\bar{T}_n - \mu_0)/\mu_0^2$ and $I(\mu) = 1/\mu^2$, so $T^{\mathrm{S}} = n(\bar{T}_n - \mu_0)^2/\mu_0^2 = 64(1.23/5)^2 = 3.87$, the value found in $\lambda$. Wald's statistic changed from $3.87$ to $2.49$ because it evaluates the information at $\hat{\theta}$ and measures the distance $\hat{\theta} - \theta_0$ in the chosen coordinate, and neither is preserved by a nonlinear $h$.
+\end{solution}

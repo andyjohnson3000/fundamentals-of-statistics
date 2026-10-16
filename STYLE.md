@@ -109,8 +109,12 @@ is the model.
   exercises are numbered within chapters with solutions at the back of the
   book, each exercise printing the page of its solution.
 - Every proof is preceded by `\coreproof{...}` or `\optionalproof{...}`: one
-  line of strategy, and whether to read it now. About ten proofs in the book
-  are core.
+  line of strategy, and whether to read it now. A proof is core when it
+  carries an idea the reader needs (why the LLN holds, why Wilks' statistic
+  is the drop of a parabola, why Student's t appears); a proof that checks
+  hypotheses, repeats an earlier argument or does Slutsky bookkeeping is
+  optional, and its strategy line carries the idea. There is no quota:
+  whether the idea is core decides (Reeves, 2026-10-16).
 - A result stated in a chapter whose proof nothing later needs (Pinsker's
   inequality is the first) is stated where it explains something, with a
   pointer to its proof in Appendix C, Supplementary Proofs. Both the chapter

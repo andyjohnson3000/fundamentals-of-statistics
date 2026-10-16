@@ -206,7 +206,11 @@ g(x) = g(\theta) + g'(\theta)(x - \theta) + \text{(an error of order } (x - \the
 \]
 so on a window of width $h$ around $\theta$ the tangent line is wrong by about $h^2$, which is negligible compared with the $h$-sized changes along the line.
 The right of \cref{fig:tk-mvt} draws this for $g(x) = 1/x$: the shaded error is tiny on the window $\theta \pm \sigma/\sqrt{n}$ where an estimator lives, which is why the delta method can treat $g$ as linear there.
-Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-order expansion, which Part IV uses for the likelihood ratio test.
+Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-order expansion, and it too has an exact form with an unknown in-between point, \textbf{Taylor's theorem with the Lagrange remainder}: for a twice differentiable $g$,
+\[
+g(b) = g(a) + g'(a)(b - a) + \tfrac12 g''(c)(b - a)^2 \quad \text{for some } c \text{ between } a \text{ and } b.
+\]
+At a maximum, where $g'(a) = 0$, it says that the drop from the top to $b$ is exactly half a squared distance times a curvature taken somewhere in between, which is the step behind the likelihood ratio test.
 
 \begin{figure}[htbp]
 \centering
@@ -215,7 +219,7 @@ Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-orde
 \label{fig:tk-mvt}
 \end{figure}
 
-\textbf{Where the book uses it.} The delta method (\cref{thm:delta}) is the mean value theorem followed by Slutsky's theorem; its intuition box is the tangent-line picture. The second-order expansion is behind the remark on $g'(\theta) = 0$ in \cref{sec:delta-method} and behind Wilks' theorem in \cref{ch:wald-lrt}.
+\textbf{Where the book uses it.} The delta method (\cref{thm:delta}) is the mean value theorem followed by Slutsky's theorem; its intuition box is the tangent-line picture. The second-order expansion is behind the remark on $g'(\theta) = 0$ in \cref{sec:delta-method}, and Taylor's theorem with the Lagrange remainder proves Wilks' theorem in \cref{ch:wald-lrt}.
 
 \section{Exponentials and logarithms}
 \label{sec:math-explog}
@@ -283,7 +287,8 @@ For the saddle the Hessian is $\begin{pmatrix} 2 & 0 \\ 0 & -2 \end{pmatrix}$, w
 For $h(a, b) = -(a^2 + ab + b^2)$ it is $\begin{pmatrix} -2 & -1 \\ -1 & -2 \end{pmatrix}$, top-left $-2 < 0$, determinant $3 > 0$: negative definite, and the origin is the maximum.
 
 \textbf{Concave in several variables.}
-Suppose the Hessian is negative definite at every point of a domain that contains the segment between any two of its points. Along the line $\theta + tu$, the second derivative in $t$ is $u^\top \nabla^2 h\, u < 0$, so every slice through the function, in every direction, is strictly concave in one variable. If $\nabla h(\hat{\theta}) = 0$, the slice from $\hat{\theta}$ toward any other point $\theta$ has zero slope at $\hat{\theta}$, so by the one-variable result (\cref{prop:concave-max}) it is highest there: $h(\theta) < h(\hat{\theta})$. A point with zero gradient, if there is one, is the unique maximizer, exactly as in one variable.
+Along the line $\theta + tu$, the function $t \mapsto h(\theta + tu)$ has first derivative $\nabla h(\theta + tu)^\top u$ and second derivative $u^\top \nabla^2 h(\theta + tu)\, u$, by the chain rule.
+Suppose the Hessian is negative definite at every point of a domain that contains the segment between any two of its points. Then the second derivative along every line is negative, so every slice through the function, in every direction, is strictly concave in one variable. If $\nabla h(\hat{\theta}) = 0$, the slice from $\hat{\theta}$ toward any other point $\theta$ has zero slope at $\hat{\theta}$, so by the one-variable result (\cref{prop:concave-max}) it is highest there: $h(\theta) < h(\hat{\theta})$. A point with zero gradient, if there is one, is the unique maximizer, exactly as in one variable.
 
 \begin{figure}[htbp]
 \centering
@@ -337,7 +342,59 @@ In words: rotate a round Gaussian cloud and you get the same round Gaussian clou
 
 \textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
 
+\section{Gaussian vectors with a covariance matrix}
+\label{sec:math-gaussquad}
+
+The limits in \cref{ch:mle-properties,ch:mom-mestimation,ch:wald-lrt} are Gaussian vectors whose coordinates have different variances and are correlated.
+This entry says what such a vector is, building on the round Gaussian cloud of the previous entry, and proves the facts the book uses about it.
+
+\textbf{Covariance matrices.}
+For a random vector $Z = (Z_1, \ldots, Z_d)$ with finite variances, the covariance matrix $\mathrm{Cov}(Z)$ has entries $\mathrm{Cov}(Z_j, Z_k)$, with the variances on the diagonal.
+For a matrix $B$, $\mathrm{Cov}(BZ) = B\,\mathrm{Cov}(Z)\,B^\top$: each entry is the covariance of two linear combinations of the $Z_j$, expanded term by term.
+A covariance matrix $\Sigma$ is symmetric, and $a^\top\Sigma a = \var(a^\top Z) \geq 0$ for every vector $a$.
+It is \textbf{positive definite} when $a^\top\Sigma a > 0$ for every $a \neq 0$, that is, when no nonzero linear combination of the coordinates is constant; a positive definite matrix is invertible, since $\Sigma a = 0$ would give $a^\top\Sigma a = 0$.
+Conversely, an invertible covariance matrix is positive definite.
+If $a^\top\Sigma a = \var(a^\top Z) = 0$, then $a^\top Z$ is constant, so $(\Sigma a)_j = \mathrm{Cov}(Z_j, a^\top Z) = 0$ for every $j$; that is, $\Sigma a = 0$, and invertibility forces $a = 0$.
+The inverse of a positive definite matrix is positive definite too: for $a \neq 0$, $b = \Sigma^{-1}a$ is not $0$, and $a^\top\Sigma^{-1}a = b^\top\Sigma b > 0$.
+The Fisher information matrix is the covariance matrix of the score (\cref{def:fisher}), so when it is invertible it is positive definite, and so is its inverse.
+
+\textbf{Definition.}
+Let $m \in \real^d$ and let $\Sigma$ be a symmetric positive definite $d \times d$ matrix.
+A random vector $Z$ has the \textbf{Gaussian distribution} $\Gauss_d(m, \Sigma)$ if it has the distribution of $m + AW$, where $W$ has $d$ independent $\Gauss(0, 1)$ coordinates and $A$ is an invertible $d \times d$ matrix with $AA^\top = \Sigma$.
+The definition concerns only the distribution of $Z$, which is all that a limit in distribution, such as the one in the Central Limit Theorem, delivers.
+Such an $A$ exists for every positive definite $\Sigma$; one choice is the lower-triangular matrix of the Cholesky factorization, a standard result of linear algebra, and for $d = 2$ it is explicit: for $\Sigma = \begin{pmatrix} a & b \\ b & c\end{pmatrix}$, $A = \begin{pmatrix} \sqrt{a} & 0 \\ b/\sqrt{a} & \sqrt{c - b^2/a}\end{pmatrix}$.
+$\mathrm{Cov}(Z) = A\,\mathrm{Cov}(W)A^\top = AA^\top = \Sigma$, and every nonzero linear combination $a^\top Z$ has the distribution of $a^\top m + (A^\top a)^\top W$, a sum of independent Gaussians plus a constant, so it is $\Gauss(a^\top m, a^\top\Sigma a)$ by the sum rule and the affine property of \cref{ch:gaussian}.
+That is the description of $\Gauss_d$ used in the recall lines of \cref{ch:mom-mestimation}.
+(Conversely, a vector all of whose linear combinations are Gaussian, with positive definite covariance matrix, has this form; the proof uses characteristic functions, which this book does not develop, and nothing in the book needs it.)
+
+\textbf{The distribution depends on $A$ only through $\Sigma$.}
+By the change of variables formula of the previous entry, with $f$ the density of $W$,
+\[
+f_Z(z) = \frac{f\big(A^{-1}(z - m)\big)}{\abs{\det A}} = \frac{1}{(2\pi)^{d/2}\abs{\det A}}\exp\Big(-\tfrac12\norm{A^{-1}(z - m)}^2\Big).
+\]
+Now $\norm{A^{-1}(z - m)}^2 = (z - m)^\top(A^{-1})^\top A^{-1}(z - m) = (z - m)^\top(AA^\top)^{-1}(z - m)$, and $\abs{\det A} = \sqrt{\det(AA^\top)}$, so
+\[
+f_Z(z) = \frac{1}{(2\pi)^{d/2}\sqrt{\det\Sigma}}\exp\Big(-\tfrac12(z - m)^\top\Sigma^{-1}(z - m)\Big),
+\]
+a formula with only $m$ and $\Sigma$ in it: two choices of $A$ with the same $AA^\top$ give the same distribution.
+For $d = 1$ it is the Gaussian density of \cref{ch:gaussian}.
+The contours of the density are the ellipses $(z - m)^\top\Sigma^{-1}(z - m) = \text{constant}$, drawn in \cref{fig:gaussquad}.
+
+\textbf{Linear maps.}
+If $Z \sim \Gauss_d(m, \Sigma)$ and $B$ is a $k \times d$ matrix of rank $k$ (its rows are linearly independent), then $BZ \sim \Gauss_k(Bm, B\Sigma B^\top)$.
+To see it, note that $BZ$ has the distribution of $Bm + CW$ with $C = BA$, a $k \times d$ matrix of rank $k$, since $A$ is invertible.
+Run the Gram--Schmidt process on the rows of $C$ to get orthonormal vectors $q_1, \ldots, q_k$ spanning the same space, and let $Q_1$ be the $k \times d$ matrix with these rows.
+Each row of $C$ is a combination of $q_1, \ldots, q_k$, so $C = LQ_1$ with $L = CQ_1^\top$, a $k \times k$ matrix; it is invertible, since $k = \mathrm{rank}\,C = \mathrm{rank}(LQ_1) \leq \mathrm{rank}\,L$.
+Extend $q_1, \ldots, q_k$ to a basis of $\real^d$ and continue the Gram--Schmidt process, as in the previous entry, to get an orthogonal matrix $Q$ whose first $k$ rows are $q_1, \ldots, q_k$.
+By rotation invariance $QW$ has independent standard Gaussian coordinates, and $W' = Q_1W$ is its first $k$ of them.
+So $BZ$ has the distribution of $Bm + LW'$, with $L$ invertible and $LL^\top = LQ_1Q_1^\top L^\top = CC^\top = B\Sigma B^\top$, which is the definition.
+
+\textbf{The quadratic form.}
+If $Z \sim \Gauss_d(m, \Sigma)$, then $(Z - m)^\top\Sigma^{-1}(Z - m)$ has the distribution of $W^\top A^\top(AA^\top)^{-1}AW = W^\top W$, which is $\chi^2_d$ (\cref{lem:gauss-quadform}): the squared distance from the center in units of the noise, which \cref{fig:gaussquad} draws.
+
+\textbf{Where the book uses it.} The multivariate CLT and the asymptotic normality of estimators with several coordinates (\cref{ch:limit-tools,ch:mle-properties,ch:mom-mestimation}) have $\Gauss_d$ limits when their covariance matrices are positive definite. The quadratic form gives the chi-squared limits of Wald's, the likelihood ratio and the score tests (\cref{ch:wald-lrt}), and the linear-map rule gives the common limit of all three with nuisance parameters (\cref{thm:three-nuisance}). The vector of counts in \cref{ch:gof}, whose coordinates add up to $n$, has a covariance matrix that is not positive definite; that chapter drops one category, which leaves one that is.
+
 \section{To be added with later chapters}
 \label{sec:math-later}
 
-Vectors, matrices, the rank of a matrix and projections (for \cref{ch:regression-multi}); eigenvalues and eigenvectors (for \cref{ch:pca}).
+Vectors and matrices more generally, rank beyond the one-line description used in the previous entry, and projections (for \cref{ch:regression-multi}); eigenvalues and eigenvectors (for \cref{ch:pca}).

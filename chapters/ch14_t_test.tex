@@ -105,7 +105,7 @@ Let $V \sim \chi^2_k$.
 
 \recall{The Central Limit Theorem (\cref{thm:clt}): for i.i.d.\ $Y_i$ with mean $m$ and variance $s^2 < \infty$, $\sqrt{k}(\bar{Y}_k - m) \convd \Gauss(0, s^2)$.}
 
-\coreproof{Everything follows from the definition as a sum of independent squares: means and variances add, two sums of squares concatenate, and a sum of $k$ i.i.d.\ terms obeys the CLT. The density for $k = 1$ is a change of variables; the general density is a convolution, done in \cref{sec:proof-chisq-density}.}
+\optionalproof{Everything follows from the definition as a sum of independent squares: means and variances add, two sums of squares concatenate, and a sum of $k$ i.i.d.\ terms obeys the CLT. The density for $k = 1$ is a change of variables; the general density is a convolution, done in \cref{sec:proof-chisq-density}.}
 \begin{proof}
 (1) $\E[Z^2] = \var(Z) = 1$, so $\E[V] = k$.
 For the variance, $\var(Z^2) = \E[Z^4] - (\E[Z^2])^2 = \E[Z^4] - 1$, and integrating by parts with $u = z^3$ and $\mathrm{d}v = z\varphi(z)\,\mathrm{d}z = -\mathrm{d}\varphi(z)$, where $\varphi$ is the standard Gaussian density,
@@ -219,7 +219,7 @@ And $Y_2^2 + \cdots + Y_n^2$ is a sum of $n - 1$ squared i.i.d.\ standard Gaussi
 \label{cor:samplevar}
 For $\Xton \iid \Gauss(\mu, \sigma^2)$, $\E[S_n^2] = \sigma^2$ and $\var(S_n^2) = \dfrac{2\sigma^4}{n-1}$.
 \end{corollary}
-\coreproof{$S_n^2$ is a chi-squared variable with $n - 1$ degrees of freedom, scaled by $\sigma^2/(n-1)$; scale its mean and variance.}
+\optionalproof{$S_n^2$ is a chi-squared variable with $n - 1$ degrees of freedom, scaled by $\sigma^2/(n-1)$; scale its mean and variance.}
 \begin{proof}
 $S_n^2 = \sigma^2 V/(n-1)$ with $V \sim \chi^2_{n-1}$, so $\E[S_n^2] = \sigma^2(n-1)/(n-1)$ and $\var(S_n^2) = \sigma^4 \cdot 2(n-1)/(n-1)^2$.
 \end{proof}
@@ -298,7 +298,7 @@ Let $T \sim t_k$.
 
 \recall{The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ $Y_i$ with $\var(Y_i) < \infty$, $\bar{Y}_k \convp \E[Y_1]$. The continuous mapping theorem (\cref{thm:cmt}): if $W_k \convp w$ and $g$ is continuous, then $g(W_k) \convp g(w)$. Slutsky's theorem (\cref{thm:slutsky}): if $X_k \convd X$ and $W_k \convp w \neq 0$, then $X_k/W_k \convd X/w$.}
 
-\coreproof{Symmetry is the symmetry of $Z$. The limit is the Law of Large Numbers for the denominator plus Slutsky: $V/k$ is an average of $k$ squared Gaussians, so it tends to $1$. The density is a calculation done in \cref{sec:proof-chisq-density} and the moments are an exercise; nothing later depends on them.}
+\optionalproof{Symmetry is the symmetry of $Z$. The limit is the Law of Large Numbers for the denominator plus Slutsky: $V/k$ is an average of $k$ squared Gaussians, so it tends to $1$. The density is a calculation done in \cref{sec:proof-chisq-density} and the moments are an exercise; nothing later depends on them.}
 \begin{proof}
 (1) $-T = (-Z)/\sqrt{V/k}$ and $-Z \sim \Gauss(0,1)$ is independent of $V$, so $-T$ satisfies the definition.
 For the quantiles, $\Pr(T > q) = \alpha$ gives $\Pr(-T < -q) = \alpha$, that is, $\Pr(T < -q) = \alpha$, so $-q$ has probability $1 - \alpha$ above it.
@@ -414,7 +414,7 @@ For $\Xton \iid \Gauss(\mu, \sigma^2)$:
 \end{enumerate}
 \end{proposition}
 
-\coreproof{At $\mu = \mu_0$ the statistic is the pivot of \cref{thm:t-pivot}, whose quantile was chosen to leave probability $\alpha$ outside. For a composite null, moving $\mu$ into the null shifts $T_n$ the wrong way for rejecting, so the type 1 error can only fall. The interval is the pivot trapped between its quantiles and solved for $\mu$. Consistency is the pivot staying put while $\sqrt{n}(\mu - \mu_0)/S_n$ runs off to infinity.}
+\optionalproof{At $\mu = \mu_0$ the statistic is the pivot of \cref{thm:t-pivot}, whose quantile was chosen to leave probability $\alpha$ outside. For a composite null, moving $\mu$ into the null shifts $T_n$ the wrong way for rejecting, so the type 1 error can only fall. The interval is the pivot trapped between its quantiles and solved for $\mu$. Consistency is the pivot staying put while $\sqrt{n}(\mu - \mu_0)/S_n$ runs off to infinity.}
 \begin{proof}
 (1) Write $T_n = T_n^* + \sqrt{n}(\mu - \mu_0)/S_n$ with $T_n^* = \sqrt{n}(\bar{X}_n - \mu)/S_n \sim t_{n-1}$ by \cref{thm:t-pivot}, whatever $\mu$ is.
 When $\mu = \mu_0$, $T_n = T_n^*$ and $\Pr_{\mu_0}(\abs{T_n} > q_{\alpha/2}(t_{n-1})) = \alpha$ by the definition of the quantile and the symmetry of $t_{n-1}$; likewise $\Pr_{\mu_0}(T_n > q_\alpha(t_{n-1})) = \alpha$.
@@ -506,7 +506,7 @@ be the \textbf{pooled variance}, the average of the two sample variances weighte
 \]
 \end{theorem}
 
-\coreproof{Cochran once per sample gives two independent chi-squareds; their sum is chi-squared with the degrees of freedom added; it is independent of both sample means; the ratio is a $t$ by definition.}
+\optionalproof{Cochran once per sample gives two independent chi-squareds; their sum is chi-squared with the degrees of freedom added; it is independent of both sample means; the ratio is a $t$ by definition.}
 \begin{proof}
 By \cref{thm:cochran} applied to each sample, $(n-1)S_1^2/\sigma^2 \sim \chi^2_{n-1}$ and $(m-1)S_2^2/\sigma^2 \sim \chi^2_{m-1}$; they are independent because the samples are, so their sum $V = (n+m-2)S_p^2/\sigma^2 \sim \chi^2_{n+m-2}$ by \cref{prop:chisq-props}(2).
 The four quantities $\bar{X}_n, S_1^2, \bar{Y}_m, S_2^2$ are mutually independent (the first two are independent by Cochran, the last two likewise, and the pairs are independent of each other), so $V$ is independent of $\bar{X}_n - \bar{Y}_m$.

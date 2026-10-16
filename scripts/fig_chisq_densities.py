@@ -17,7 +17,7 @@ ax1.set_title("chi-squared densities")
 ax1.text(1.2, 0.52, r"$k = 1$", color=BLUE, fontsize=7.5)
 ax1.text(1.6, 0.36, r"$k = 2$", color=ORANGE, fontsize=7.5)
 ax1.text(3.6, 0.26, r"$k = 3$", color=AQUA, fontsize=7.5)
-ax1.text(6.0, 0.17, r"$k = 5$", color=YELLOW, fontsize=7.5)
+ax1.text(6.0, 0.17, r"$k = 5$", color=YELLOW_TEXT, fontsize=7.5)
 ax1.text(12.5, 0.1, r"$k = 10$", color=GRAY, fontsize=7.5)
 
 x2 = np.linspace(0.001, 70, 1400)

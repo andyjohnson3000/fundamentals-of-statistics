@@ -41,6 +41,7 @@ os.makedirs(FIGDIR, exist_ok=True)
 
 BLUE, ORANGE, AQUA, YELLOW = "#2a78d6", "#eb6834", "#1baf7a", "#eda100"
 GRAY, INK = "#6b6b6b", "#222222"
+YELLOW_TEXT = "#a26d00"  # text that labels a yellow line: YELLOW itself is too light to read as text
 SERIES = [BLUE, ORANGE, AQUA, YELLOW]
 DASHES = ["-", "--", "-.", ":"]  # second channel, so print in black and white still reads
 

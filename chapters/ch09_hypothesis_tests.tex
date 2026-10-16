@@ -509,7 +509,7 @@ The test being inverted is
 \[
 \psi(p_0) = \ind\left\{ \abs{\bar{R}_n - p_0} > q_{\alpha/2}\sqrt{p_0(1 - p_0)/n} \right\},
 \]
-which measures the distance from $p_0$ in units of the standard error computed \textit{at $p_0$}, the value the null hypothesis asserts. A test built that way, from the standard error under the null rather than from an estimate, is called a \textbf{score test}.
+which measures the distance from $p_0$ in units of the standard error computed \textit{at $p_0$}, the value the null hypothesis asserts. For a proportion, a test built that way, from the standard error under the null rather than from an estimate, is the \textbf{score test}, which \cref{ch:wald-lrt} defines for any model.
 The candidates that survive are those with $\abs{\bar{R}_n - p_0} \leq q_{\alpha/2}\sqrt{p_0(1-p_0)/n}$, which is the inequality that \cref{sec:ci-three-solutions} solved to get the solve interval $[0.558, 0.724]$.
 So the solve interval is the set of null values the score test does not reject, and the score test of $p = \frac12$ rejects exactly because $\frac12$ is outside the interval. This is why \cref{sec:ci-three-solutions} called the result the Wilson score interval: it is the score test, inverted.
 Inverting the test built from the \textit{estimated} standard error $\sqrt{\bar{R}_n(1 - \bar{R}_n)/n}$ instead gives the plug-in interval $[0.561, 0.729]$. That one is \textbf{Wald's test}, which \cref{ch:wald-lrt} treats in general. Score and Wald are the same idea evaluated at two different places, the null value and the estimate, and they are the two tests you will meet most often.
@@ -529,7 +529,7 @@ Using the plug-in interval to decide a score test can disagree with it on a bord
 This chapter built one test, the standardized mean against a Gaussian quantile, and the ideas that describe any test.
 The remaining tests in this book are the same object with a different statistic and a different null distribution.
 \Cref{ch:t-test} replaces the Gaussian quantile by a Student quantile when $n$ is small and the data are Gaussian, which needs the chi-squared distribution and Cochran's theorem for the sample variance; it also finishes the boarding example as a two-sample test.
-\Cref{ch:wald-lrt} gives two general recipes for a test statistic in any parametric model, Wald's test (the standardized maximum likelihood estimator) and the likelihood ratio test, with chi-squared limits in place of Gaussian ones.
+\Cref{ch:wald-lrt} gives three general recipes for a test statistic in any parametric model, Wald's test (the standardized maximum likelihood estimator), the likelihood ratio test and the score test, with chi-squared limits in place of Gaussian ones.
 \Cref{ch:gof} and \cref{ch:ks} test the model itself rather than a parameter in it, with the same vocabulary: a statistic, a null distribution, a threshold, a $p$-value.
 In all of them the level is the cap on the type 1 error, the power is what the test can detect, and the $p$-value is what gets reported.
 
