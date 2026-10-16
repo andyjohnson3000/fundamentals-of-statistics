@@ -1,4 +1,769 @@
 \chapter[The $t$-Test]{Chi-Squared, Student's $t$, Cochran's Theorem and the $t$-Test}
 \label{ch:t-test}
 
-% Not yet written. Source material: notes sections The Chi-Squared Distribution, The t-Test, Cochran's Theorem; unit 4 slides
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item Why a small Gaussian sample needs its own theory: the standardized mean with an estimated standard deviation is not Gaussian, and at $n = 5$ the Gaussian $5\%$ rule rejects a true null $12\%$ of the time.
+\item The chi-squared distribution: a sum of $k$ squared standard Gaussians, with mean $k$ and variance $2k$. It is the distribution of the sample variance and, in \cref{ch:wald-lrt}, of every squared test statistic.
+\item Cochran's theorem: for Gaussian data the sample mean and the sample variance are independent, and $(n-1)S_n^2/\sigma^2$ is chi-squared with $n - 1$ degrees of freedom. The proof rotates the data, and the picture is a round cloud of points.
+\item Student's $t$ distribution, $Z/\sqrt{V/k}$: heavier tails than the Gaussian, converging to it as $k$ grows, and the Cauchy distribution of \cref{ch:mom-mestimation} when $k = 1$.
+\item The $t$-test and the $t$-interval, for one sample and for two (pooled when the variances agree, Welch's approximation when they do not), with exact level for Gaussian data and asymptotic level for any data.
+\item Many tests at once: the family-wise error rate and Bonferroni's correction, the false discovery rate and the Benjamini--Hochberg procedure.
+\end{itemize}
+\Cref{ch:tests-foundations} built one test from the Central Limit Theorem and \cref{ch:mom-mestimation} closed the estimation recipes. This chapter removes the limit theorems from the test and asks what is exactly true at every $n$.
+\end{chaptergoals}
+
+\section{When the sample is small}
+\label{sec:t-small}
+
+A home is a candidate for a grid-connected wind turbine if its mean wind speed is at least $10$ miles per hour.
+Wind was measured once a month for a year: $n = 12$ observations, mean $14.3$, standard deviation $4.7$.
+Is the mean wind speed above $10$?
+The test of \cref{ch:tests-foundations} would compute $T_n = \sqrt{12}\,(14.3 - 10)/4.7 = 3.17$, compare it with $q_{0.05} = 1.645$, and reject.
+That test's guarantee was an \textit{asymptotic} level: by the CLT the standardized mean is approximately Gaussian, and by Slutsky's theorem replacing $\sigma$ by an estimate does not change the limit.
+Both are statements about $n \to \infty$, and here $n = 12$.
+With twelve numbers there is no limit to appeal to.
+
+What is exactly true at $n = 12$?
+Suppose the twelve measurements are modeled as $\Xton \iid \Gauss(\mu, \sigma^2)$.
+Then by \cref{ch:gaussian}, $\bar{X}_n \sim \Gauss(\mu, \sigma^2/n)$ exactly, so
+\[
+\sqrt{n}\,\frac{\bar{X}_n - \mu}{\sigma} \sim \Gauss(0, 1) \qquad \text{for every } n,
+\]
+with no CLT.
+If $\sigma$ were known, the test of \cref{ch:tests-foundations} would have exact level $\alpha$ at $n = 12$, or at $n = 2$.
+It is not known, and replacing it by the sample standard deviation
+\[
+S_n = \sqrt{S_n^2}, \qquad S_n^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar{X}_n)^2,
+\]
+is where the exactness is lost: $\sqrt{n}(\bar{X}_n - \mu)/S_n$ is not Gaussian.
+\Cref{fig:tpivotsim} shows what it is instead.
+On the left, $50{,}000$ samples of $n = 5$ Gaussian observations were drawn, and for each the ratio $T = \sqrt{n}(\bar{X}_n - \mu)/S_n$ was computed.
+The histogram is symmetric and bell-shaped, but it is not the standard Gaussian drawn over it in black: the peak is lower and the tails are fatter.
+A ratio whose denominator is itself random, and sometimes small, takes large values more often than a ratio with a fixed denominator.
+The dashed orange curve, which fits the histogram, is the distribution this chapter derives.
+On the right, the price of ignoring the difference: the Gaussian rule `reject when $\abs{T} > 1.96$', meant to reject a true null $5\%$ of the time, rejects it $12\%$ of the time at $n = 5$ and $8\%$ at $n = 10$, and is still $6\%$ at $n = 30$.
+Of $1{,}000$ studies with five Gaussian observations each and a true null, the Gaussian rule rejects about $121$, not $50$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_t_pivot_sim}
+\caption{Left: $T = \sqrt{n}(\bar{X}_n - \mu)/S_n$ over $50{,}000$ Gaussian samples of $n = 5$ (histogram), with the $\Gauss(0,1)$ density (black) and the $t_4$ density (orange, dashed). Right: the fraction of samples with $\abs{T} > 1.96$ against $n$; dotted: $5\%$.}
+\label{fig:tpivotsim}
+\end{figure}
+
+\begin{intuition}[dividing by an estimate adds noise]
+The numerator $\sqrt{n}(\bar{X}_n - \mu)$ is Gaussian with standard deviation $\sigma$.
+Dividing by the constant $\sigma$ standardizes it.
+Dividing by $S_n$ divides by a random variable that is near $\sigma$ on average but wanders, and when the sample happens to be unusually tight, $S_n$ is small and the ratio is inflated.
+At $n = 5$, $S_n$ is below $0.6\sigma$ in about one sample in six, and each such sample stretches its $T$ by a factor above $1.6$.
+That is where the fat tails come from, and it is why the effect fades as $n$ grows: $S_n \convp \sigma$ by the Law of Large Numbers, so for large $n$ dividing by $S_n$ is almost dividing by $\sigma$.
+\end{intuition}
+
+The plan of the chapter is to find the exact distribution of $\sqrt{n}(\bar{X}_n - \mu)/S_n$.
+Write it as
+\begin{equation}
+\sqrt{n}\,\frac{\bar{X}_n - \mu}{S_n} = \frac{\sqrt{n}(\bar{X}_n - \mu)/\sigma}{\sqrt{S_n^2/\sigma^2}} = \frac{Z}{\sqrt{S_n^2/\sigma^2}}, \qquad Z \sim \Gauss(0, 1).
+\label{eq:t-decomposition}
+\end{equation}
+Dividing numerator and denominator by $\sigma$ changes nothing, and it makes both pieces free of $\mu$ and $\sigma$: the numerator is a standard Gaussian, and the denominator is $S_n^2/\sigma^2$, whose distribution does not depend on $\mu$ or $\sigma$ either, since shifting the data leaves $S_n^2$ unchanged and scaling them by a constant scales $S_n^2$ by its square.
+Two questions remain: what is the distribution of $S_n^2/\sigma^2$, and how does it relate to the numerator?
+The chi-squared distribution answers the first (\cref{sec:t-chisq}), Cochran's theorem the second (\cref{sec:t-cochran}), and Student's $t$ distribution is the name of the ratio (\cref{sec:t-student}).
+Because the ratio's distribution depends on neither $\mu$ nor $\sigma$, it is a pivot in the sense of \cref{ch:confidence-intervals}, and the test and interval built on it (\cref{sec:t-test}) are exact at every $n$.
+
+\section{The chi-squared distribution}
+\label{sec:t-chisq}
+
+$S_n^2/\sigma^2$ is, up to the factor $1/(n-1)$, a sum of squared deviations divided by $\sigma^2$: a sum of squares of things that are nearly standard Gaussians.
+So the distribution of a sum of squared standard Gaussians is the one to study.
+
+\begin{definition}[Chi-squared distribution]
+\label{def:chisq}
+For a positive integer $k$, the \textbf{chi-squared distribution with $k$ degrees of freedom}, written $\chi^2_k$, is the distribution of
+\[
+V = Z_1^2 + Z_2^2 + \cdots + Z_k^2, \qquad Z_1, \ldots, Z_k \iid \Gauss(0, 1).
+\]
+Its quantile with probability $\alpha$ above it is written $q_\alpha(\chi^2_k)$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Take $k$ independent standard Gaussians, square each, add. The result is positive, since squares are, and it is the squared length of the vector $(Z_1, \ldots, Z_k)$: the squared distance from the origin of a random point whose coordinates are independent standard Gaussians. `Degrees of freedom' counts the independent Gaussians that went in.
+\par\smallskip
+\textbf{For the kiss data.} \Cref{ch:tests-foundations} tested $p = \frac12$ with the standardized statistic $T_n = \sqrt{124}\,(0.645 - 0.5)/0.5 = 3.23$, approximately $\Gauss(0,1)$ under the null, and rejected two-sidedly when $\abs{T_n} > 1.96$. The same test can be written with one squared Gaussian: $T_n^2 = 10.45$ is approximately $\chi^2_1$ under the null, and $\abs{T_n} > 1.96$ is the same event as $T_n^2 > 1.96^2 = 3.84 = q_{0.05}(\chi^2_1)$. The two-sided $p$-value $\Pr(\abs{Z} > 3.23) = \Pr(\chi^2_1 > 10.45) = 0.0012$ comes out the same either way. Squaring turns a two-sided Gaussian test into a one-sided chi-squared test, which is how \cref{ch:wald-lrt} tests several parameters at once.
+\end{inwords}
+
+\begin{proposition}[Properties of the chi-squared distribution]
+\label{prop:chisq-props}
+Let $V \sim \chi^2_k$.
+\begin{enumerate}[nosep]
+\item $\E[V] = k$ and $\var(V) = 2k$.
+\item If $V \sim \chi^2_k$ and $W \sim \chi^2_l$ are independent, then $V + W \sim \chi^2_{k+l}$.
+\item $V$ has density $f_k(v) = \dfrac{1}{2^{k/2}\,\Gamma(k/2)}\, v^{k/2 - 1} e^{-v/2}$ for $v > 0$, where $\Gamma(x) = \int_0^\infty s^{x-1}e^{-s}\,\mathrm{d}s$ is the Gamma function, which satisfies $\Gamma(x + 1) = x\Gamma(x)$, $\Gamma(n) = (n-1)!$ for integers and $\Gamma(\frac12) = \sqrt{\pi}$. For $k = 1$, $f_1(v) = e^{-v/2}/\sqrt{2\pi v}$; for $k = 2$, $f_2(v) = \frac12 e^{-v/2}$, the $\Expo(\frac12)$ density.
+\item As $k \to \infty$, $(V - k)/\sqrt{2k} \convd \Gauss(0, 1)$.
+\end{enumerate}
+\end{proposition}
+
+\recall{The Central Limit Theorem (\cref{thm:clt}): for i.i.d.\ $Y_i$ with mean $m$ and variance $s^2 < \infty$, $\sqrt{k}(\bar{Y}_k - m) \convd \Gauss(0, s^2)$.}
+
+\coreproof{Everything follows from the definition as a sum of independent squares: means and variances add, two sums of squares concatenate, and a sum of $k$ i.i.d.\ terms obeys the CLT. The density for $k = 1$ is a change of variables; the general density is a convolution, done in \cref{sec:proof-chisq-density}.}
+\begin{proof}
+(1) $\E[Z^2] = \var(Z) = 1$, so $\E[V] = k$.
+For the variance, $\var(Z^2) = \E[Z^4] - (\E[Z^2])^2 = \E[Z^4] - 1$, and integrating by parts with $u = z^3$ and $\mathrm{d}v = z\varphi(z)\,\mathrm{d}z = -\mathrm{d}\varphi(z)$, where $\varphi$ is the standard Gaussian density,
+\[
+\E[Z^4] = \int_{-\infty}^{\infty} z^3 \cdot z\varphi(z)\,\mathrm{d}z = \Big[-z^3\varphi(z)\Big]_{-\infty}^{\infty} + 3\int_{-\infty}^{\infty} z^2\varphi(z)\,\mathrm{d}z = 0 + 3\E[Z^2] = 3.
+\]
+So $\var(Z^2) = 2$, and the variance of a sum of $k$ independent terms is $2k$.
+
+(2) The distribution of $V + W$ depends only on the joint distribution of $(V, W)$, which under independence is the same however the two are constructed, so take $V$ to be a sum of $k$ squared independent standard Gaussians and $W$ a sum of $l$ others, independent of the first $k$. Then $V + W$ is a sum of $k + l$ squared i.i.d.\ standard Gaussians.
+
+(3) For $k = 1$ and $v > 0$, $\Pr(Z^2 \leq v) = \Pr(-\sqrt{v} \leq Z \leq \sqrt{v}) = 2\Phi(\sqrt{v}) - 1$, and differentiating in $v$ \toolkit{sec:math-density} gives the density $2\varphi(\sqrt{v})/(2\sqrt{v}) = e^{-v/2}/\sqrt{2\pi v}$, which is the formula with $\Gamma(\frac12) = \sqrt{\pi}$.
+The general formula follows by adding one squared Gaussian at a time, a convolution computed in \cref{sec:proof-chisq-density}; nothing later depends on the formula itself, only on the definition and on (1), (2) and (4).
+
+(4) $V = \sum_{i=1}^k Z_i^2$ is a sum of $k$ i.i.d.\ terms with mean $1$ and variance $2$, so by the CLT, $\sqrt{k}(V/k - 1) \convd \Gauss(0, 2)$, which is the claim after dividing by $\sqrt{2}$.
+\end{proof}
+
+\Cref{fig:chisqdens} draws the densities.
+For $k = 1$ the density is infinite at $0$ (a standard Gaussian is near $0$ often, so its square is near $0$ very often) and falls away; for $k = 2$ it is the exponential; from $k = 3$ on it starts at $0$, rises to a peak and has a long right tail.
+The peak sits at $k - 2$ and the mean at $k$, so the distribution is skewed to the right, with the mean pulled past the peak by the tail.
+As $k$ grows the shape becomes symmetric: on the right of the figure, $\chi^2_{30}$ is close to $\Gauss(30, 60)$, the Gaussian with its mean and variance, as statement (4) says it should be, with a remaining lean to the right.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_chisq_densities}
+\caption{Left: the $\chi^2_k$ densities for $k = 1, 2, 3, 5, 10$. Right: $\chi^2_{30}$ (blue) with its mean marked (dotted) and the Gaussian with the same mean and variance, $\Gauss(30, 60)$ (black, dashed).}
+\label{fig:chisqdens}
+\end{figure}
+
+\begin{sanitycheck}[Where should the peak be?]
+A $\chi^2_k$ variable has mean $k$ and standard deviation $\sqrt{2k}$: for $k = 10$, mean $10$ and standard deviation $4.5$; for $k = 100$, mean $100$ and standard deviation $14$.
+The spread grows like $\sqrt{k}$ while the mean grows like $k$, so relative to its mean the distribution tightens: $V/k$ has standard deviation $\sqrt{2/k}$, which is the Law of Large Numbers for the average of $k$ squared Gaussians.
+That is why the sample variance, an average of squared deviations, is a reliable estimate of $\sigma^2$ for large $n$ and an unreliable one for small $n$: at $n = 5$ its relative standard deviation is $\sqrt{2/4} = 0.71$, so a sample variance half or double the truth is routine.
+\end{sanitycheck}
+
+\begin{worked}[two sums of squares]
+\textit{A known mean.} If $\Xton \iid \Gauss(0, \sigma^2)$, then $X_i/\sigma \iid \Gauss(0,1)$ and
+\[
+\frac{1}{\sigma^2}\sum_{i=1}^n X_i^2 = \sum_{i=1}^n \Big(\frac{X_i}{\sigma}\Big)^2 \sim \chi^2_n.
+\]
+So the sample second moment $V_n = \frac1n\sum_i X_i^2$ satisfies $nV_n/\sigma^2 \sim \chi^2_n$, with mean $n$: $\E[V_n] = \sigma^2$, and $\var(V_n) = 2\sigma^4/n$.
+For $n = 12$ measurements with a known mean of zero, the variance estimate has relative standard deviation $\sqrt{2/12} = 0.41$.
+
+\textit{Darts.} A dart lands at $(Z_1, Z_2)$ with independent standard Gaussian coordinates.
+The probability of landing inside the unit disk is $\Pr(Z_1^2 + Z_2^2 \leq 1) = \Pr(\chi^2_2 \leq 1) = 1 - e^{-1/2} = 0.393$, since $\chi^2_2$ is $\Expo(\frac12)$: about $39$ of every $100$ throws.
+\end{worked}
+
+\section{Cochran's theorem}
+\label{sec:t-cochran}
+
+Now the denominator of \eqref{eq:t-decomposition}.
+Writing $Z_i = (X_i - \mu)/\sigma$, which are i.i.d.\ $\Gauss(0,1)$,
+\[
+\frac{(n-1)S_n^2}{\sigma^2} = \sum_{i=1}^n \Big(\frac{X_i - \bar{X}_n}{\sigma}\Big)^2 = \sum_{i=1}^n (Z_i - \bar{Z}_n)^2.
+\]
+If $\bar{Z}_n$ were replaced by the true mean $0$, this would be $\sum_i Z_i^2 \sim \chi^2_n$ by the worked example.
+It is not: the deviations are measured from the sample mean, which was itself computed from the same $Z_i$, and the $n$ terms $Z_i - \bar{Z}_n$ are neither independent nor standard Gaussian (they sum to zero, so any $n - 1$ of them determine the last).
+The answer is that one degree of freedom is spent on the mean: the sum is $\chi^2_{n-1}$, and it is independent of $\bar{Z}_n$.
+
+\begin{intuition}[a Gaussian cloud is round, so rotate it]
+Draw $n = 2$ independent standard Gaussians as a point $(Z_1, Z_2)$ in the plane and repeat $1{,}500$ times (\cref{fig:gaussrotation}, left).
+The cloud is round: its density $\frac{1}{2\pi}e^{-(z_1^2 + z_2^2)/2}$ depends only on the distance from the origin, so the cloud looks the same from every direction.
+Now describe each point not by its coordinates along the usual axes but along two rotated axes, $u_1$ in the direction $(1, 1)/\sqrt{2}$ and $u_2$ in the direction $(1, -1)/\sqrt{2}$.
+The coordinate along $u_1$ is $Y_1 = (Z_1 + Z_2)/\sqrt{2} = \sqrt{2}\,\bar{Z}_2$: it carries the sample mean.
+The coordinate along $u_2$ is $Y_2 = (Z_1 - Z_2)/\sqrt{2}$, and $Y_2^2 = (Z_1 - Z_2)^2/2 = (Z_1 - \bar{Z}_2)^2 + (Z_2 - \bar{Z}_2)^2$: it carries the sum of squared deviations.
+Because the cloud is round, the picture in the rotated coordinates (right) is the same round cloud: $Y_1$ and $Y_2$ are again independent standard Gaussians.
+So the sample mean and the sum of squared deviations are built from two independent standard Gaussians, one each, and the sum of squares is $Y_2^2 \sim \chi^2_1$: one degree of freedom, not two because the other one went to the mean.
+For general $n$ the same rotation works in $n$ dimensions: one axis for the mean, $n - 1$ for the deviations.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{fig_gaussian_rotation}
+\caption{Left: $1{,}500$ draws of $(Z_1, Z_2)$ with $Z_1, Z_2 \iid \Gauss(0,1)$, the axis $u_1 = (1,1)/\sqrt{2}$ (orange) and $u_2 = (1,-1)/\sqrt{2}$ (aqua, dash-dot). Right: the same points in the rotated coordinates $Y_1 = \sqrt{2}\bar{Z}$ and $Y_2 = (Z_1 - Z_2)/\sqrt{2}$. Gray circles: contours of the density.}
+\label{fig:gaussrotation}
+\end{figure}
+
+The fact that makes the picture a proof is in the Toolkit \toolkit{sec:math-gaussvec}: if $Z = (Z_1, \ldots, Z_n)$ has i.i.d.\ $\Gauss(0,1)$ coordinates and $Q$ is an orthogonal matrix (a rotation, possibly with reflections: $Q^\top Q = I$), then $Y = QZ$ again has i.i.d.\ $\Gauss(0,1)$ coordinates, and $\norm{Y} = \norm{Z}$.
+
+\begin{theorem}[Cochran's theorem for the sample mean and variance]
+\label{thm:cochran}
+Let $\Xton \iid \Gauss(\mu, \sigma^2)$ with $n \geq 2$.
+Then
+\begin{enumerate}[nosep]
+\item $\bar{X}_n$ and $S_n^2$ are independent;
+\item $\dfrac{(n-1)S_n^2}{\sigma^2} \sim \chi^2_{n-1}$.
+\end{enumerate}
+\end{theorem}
+
+\coreproof{Standardize to $Z_i = (X_i - \mu)/\sigma$ and rotate: pick an orthogonal $Q$ whose first row is $(1, \ldots, 1)/\sqrt{n}$. The first rotated coordinate is $\sqrt{n}\bar{Z}_n$; the sum of squared deviations is the squared length of the other $n - 1$ coordinates, since rotation preserves length. The rotated coordinates are i.i.d.\ standard Gaussians, so the two pieces are independent and the second is a sum of $n - 1$ squares.}
+\begin{proof}
+Let $Z_i = (X_i - \mu)/\sigma$, so $Z = (Z_1, \ldots, Z_n)$ has i.i.d.\ $\Gauss(0,1)$ coordinates, $\bar{X}_n = \mu + \sigma\bar{Z}_n$ and $(n-1)S_n^2/\sigma^2 = \sum_i (Z_i - \bar{Z}_n)^2$.
+It is enough to prove the two statements for $\bar{Z}_n$ and $\sum_i (Z_i - \bar{Z}_n)^2$.
+
+Let $Q$ be an $n \times n$ orthogonal matrix whose first row is $(1/\sqrt{n}, \ldots, 1/\sqrt{n})$; one exists because any unit vector can be extended to an orthonormal basis \toolkit{sec:math-gaussvec}.
+Set $Y = QZ$.
+By the Toolkit, $Y_1, \ldots, Y_n$ are i.i.d.\ $\Gauss(0,1)$, and $\norm{Y}^2 = \norm{Z}^2$.
+The first coordinate is
+\[
+Y_1 = \frac{1}{\sqrt{n}}\sum_{i=1}^n Z_i = \sqrt{n}\,\bar{Z}_n.
+\]
+Expanding the squared deviations,
+\[
+\sum_{i=1}^n (Z_i - \bar{Z}_n)^2 = \sum_{i=1}^n Z_i^2 - n\bar{Z}_n^2 = \norm{Z}^2 - Y_1^2 = \norm{Y}^2 - Y_1^2 = Y_2^2 + \cdots + Y_n^2,
+\]
+where the first equality expands the square (the cross term is $-2\bar{Z}_n\sum_i Z_i = -2n\bar{Z}_n^2$) and the third is $\norm{QZ} = \norm{Z}$.
+So $\bar{Z}_n = Y_1/\sqrt{n}$ is a function of $Y_1$ alone and $\sum_i(Z_i - \bar{Z}_n)^2$ a function of $(Y_2, \ldots, Y_n)$ alone; since the joint density of $Y$ factors into a function of $y_1$ times a function of $(y_2, \ldots, y_n)$ \toolkit{sec:math-gaussvec}, any function of the first is independent of any function of the rest, which is (1).
+And $Y_2^2 + \cdots + Y_n^2$ is a sum of $n - 1$ squared i.i.d.\ standard Gaussians, which is (2).
+\end{proof}
+
+\begin{corollary}[Mean and variance of the sample variance]
+\label{cor:samplevar}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$, $\E[S_n^2] = \sigma^2$ and $\var(S_n^2) = \dfrac{2\sigma^4}{n-1}$.
+\end{corollary}
+\coreproof{$S_n^2$ is a chi-squared variable with $n - 1$ degrees of freedom, scaled by $\sigma^2/(n-1)$; scale its mean and variance.}
+\begin{proof}
+$S_n^2 = \sigma^2 V/(n-1)$ with $V \sim \chi^2_{n-1}$, so $\E[S_n^2] = \sigma^2(n-1)/(n-1)$ and $\var(S_n^2) = \sigma^4 \cdot 2(n-1)/(n-1)^2$.
+\end{proof}
+
+The unbiasedness was proved for any distribution in \cref{ch:estimators}; the variance formula is new, and Gaussian.
+For the wind data, $n = 12$: the sample variance has standard deviation $\sigma^2\sqrt{2/11} = 0.43\sigma^2$, so the observed $4.7^2 = 22.1$ is a rough estimate of $\sigma^2$, which is exactly why the chapter cannot pretend $S_n$ is $\sigma$.
+
+\begin{sanitycheck}[Cochran at $n = 2$, by hand]
+With two observations, $\bar{X}_2 = (X_1 + X_2)/2$ and $S_2^2 = (X_1 - X_2)^2/2$ (both deviations from the mean equal $\pm(X_1 - X_2)/2$).
+The theorem says $S_2^2/\sigma^2 = \big((X_1 - X_2)/(\sqrt{2}\sigma)\big)^2 \sim \chi^2_1$, which checks: $X_1 - X_2 \sim \Gauss(0, 2\sigma^2)$ by the sum rule of \cref{ch:gaussian}, so $(X_1 - X_2)/(\sqrt{2}\sigma)$ is a standard Gaussian and its square is $\chi^2_1$.
+It also says the sum $X_1 + X_2$ and the difference $X_1 - X_2$ are independent, which is the $45^\circ$ rotation of \cref{fig:gaussrotation}.
+Independence here is not obvious: both are functions of the same two numbers.
+It holds because the cloud is round, and \cref{ex:t-cochran-two} verifies it directly from the joint density.
+\end{sanitycheck}
+
+\begin{pitfall}[the independence is a Gaussian specialty]
+\Cref{fig:meanvarindep} plots the sample mean against the sample variance for $4{,}000$ samples of $n = 5$.
+For Gaussian data (left) the cloud has no structure: knowing that a sample's mean is high says nothing about its variance.
+For exponential data with the same mean and variance (right), samples with a high mean have a high variance, with a correlation of $0.70$.
+The reason is the shape of the exponential density: a large sample mean usually means the sample contains one of the distribution's occasional large values, which also inflates the variance.
+Cochran's theorem is false for non-Gaussian data, and so is everything built on it, including the exactness of the $t$-test.
+\Cref{sec:t-test} says what survives.
+\end{pitfall}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_mean_var_independence}
+\caption{The sample mean and the sample variance of $4{,}000$ samples of $n = 5$. Left: $\Gauss(1, 1)$ data (blue). Right: $\Expo(1)$ data (orange), which also has mean $1$ and variance $1$.}
+\label{fig:meanvarindep}
+\end{figure}
+
+\begin{bridge}[degrees of freedom, and the $n - 1$ for the third time]
+`Degrees of freedom' in an introductory course is a number looked up to find the right row of a table, and $n - 1$ is explained, if at all, as `one degree of freedom is lost estimating the mean'.
+Cochran's theorem is that sentence made exact.
+The $n$ deviations $X_i - \bar{X}_n$ live in an $(n-1)$-dimensional space, since they sum to zero, and in the rotated coordinates they are exactly $n - 1$ independent Gaussians: $n - 1$ is the count of independent squared Gaussians in the sample variance, and it is the degrees of freedom of its chi-squared distribution.
+\Cref{ch:estimators} gave two earlier readings of the same $n - 1$: it removes the bias of the divide-by-$n$ variance, and it is not the choice that minimizes risk (\cref{ex:t-nplus1} finishes that story with the variance formula of \cref{cor:samplevar}).
+\end{bridge}
+
+\begin{remark}[The general theorem]
+What is called Cochran's theorem in full is a statement about splitting $\norm{Z}^2$ into several sums of squares, one per subspace in an orthogonal decomposition of $\real^n$: each piece is chi-squared with the dimension of its subspace as degrees of freedom, and the pieces are independent.
+\Cref{thm:cochran} is the case of two subspaces, the line through $(1, \ldots, 1)$ and everything perpendicular to it.
+\Cref{ch:regression-multi} uses the general case, with the subspace spanned by the regressors in place of the line, to get the exact distribution of the residual variance in Gaussian linear regression; the proof is the one above with a different orthogonal basis.
+\end{remark}
+
+\section{Student's \texorpdfstring{$t$}{t} distribution}
+\label{sec:t-student}
+
+Both pieces of \eqref{eq:t-decomposition} are now known and independent: the numerator is $Z \sim \Gauss(0,1)$ and the denominator is $\sqrt{V/(n-1)}$ with $V \sim \chi^2_{n-1}$.
+The ratio has a name.
+
+\begin{definition}[Student's $t$ distribution]
+\label{def:student}
+For a positive integer $k$, \textbf{Student's $t$ distribution with $k$ degrees of freedom}, written $t_k$, is the distribution of
+\[
+T = \frac{Z}{\sqrt{V/k}}, \qquad Z \sim \Gauss(0,1),\ V \sim \chi^2_k,\ Z \text{ and } V \text{ independent}.
+\]
+Its quantile with probability $\alpha$ above it is written $q_\alpha(t_k)$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} A standard Gaussian divided by an independent estimate of its own scale, where the estimate is the root of an average of $k$ squared standard Gaussians; the average has mean $1$ and wanders less as $k$ grows. The ratio is symmetric about $0$ like $Z$, and wider than $Z$ because the denominator is sometimes small.
+\par\smallskip
+\textbf{For the kiss data.} The $t$ statistic is $\sqrt{n}(\bar{R}_n - \frac12)/S_n$ with $S_n^2 = \frac{n}{n-1}\hat{p}(1 - \hat{p}) = 0.231$: $T = \sqrt{124}\,(0.645 - 0.5)/0.480 = 3.36$, against the two-sided threshold $q_{0.025}(t_{123}) = 1.979$ in place of $1.960$. The threshold moved by $0.02$ because at $n = 124$ the denominator hardly wanders; the data are $0$s and $1$s, so the exactness of \cref{thm:cochran} does not apply to them, and \cref{sec:t-test} says why the test is sound anyway.
+\end{inwords}
+
+\begin{proposition}[Properties of Student's $t$]
+\label{prop:student-props}
+Let $T \sim t_k$.
+\begin{enumerate}[nosep]
+\item $T$ is symmetric about $0$: $-T \sim t_k$, so $q_\alpha(t_k) = -q_{1-\alpha}(t_k)$.
+\item $T$ has density $g_k(t) = \dfrac{\Gamma\big(\frac{k+1}{2}\big)}{\sqrt{k\pi}\,\Gamma\big(\frac{k}{2}\big)}\Big(1 + \dfrac{t^2}{k}\Big)^{-(k+1)/2}$. For $k = 1$ this is the Cauchy density $1/(\pi(1 + t^2))$ of \cref{ch:mom-mestimation}.
+\item $\E[T] = 0$ for $k \geq 2$ and $\var(T) = \dfrac{k}{k-2}$ for $k \geq 3$; for $k = 1$ the mean does not exist, and for $k = 2$ the variance is infinite.
+\item As $k \to \infty$, $t_k \convd \Gauss(0,1)$: for every $t$, $\Pr(T_k \leq t) \to \Phi(t)$, and $q_\alpha(t_k) \to q_\alpha$.
+\end{enumerate}
+\end{proposition}
+
+\recall{The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ $Y_i$ with $\var(Y_i) < \infty$, $\bar{Y}_k \convp \E[Y_1]$. The continuous mapping theorem (\cref{thm:cmt}): if $W_k \convp w$ and $g$ is continuous, then $g(W_k) \convp g(w)$. Slutsky's theorem (\cref{thm:slutsky}): if $X_k \convd X$ and $W_k \convp w \neq 0$, then $X_k/W_k \convd X/w$.}
+
+\coreproof{Symmetry is the symmetry of $Z$. The limit is the Law of Large Numbers for the denominator plus Slutsky: $V/k$ is an average of $k$ squared Gaussians, so it tends to $1$. The density is a calculation done in \cref{sec:proof-chisq-density} and the moments are an exercise; nothing later depends on them.}
+\begin{proof}
+(1) $-T = (-Z)/\sqrt{V/k}$ and $-Z \sim \Gauss(0,1)$ is independent of $V$, so $-T$ satisfies the definition.
+For the quantiles, $\Pr(T > q) = \alpha$ gives $\Pr(-T < -q) = \alpha$, that is, $\Pr(T < -q) = \alpha$, so $-q$ has probability $1 - \alpha$ above it.
+
+(4) Write $V = Z_1^2 + \cdots + Z_k^2$, independent of $Z$.
+Then $V/k$ is the average of $k$ i.i.d.\ variables with mean $1$ and variance $2$, so $V/k \convp 1$ by the Law of Large Numbers, and $\sqrt{V/k} \convp 1$ by the continuous mapping theorem.
+The numerator $Z$ does not depend on $k$ at all (a constant sequence converges in distribution to itself), so by Slutsky's theorem $Z/\sqrt{V/k} \convd Z/1 = Z$.
+Convergence in distribution to a continuous limit is convergence of the CDFs $F_k$ at every point, and it carries the quantiles along. Fix $\epsilon > 0$. Since $\Phi$ is strictly increasing, $\Phi(q_\alpha - \epsilon) < 1 - \alpha < \Phi(q_\alpha + \epsilon)$, and since $F_k(q_\alpha \pm \epsilon) \to \Phi(q_\alpha \pm \epsilon)$, for all large $k$ we have $F_k(q_\alpha - \epsilon) < 1 - \alpha < F_k(q_\alpha + \epsilon)$; the solution $q_\alpha(t_k)$ of $F_k(q) = 1 - \alpha$ then lies in $(q_\alpha - \epsilon, q_\alpha + \epsilon)$.
+
+(2) is computed in \cref{sec:proof-chisq-density} by conditioning on $V$ and integrating. (3) is \cref{ex:t-variance}, from $\E[1/V] = 1/(k-2)$ for $V \sim \chi^2_k$.
+\end{proof}
+
+\Cref{fig:tdensities} draws the densities on the left.
+Every $t_k$ is a lower, wider bell than the Gaussian, and the tails are where the difference lives: at $t = 3$ the Gaussian density is $0.0044$ while $t_5$'s is $0.017$, four times larger, and $t_1$'s is $0.032$.
+The $t_1$ curve is the Cauchy density, the distribution whose mean does not exist and whose sample mean never settles (\cref{ch:mom-mestimation}); here it appears as the most extreme member of the family, the ratio of a Gaussian to the absolute value of a single other Gaussian.
+By $k = 30$ the curve is nearly on top of the Gaussian.
+On the right, the exact version of \cref{fig:tpivotsim}'s simulation: the probability that $\abs{t_{n-1}}$ exceeds $1.96$, which is the true type 1 error of the Gaussian $5\%$ rule on Gaussian samples of size $n$.
+It is $0.30$ at $n = 2$, $0.12$ at $n = 5$, $0.076$ at $n = 12$ and $0.060$ at $n = 30$, and it is still $0.055$ at $n = 60$.
+The table of quantiles tells the same story from the other side.
+\begin{center}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+$k$ & $q_{0.10}(t_k)$ & $q_{0.05}(t_k)$ & $q_{0.025}(t_k)$ & $q_{0.01}(t_k)$ & $q_{0.005}(t_k)$ \\
+\midrule
+1 & 3.08 & 6.31 & 12.71 & 31.82 & 63.66 \\
+2 & 1.89 & 2.92 & 4.30 & 6.96 & 9.92 \\
+5 & 1.48 & 2.02 & 2.57 & 3.36 & 4.03 \\
+11 & 1.36 & 1.80 & 2.20 & 2.72 & 3.11 \\
+30 & 1.31 & 1.70 & 2.04 & 2.46 & 2.75 \\
+100 & 1.29 & 1.66 & 1.98 & 2.36 & 2.63 \\
+$\infty$ (Gaussian) & 1.28 & 1.645 & 1.96 & 2.33 & 2.58 \\
+\bottomrule
+\end{tabular}
+\end{center}
+With one degree of freedom the $2.5\%$ cutoff is $12.7$ instead of $1.96$: a single sample variance is so unreliable that the test demands a sample mean more than twelve estimated standard errors from the null before it will reject at $5\%$.
+With $30$ degrees of freedom the cutoff is $2.04$, and the introductory rule of thumb that `$n \geq 30$ is large' is the observation that the row for $30$ is within $4\%$ of the Gaussian row at the levels an introductory course uses, $5\%$ and $2.5\%$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_t_densities}
+\caption{Left: the densities of $t_1$ (blue), $t_2$ (orange, dashed), $t_5$ (aqua, dash-dot) and $t_{30}$ (yellow, dotted), with $\Gauss(0,1)$ in black. Right: $\Pr(\abs{t_{n-1}} > 1.96)$ against $n$; dotted: $5\%$.}
+\label{fig:tdensities}
+\end{figure}
+
+\begin{theorem}[The $t$ pivot]
+\label{thm:t-pivot}
+If $\Xton \iid \Gauss(\mu, \sigma^2)$ with $n \geq 2$, then
+\[
+\sqrt{n}\,\frac{\bar{X}_n - \mu}{S_n} \sim t_{n-1} \qquad \text{exactly, for every } n, \mu \text{ and } \sigma^2.
+\]
+\end{theorem}
+
+\coreproof{Decompose as in \eqref{eq:t-decomposition}; the numerator is a standard Gaussian, the denominator is $\sqrt{V/(n-1)}$ with $V \sim \chi^2_{n-1}$ by Cochran, and the two are independent by Cochran.}
+\begin{proof}
+By \eqref{eq:t-decomposition},
+\[
+\sqrt{n}\,\frac{\bar{X}_n - \mu}{S_n} = \frac{Z}{\sqrt{V/(n-1)}}, \qquad Z = \sqrt{n}\,\frac{\bar{X}_n - \mu}{\sigma}, \quad V = \frac{(n-1)S_n^2}{\sigma^2}.
+\]
+$Z \sim \Gauss(0,1)$ because $\bar{X}_n \sim \Gauss(\mu, \sigma^2/n)$ (\cref{ch:gaussian}).
+$V \sim \chi^2_{n-1}$ by \cref{thm:cochran}(2).
+$Z$ is a function of $\bar{X}_n$ and $V$ a function of $S_n^2$, which are independent by \cref{thm:cochran}(1).
+So the ratio satisfies \cref{def:student} with $k = n - 1$.
+\end{proof}
+
+The distribution was found in 1908 by William Sealy Gosset, a chemist at the Guinness brewery in Dublin who needed to compare small batches of barley; the brewery forbade its staff from publishing, so the paper appeared under the pseudonym `Student'.
+
+\begin{bridge}[the $t$ critical value you were taught]
+An introductory course says: when $\sigma$ is unknown, use $s$ and look up the $t$ table with $n - 1$ degrees of freedom instead of the $z$ table.
+\Cref{thm:t-pivot} is the reason, and it also says what the rule assumes: the $t$ table is exact when the data are Gaussian and only then.
+What that course called `the $t$ distribution gets closer to the normal as $n$ grows' is \cref{prop:student-props}(4), and `use $z$ when $n \geq 30$' is a judgment that $2.04$ is close enough to $1.96$.
+\end{bridge}
+
+\section{The \texorpdfstring{$t$}{t}-test and the \texorpdfstring{$t$}{t}-interval}
+\label{sec:t-test}
+
+With an exact pivot, the test and the interval follow the recipe of \cref{ch:confidence-intervals,ch:tests-foundations} with the Student quantile in place of the Gaussian one.
+
+\begin{definition}[The one-sample $t$-test]
+\label{def:ttest}
+Let $\Xton \iid \Gauss(\mu, \sigma^2)$ with $\mu$ and $\sigma^2$ unknown, let $\mu_0$ be a fixed number, and let
+\[
+T_n = \sqrt{n}\,\frac{\bar{X}_n - \mu_0}{S_n}.
+\]
+\textbf{Student's $t$-test} at level $\alpha$ is
+\[
+\begin{array}{lll}
+H_0: \mu = \mu_0,\ H_1: \mu \neq \mu_0: & \psi_\alpha = \ind\{\abs{T_n} > q_{\alpha/2}(t_{n-1})\}, & p\text{-value } \Pr(\abs{t_{n-1}} > \abs{T_n^{\text{obs}}}); \\[2pt]
+H_0: \mu \leq \mu_0,\ H_1: \mu > \mu_0: & \psi_\alpha = \ind\{T_n > q_{\alpha}(t_{n-1})\}, & p\text{-value } \Pr(t_{n-1} > T_n^{\text{obs}}); \\[2pt]
+H_0: \mu \geq \mu_0,\ H_1: \mu < \mu_0: & \psi_\alpha = \ind\{T_n < -q_{\alpha}(t_{n-1})\}, & p\text{-value } \Pr(t_{n-1} < T_n^{\text{obs}}).
+\end{array}
+\]
+where $T_n^{\text{obs}}$ is the value of $T_n$ computed from the data.
+The \textbf{$t$-interval} is
+\[
+\mathcal{I} = \big[\bar{X}_n - q_{\alpha/2}(t_{n-1})\,S_n/\sqrt{n},\ \bar{X}_n + q_{\alpha/2}(t_{n-1})\,S_n/\sqrt{n}\big].
+\]
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Standardize the sample mean's distance from the null value by its estimated standard error $S_n/\sqrt{n}$, and compare with a Student cutoff instead of a Gaussian one. The cutoff is larger, by a lot for small $n$ and by a little for large $n$, to pay for the noise in $S_n$. The interval is the usual `estimate $\pm$ cutoff $\times$ standard error' with the Student cutoff.
+\par\smallskip
+\textbf{For the kiss data.} $T = 3.36$ against $q_{0.025}(t_{123}) = 1.979$: reject $p = \frac12$ at $5\%$, with $p$-value $\Pr(\abs{t_{123}} > 3.36) = 0.0010$. The $t$-interval is $0.645 \pm 1.979 \times 0.480/\sqrt{124} = [0.560, 0.730]$, against the plug-in interval $[0.561, 0.729]$ of \cref{ch:confidence-intervals}: at $n = 124$ the two recipes agree to within $0.001$.
+\end{inwords}
+
+\begin{proposition}[Exact level, exact coverage, consistency]
+\label{prop:ttest-level}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$:
+\begin{enumerate}[nosep]
+\item Each test in \cref{def:ttest} has level exactly $\alpha$ at every $n \geq 2$: the type 1 error is $\alpha$ when $\mu = \mu_0$, and at most $\alpha$ everywhere in a composite null $\mu \leq \mu_0$ or $\mu \geq \mu_0$.
+\item The $t$-interval has coverage exactly $1 - \alpha$ at every $n \geq 2$.
+\item Under any fixed alternative $\mu \neq \mu_0$, $\Pr_\mu(\psi_\alpha = 1) \to 1$ as $n \to \infty$.
+\end{enumerate}
+\end{proposition}
+
+\coreproof{At $\mu = \mu_0$ the statistic is the pivot of \cref{thm:t-pivot}, whose quantile was chosen to leave probability $\alpha$ outside. For a composite null, moving $\mu$ into the null shifts $T_n$ the wrong way for rejecting, so the type 1 error can only fall. The interval is the pivot trapped between its quantiles and solved for $\mu$. Consistency is the pivot staying put while $\sqrt{n}(\mu - \mu_0)/S_n$ runs off to infinity.}
+\begin{proof}
+(1) Write $T_n = T_n^* + \sqrt{n}(\mu - \mu_0)/S_n$ with $T_n^* = \sqrt{n}(\bar{X}_n - \mu)/S_n \sim t_{n-1}$ by \cref{thm:t-pivot}, whatever $\mu$ is.
+When $\mu = \mu_0$, $T_n = T_n^*$ and $\Pr_{\mu_0}(\abs{T_n} > q_{\alpha/2}(t_{n-1})) = \alpha$ by the definition of the quantile and the symmetry of $t_{n-1}$; likewise $\Pr_{\mu_0}(T_n > q_\alpha(t_{n-1})) = \alpha$.
+For the composite null $\mu \leq \mu_0$ of the second test, $\sqrt{n}(\mu - \mu_0)/S_n \leq 0$ since $S_n > 0$, so $T_n \leq T_n^*$ and
+\[
+\Pr_\mu\big(T_n > q_\alpha(t_{n-1})\big) \leq \Pr\big(T_n^* > q_\alpha(t_{n-1})\big) = \alpha,
+\]
+with equality at $\mu = \mu_0$.
+The third test is the mirror image.
+
+(2) $\Pr_{\mu,\sigma^2}(\mu \in \mathcal{I}) = \Pr\big(\abs{\sqrt{n}(\bar{X}_n - \mu)/S_n} \leq q_{\alpha/2}(t_{n-1})\big) = \Pr(\abs{t_{n-1}} \leq q_{\alpha/2}(t_{n-1})) = 1 - \alpha$.
+
+(3) Take the two-sided test and $\mu > \mu_0$; the one-sided cases are identical.
+The threshold $q_{\alpha/2}(t_{n-1})$ depends on $n$, but it is at most $c = q_{\alpha/2}(t_1)$, the largest quantile in the family ($12.7$ at $\alpha = 0.05$), so it is enough to show $\Pr_\mu(T_n > c) \to 1$.
+Fix $M > 0$.
+Since $T_n^* \sim t_{n-1} \convd \Gauss(0,1)$ by \cref{prop:student-props}(4), $\Pr(T_n^* > -M) \to \Phi(M)$.
+Since $S_n \convp \sigma$ (the Law of Large Numbers applied to the $X_i$ and to the $X_i^2$, which have finite variance for Gaussian data, then the continuous mapping theorem for the square root, as in \cref{ch:estimators}), $\sqrt{n}(\mu - \mu_0)/S_n \convp +\infty$: $\Pr(\sqrt{n}(\mu - \mu_0)/S_n > c + M) \to 1$.
+On the intersection of the two events, $T_n = T_n^* + \sqrt{n}(\mu - \mu_0)/S_n > -M + c + M = c$, so
+\[
+\Pr_\mu(T_n > c) \geq \Pr(T_n^* > -M) - \Pr\big(\sqrt{n}(\mu - \mu_0)/S_n \leq c + M\big) \to \Phi(M) - 0.
+\]
+$M$ was arbitrary and $\Phi(M) \to 1$ as $M \to \infty$, so $\Pr_\mu(T_n > c) \to 1$.
+\end{proof}
+
+\begin{worked}[the wind turbine, properly]
+$n = 12$, $\bar{X}_n = 14.3$, $S_n = 4.7$, $\mu_0 = 10$, $H_0: \mu \leq 10$ against $H_1: \mu > 10$.
+The statistic is $T = \sqrt{12}\,(14.3 - 10)/4.7 = 3.17$, the threshold is $q_{0.05}(t_{11}) = 1.80$ (not $1.645$), and the test rejects: the home has enough wind.
+The $p$-value is $\Pr(t_{11} > 3.17) = 0.0045$: of $1{,}000$ homes whose true mean wind is exactly $10$, about $4$ would produce a year of measurements this far above it.
+The Gaussian rule would have reported $\Pr(Z > 3.17) = 0.0008$, overstating the evidence by a factor of six because it trusts a standard deviation estimated from twelve numbers as if it were exact.
+The $95\%$ $t$-interval for the mean wind speed is $14.3 \pm 2.20 \times 4.7/\sqrt{12} = [11.3, 17.3]$ miles per hour; the Gaussian version $14.3 \pm 1.96 \times 4.7/\sqrt{12} = [11.6, 17.0]$ is narrower, and its true coverage at $n = 12$ is $\Pr(\abs{t_{11}} \leq 1.96) = 92.4\%$, not $95\%$.
+\end{worked}
+
+\begin{worked}[the cookies, with the $t$ version promised in \cref{ch:tests-foundations}]
+\Cref{ex:tests-cookies} had $32$ cookies with a mean of $14.77$ chips and standard deviation $4.37$ against a claim of at least $20$: $T = \sqrt{32}\,(14.77 - 20)/4.37 = -6.77$.
+\Cref{ch:tests-foundations} compared it with the Gaussian and got a $p$-value of $6 \times 10^{-12}$.
+With $31$ degrees of freedom the $p$-value is $\Pr(t_{31} < -6.77) = 7 \times 10^{-8}$: ten thousand times larger, and still decisive.
+This is the typical pattern for $n$ around $30$: the $t$ correction changes $p$-values that are small by orders of magnitude, and changes decisions only when the Gaussian $p$-value was already near the level.
+\end{worked}
+
+\begin{pitfall}[$z$ in place of $t$ at small $n$]
+Using $1.96$ with five observations is not a rounding error.
+\Cref{fig:tdensities} (right) gives the true type 1 error of the Gaussian rule on Gaussian data: $12\%$ at $n = 5$, $8\%$ at $n = 10$.
+Of $1{,}000$ five-observation studies with a true null, about $122$ reject at the nominal $5\%$; the same $1{,}000$ studies analyzed with $q_{0.025}(t_4) = 2.78$ reject $50$.
+In the other direction, a reported two-sided `$p = 0.03$' from a Gaussian table at $n = 5$ corresponds to $\abs{T} = 2.17$, whose $t_4$ $p$-value is $0.10$.
+\end{pitfall}
+
+\begin{pitfall}[which variance goes in the denominator]
+\Cref{thm:t-pivot} uses $S_n^2$ with $n - 1$.
+If the divide-by-$n$ variance $\hat{\sigma}_n^2 = \frac1n\sum_i (X_i - \bar{X}_n)^2$ of \cref{ch:likelihood} is used instead, the pivot changes: since $S_n^2 = \frac{n}{n-1}\hat{\sigma}_n^2$,
+\[
+\sqrt{n}\,\frac{\bar{X}_n - \mu}{S_n} = \sqrt{n-1}\,\frac{\bar{X}_n - \mu}{\hat{\sigma}_n} \sim t_{n-1}.
+\]
+So $\sqrt{n}(\bar{X}_n - \mu)/\hat{\sigma}_n$ is $\sqrt{n/(n-1)}$ times a $t_{n-1}$ variable, and comparing it with $t_{n-1}$ quantiles rejects too often; at $n = 5$ the factor is $1.12$.
+\Cref{ex:t-mle-pivot} works through the version with the maximum likelihood estimators.
+\end{pitfall}
+
+\recall{The Central Limit Theorem (\cref{thm:clt}): for i.i.d.\ $X_i$ with mean $\mu$ and variance $\sigma^2 < \infty$, $\sqrt{n}(\bar{X}_n - \mu)/\sigma \convd \Gauss(0,1)$. Slutsky's theorem (\cref{thm:slutsky}): if $X_n \convd X$ and $W_n \convp w \neq 0$, then $X_n/W_n \convd X/w$.}
+
+\begin{bridge}[when the $t$-test is safe without Gaussian data]
+The exactness in \cref{prop:ttest-level} needs Gaussian data; the kiss data are not Gaussian, nor are most data.
+What survives is the asymptotic guarantee of \cref{ch:tests-foundations}: for any parent distribution with finite variance, under $H_0$ write $T_n = \big(\sqrt{n}(\bar{X}_n - \mu_0)/\sigma\big)\big/(S_n/\sigma)$; the numerator converges in distribution to $\Gauss(0,1)$ by the CLT, the denominator converges in probability to $1$ since $S_n \convp \sigma$, so $T_n \convd \Gauss(0,1)$ by Slutsky's theorem, and $q_\alpha(t_{n-1}) \to q_\alpha$ by \cref{prop:student-props}(4). So the $t$-test has asymptotic level $\alpha$ for every parent.
+The $t$-test is therefore never worse than the Gaussian test for large $n$ and exactly right for Gaussian data at every $n$, which is why it is the default.
+For small $n$ and non-Gaussian data neither guarantee applies.
+Mild departures from the Gaussian shape (a little skew, slightly heavy tails) move the true level only slightly because the sample mean is already close to Gaussian at modest $n$; heavy tails and outliers move it a lot, for the reasons of \cref{ch:mom-mestimation}, and a robust center is then the better estimator.
+Whether a sample looks Gaussian can itself be tested, which is what the Lilliefors test and the QQ plot of \cref{ch:ks} do.
+\end{bridge}
+
+\section{Two samples}
+\label{sec:t-two}
+
+The boarding question of \cref{ch:tests-foundations} compared two airlines, and a clinical trial compares a treated group with a control group.
+The model: $\Xton \iid \Gauss(\mu_1, \sigma_1^2)$ and $Y_1, \ldots, Y_m \iid \Gauss(\mu_2, \sigma_2^2)$, the two samples independent, and the hypothesis $H_0: \mu_1 = \mu_2$ against a one- or two-sided alternative.
+The natural statistic is the standardized difference of means.
+By the sum rule of \cref{ch:gaussian}, $\bar{X}_n - \bar{Y}_m \sim \Gauss\big(\mu_1 - \mu_2, \sigma_1^2/n + \sigma_2^2/m\big)$ exactly, so with known variances
+\[
+\frac{\bar{X}_n - \bar{Y}_m - (\mu_1 - \mu_2)}{\sqrt{\sigma_1^2/n + \sigma_2^2/m}} \sim \Gauss(0, 1).
+\]
+With estimated variances the denominator becomes $\sqrt{S_1^2/n + S_2^2/m}$, and whether the result is a $t$ variable depends on whether the two variances are equal.
+
+\begin{theorem}[The pooled two-sample $t$ pivot]
+\label{thm:pooled-t}
+If in addition $\sigma_1^2 = \sigma_2^2 = \sigma^2$, let
+\[
+S_p^2 = \frac{(n-1)S_1^2 + (m-1)S_2^2}{n + m - 2}
+\]
+be the \textbf{pooled variance}, the average of the two sample variances weighted by their degrees of freedom. Then
+\[
+\frac{\bar{X}_n - \bar{Y}_m - (\mu_1 - \mu_2)}{S_p\sqrt{1/n + 1/m}} \sim t_{n+m-2} \qquad \text{exactly}.
+\]
+\end{theorem}
+
+\coreproof{Cochran once per sample gives two independent chi-squareds; their sum is chi-squared with the degrees of freedom added; it is independent of both sample means; the ratio is a $t$ by definition.}
+\begin{proof}
+By \cref{thm:cochran} applied to each sample, $(n-1)S_1^2/\sigma^2 \sim \chi^2_{n-1}$ and $(m-1)S_2^2/\sigma^2 \sim \chi^2_{m-1}$; they are independent because the samples are, so their sum $V = (n+m-2)S_p^2/\sigma^2 \sim \chi^2_{n+m-2}$ by \cref{prop:chisq-props}(2).
+The four quantities $\bar{X}_n, S_1^2, \bar{Y}_m, S_2^2$ are mutually independent (the first two are independent by Cochran, the last two likewise, and the pairs are independent of each other), so $V$ is independent of $\bar{X}_n - \bar{Y}_m$.
+With $\sigma_1^2 = \sigma_2^2$ the standardized difference is $Z = (\bar{X}_n - \bar{Y}_m - (\mu_1 - \mu_2))/(\sigma\sqrt{1/n + 1/m}) \sim \Gauss(0,1)$, and
+\[
+\frac{\bar{X}_n - \bar{Y}_m - (\mu_1 - \mu_2)}{S_p\sqrt{1/n + 1/m}} = \frac{Z}{\sqrt{S_p^2/\sigma^2}} = \frac{Z}{\sqrt{V/(n+m-2)}},
+\]
+which is $t_{n+m-2}$ by \cref{def:student}.
+\end{proof}
+
+The tests and intervals follow as in \cref{def:ttest}, with $\mu_1 - \mu_2$ in place of $\mu$ and $t_{n+m-2}$ in place of $t_{n-1}$; for a composite null such as $\mu_1 - \mu_2 \leq 0$ the argument of \cref{prop:ttest-level}(1) applies unchanged, since the shift term it adds to the pivot is then nonpositive.
+
+When the variances differ, the statistic
+\[
+T = \frac{\bar{X}_n - \bar{Y}_m - (\mu_1 - \mu_2)}{\sqrt{S_1^2/n + S_2^2/m}}
+\]
+is still a standard Gaussian divided by an independent estimate of its scale, but the estimate is no longer a scaled chi-squared: $S_1^2/n + S_2^2/m$ is a weighted sum of two chi-squareds with different weights and different degrees of freedom, and its distribution depends on the unknown ratio $\sigma_1^2/\sigma_2^2$.
+There is no exact pivot.
+The standard remedy, \textbf{Welch's $t$-test}, treats $T$ as approximately $t_\nu$ with the degrees of freedom chosen so that a scaled $\chi^2_\nu$ matches the denominator's mean and variance.
+
+\begin{proposition}[The Welch--Satterthwaite degrees of freedom]
+\label{prop:welch}
+Let $D = S_1^2/n + S_2^2/m$ and $\delta = \sigma_1^2/n + \sigma_2^2/m = \E[D]$.
+The scaled chi-squared $\delta\,W/\nu$ with $W \sim \chi^2_\nu$ that has the same mean and variance as $D$ has
+\[
+\nu = \frac{(\sigma_1^2/n + \sigma_2^2/m)^2}{\dfrac{(\sigma_1^2/n)^2}{n-1} + \dfrac{(\sigma_2^2/m)^2}{m-1}},
+\]
+and the estimate $\hat{\nu}$ with $S_1^2, S_2^2$ in place of $\sigma_1^2, \sigma_2^2$ satisfies $\min(n-1, m-1) \leq \hat{\nu} \leq n + m - 2$.
+Welch's test compares $T$ with the quantiles of $t_{\hat{\nu}}$, rounding $\hat{\nu}$ down.
+\end{proposition}
+
+\optionalproof{Match two moments: the mean matches automatically, and equating the variances, $2\delta^2/\nu$ against the sum of the two sample variances' variances from \cref{cor:samplevar}, gives $\nu$. The bounds are a one-line inequality each.}
+\begin{proof}
+$\E[\delta W/\nu] = \delta = \E[D]$ for every $\nu$.
+$\var(\delta W/\nu) = 2\delta^2/\nu$, and by \cref{cor:samplevar} and independence, $\var(D) = \frac{2\sigma_1^4}{n^2(n-1)} + \frac{2\sigma_2^4}{m^2(m-1)}$.
+Setting the two equal and solving for $\nu$ gives the formula.
+For the bounds, write $a = S_1^2/n$ and $b = S_2^2/m$, so $\hat{\nu} = (a+b)^2/\big(a^2/(n-1) + b^2/(m-1)\big)$.
+Since $a^2/(n-1) + b^2/(m-1) \leq (a^2 + b^2)/\min(n-1, m-1) \leq (a+b)^2/\min(n-1,m-1)$, $\hat{\nu} \geq \min(n-1, m-1)$.
+By the Cauchy--Schwarz inequality, $(a + b)^2 = \big(\sqrt{n-1}\cdot\frac{a}{\sqrt{n-1}} + \sqrt{m-1}\cdot\frac{b}{\sqrt{m-1}}\big)^2 \leq (n + m - 2)\big(\frac{a^2}{n-1} + \frac{b^2}{m-1}\big)$, so $\hat{\nu} \leq n + m - 2$.
+\end{proof}
+
+The bounds say what the approximation does: when one sample dominates the variance of the difference, the degrees of freedom are about that sample's $n - 1$; when the two contribute equally with equal sizes, $\hat{\nu}$ is near $n + m - 2$, the pooled count.
+As $m \to \infty$ with $n$ fixed, $b \to 0$ and $\hat{\nu} \to n - 1$: the one-sample case.
+Rounding $\hat{\nu}$ down is the conservative direction, since a smaller $\nu$ means a larger quantile.
+
+\begin{worked}[a clinical trial with small groups]
+A drug is meant to lower LDL cholesterol.
+The treated group, $n = 12$, shows a mean decrease of $156.4$ with $S_1 = 22.5$; the control group, $m = 22$, a mean decrease of $132.7$ with $S_2 = 8.7$.
+$H_0: \mu_1 - \mu_2 \leq 0$ against $H_1: \mu_1 - \mu_2 > 0$.
+The variances differ by a factor of $(22.5/8.7)^2 = 6.7$, so pooling is not appropriate and Welch's test is the one to use:
+\[
+T = \frac{156.4 - 132.7}{\sqrt{22.5^2/12 + 8.7^2/22}} = 3.51, \qquad \hat{\nu} = \frac{(22.5^2/12 + 8.7^2/22)^2}{\dfrac{(22.5^2/12)^2}{11} + \dfrac{(8.7^2/22)^2}{21}} = 12.8,
+\]
+rounded down to $12$, between the bounds $11$ and $32$ and close to the lower one because the treated group's variance dominates.
+The threshold at $5\%$ is $q_{0.05}(t_{12}) = 1.78$ and the $p$-value is $\Pr(t_{12} > 3.51) = 0.0022$: strong evidence that the drug lowers LDL more than the control.
+Of $1{,}000$ trials of this size in which the drug does nothing beyond the control, about $2$ would produce a $T$ this large.
+The Gaussian $p$-value would have been $0.0002$, ten times smaller.
+\end{worked}
+
+\begin{worked}[the boarding question, finished]
+\Cref{ch:tests-foundations} opened with $n = 72$ R2F flights averaging $24.2$ minutes (standard deviation $2.1$) and $m = 56$ WilMA flights averaging $15.9$ (standard deviation $1.3$), and settled the question with a heuristic buffer.
+Welch's test: $T = (24.2 - 15.9)/\sqrt{2.1^2/72 + 1.3^2/56} = 8.3/0.302 = 27.4$ with $\hat{\nu} = 120$, against a threshold of $q_{0.05}(t_{120}) = 1.66$.
+The $p$-value is below $10^{-15}$; the pooled version, $T = 25.9$ with $126$ degrees of freedom, says the same.
+The buffer heuristic was right, and now it comes with a level: the difference of $8.3$ minutes is $27$ estimated standard errors, and nothing about estimating two variances from $72$ and $56$ flights can change that.
+\end{worked}
+
+\begin{remark}[The $F$ distribution]
+Whether the two variances are equal can itself be tested.
+For independent $V \sim \chi^2_k$ and $W \sim \chi^2_l$, the ratio $(V/k)/(W/l)$ has the \textbf{$F$ distribution with $(k, l)$ degrees of freedom}, $F_{k,l}$, and by \cref{thm:cochran}, $(S_1^2/\sigma_1^2)/(S_2^2/\sigma_2^2) \sim F_{n-1, m-1}$ exactly for two Gaussian samples (\cref{ex:t-fratio}).
+Under $H_0: \sigma_1^2 = \sigma_2^2$ the ratio $S_1^2/S_2^2$ is an $F_{n-1,m-1}$ pivot, and large or small values reject.
+The test is sensitive to non-Gaussian tails, more so than the $t$-test because fourth moments enter the variance of a sample variance.
+The $F$ distribution's main role in this book is in \cref{ch:regression-multi}, where a ratio of two independent sums of squares from the general Cochran theorem tests several regression coefficients at once.
+\end{remark}
+
+\section{Many tests at once}
+\label{sec:t-multiple}
+
+In 2009 a team of neuroscientists placed a dead Atlantic salmon in an fMRI scanner, showed it a series of photographs of people in social situations, and asked it to judge the emotion in each.
+The scanner divides the fish into $N = 8{,}064$ small volumes, and in each one a test at level $\alpha = 0.001$ asked whether the measured signal responded to the photographs.
+A small cluster of volumes inside the brain cavity came out `significant'.
+The fish was dead; every null hypothesis was true; and a handful of rejections is exactly what the level promises.
+A test at level $0.001$ rejects a true null once in $1{,}000$ tries, so $8{,}064$ tests produce about $8$ false rejections, and the probability that at least one of $8{,}064$ independent tests rejects is $1 - 0.999^{8064} = 0.9997$.
+(The study's own test used the scanner's time series; the simplest model with the same arithmetic is $n = 15$ photograph responses per volume, i.i.d.\ Gaussian with mean $\mu$, and a $t$-test of $\mu = 0$, which is what the simulation below runs.)
+\Cref{fig:multipletesting} (left) repeats the experiment with simulated noise: $8{,}064$ $t$-tests on samples of $15$ standard Gaussians, every null true.
+The $p$-values are uniformly spread between $0$ and $1$ (\cref{ex:tests-uniform}), about $161$ per bar of width $0.02$, and the inset shows the $p$-values below $0.02$ at a finer scale: the bar below $0.001$ holds this run's false discoveries, $5$ of them, against the $8$ expected.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_multiple_testing}
+\caption{Left: $p$-values of $8{,}064$ two-sided $t$-tests at $n = 15$; dotted: expected count per bar; inset: $p$-values below $0.02$, those below $0.001$ in orange. Right: sorted $p$-values, five above the scale, with Bonferroni's $\alpha/N$ (aqua, dotted) and Benjamini--Hochberg's $i\alpha/N$ (orange, dashed); filled dots: rejected by the latter.}
+\label{fig:multipletesting}
+\end{figure}
+
+The level controls each test's error separately; it says nothing about the batch.
+Two quantities describe the batch.
+Let $N$ tests be run, with $N_0$ of the nulls true, and let $R$ be the number of rejections and $V$ the number of false rejections (rejections of true nulls) among them; $V$ is a new use of the letter, unrelated to the chi-squared variables above.
+
+\begin{definition}[Family-wise error rate and false discovery rate]
+\label{def:fwer-fdr}
+The \textbf{family-wise error rate} is $\mathrm{FWER} = \Pr(V \geq 1)$, the probability of at least one false rejection.
+The \textbf{false discovery rate} is $\mathrm{FDR} = \E\big[V/\max(R, 1)\big]$, the expected fraction of the rejections that are false (taken as $0$ when nothing is rejected).
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} The FWER asks for no false alarm at all in the whole batch; controlling it at $5\%$ means that in $95$ of $100$ batches, every rejection is a true discovery. The FDR tolerates false alarms as long as they are a small fraction of what is reported; controlling it at $5\%$ means that, on average, $5\%$ of the findings you announce are wrong. The first is the stricter demand: since $V/\max(R,1) \leq \ind\{V \geq 1\}$, $\mathrm{FDR} \leq \mathrm{FWER}$, and anything that controls the FWER controls the FDR, not conversely.
+\par\smallskip
+\textbf{For the kiss data.} One test, $N = 1$: if the null is true both rates are the level, $\alpha$, and if it is false both are $0$. The salmon's $8{,}064$ tests at $\alpha = 0.001$ have $\mathrm{FWER} = 0.9997$, and since every null is true, every rejection is false and $\mathrm{FDR} = \Pr(R \geq 1) = 0.9997$ as well.
+\end{inwords}
+
+Both procedures below work with the $p$-values $P_1, \ldots, P_N$ of the $N$ tests, and both use one fact from \cref{ch:tests-foundations}: under a true simple null with a continuous test statistic, the $p$-value is uniform on $[0, 1]$, so $\Pr(P_i \leq u) = u$ (\cref{ex:tests-uniform}); under a composite null the monotonicity argument of \cref{prop:ttest-level}(1) gives $\Pr(P_i \leq u) \leq u$, which is all Bonferroni needs.
+
+\begin{proposition}[Bonferroni's correction]
+\label{prop:bonferroni}
+Suppose $\Pr(P_i \leq u) \leq u$ for every true null $i$ and every $u \in [0,1]$, and reject test $i$ when $P_i \leq \alpha/N$.
+Then $\mathrm{FWER} \leq \alpha$, whatever the dependence between the tests.
+\end{proposition}
+
+\coreproof{The probability of a union is at most the sum of the probabilities, and each true null is rejected with probability $\alpha/N$.}
+\begin{proof}
+The event $\{V \geq 1\}$ is the union over the true nulls $i$ of $\{P_i \leq \alpha/N\}$.
+The indicator of a union is at most the sum of the indicators, since if the union occurs at least one indicator equals $1$ \toolkit{sec:math-indicator}, so taking expectations,
+\[
+\mathrm{FWER} = \Pr\Big(\bigcup_{i \text{ true null}}\{P_i \leq \alpha/N\}\Big) \leq \sum_{i \text{ true null}} \Pr(P_i \leq \alpha/N) \leq N_0 \cdot \frac{\alpha}{N} \leq \alpha.
+\]
+No independence was used.
+\end{proof}
+
+For the salmon, Bonferroni's level per test is $0.001/8064 = 1.2 \times 10^{-7}$, and the two-sided $t_{14}$ threshold rises from $4.14$ to $9.77$: no volume survives, which is the right answer for a dead fish.
+The cost is that for a live subject with a few truly active volumes, a threshold of $9.77$ estimated standard errors will miss most of them.
+Bonferroni buys `no false alarm' at the price of power, and the price grows with $N$.
+
+The Benjamini--Hochberg procedure gives up on `no false alarm' and controls the FDR instead.
+Sort the $p$-values, $P_{(1)} \leq P_{(2)} \leq \cdots \leq P_{(N)}$, and compare the $i$th smallest with the rising line $i\alpha/N$ rather than with the flat $\alpha/N$.
+
+\begin{theorem}[Benjamini--Hochberg]
+\label{thm:bh}
+Let $i_{\max} = \max\{i : P_{(i)} \leq i\alpha/N\}$ (and $0$ if no $i$ qualifies), and reject the $i_{\max}$ tests with the smallest $p$-values.
+If the $p$-values of the true nulls are uniform on $[0,1]$ and independent of each other and of the other $p$-values, then
+\[
+\mathrm{FDR} = \frac{N_0}{N}\,\alpha \leq \alpha.
+\]
+\end{theorem}
+
+The proof is in \cref{sec:proof-bh}; nothing later in the book depends on it.
+The picture on the right of \cref{fig:multipletesting} is the procedure: ten sorted $p$-values, $0.001, 0.008, 0.012, 0.03, 0.06, \ldots$, against the Bonferroni line at $0.005$ and the Benjamini--Hochberg line $0.005\,i$.
+Bonferroni rejects only the first.
+Benjamini--Hochberg finds the last point under its line, the third ($0.012 \leq 0.015$; the fourth, $0.03$, is above $0.02$), and rejects the first three, including the second, whose $p$-value $0.008$ is above $0.005$ on its own.
+The rising line is the point: a batch with several small $p$-values is evidence that some nulls are false, and the procedure lets the small ones vouch for each other.
+The theorem's $N_0/N$ says the control is conservative when many nulls are false; when every null is true, $V = R$, so $\mathrm{FDR} = \mathrm{FWER}$ and the procedure holds the probability of any false rejection at exactly $\alpha$, where Bonferroni holds it at most $\alpha$.
+
+\begin{pitfall}[FWER and FDR are different promises]
+`At most $5\%$ of my $100$ discoveries are false on average' and `with probability $95\%$ none of my discoveries is false' are regularly conflated.
+A procedure with $\mathrm{FDR} \leq 0.05$ that reports $100$ discoveries is expected to contain about $5$ false ones; a procedure with $\mathrm{FWER} \leq 0.05$ contains none in $19$ batches of $20$.
+Which one is wanted depends on what a false discovery costs: a follow-up experiment, or a published claim.
+\end{pitfall}
+
+\section{What comes next}
+\label{sec:t-next}
+
+This chapter is the one place in the book where exact small-sample distributions replace limit theorems, and the price was a Gaussian model for the data.
+\Cref{ch:wald-lrt} returns to large samples and arbitrary parametric models: Wald's test standardizes the maximum likelihood estimator of \cref{ch:mle-properties} and compares its square with a chi-squared quantile, which is the squared-Gaussian reading of \cref{def:chisq} in $d$ dimensions, and the likelihood ratio test does the same with the log-likelihood.
+Both have chi-squared limits with degrees of freedom counted as here, one per constraint tested.
+\Cref{ch:gof} uses the same chi-squared limit to test whether data fit a discrete distribution, and \cref{ch:ks} tests whether a sample is Gaussian in the first place, which is the question this chapter's exactness depends on.
+\Cref{ch:regression-multi} uses Cochran's theorem in its general form for the residual variance of a regression, and the $t$ and $F$ distributions for the tests on its coefficients.
+
+\section{Summary}
+\label{sec:t-summary}
+
+\begin{itemize}[nosep]
+\item For Gaussian data, $\sqrt{n}(\bar{X}_n - \mu)/\sigma$ is exactly standard Gaussian at every $n$; replacing $\sigma$ by $S_n$ breaks this, and the Gaussian $5\%$ rule has type 1 error $12\%$ at $n = 5$.
+\item $\chi^2_k$ is the sum of $k$ squared independent standard Gaussians: mean $k$, variance $2k$, additive, approximately $\Gauss(k, 2k)$ for large $k$; $\chi^2_2$ is $\Expo(\frac12)$.
+\item Cochran: for Gaussian data $\bar{X}_n$ and $S_n^2$ are independent and $(n-1)S_n^2/\sigma^2 \sim \chi^2_{n-1}$, proved by rotating the standardized data so that one coordinate carries the mean and $n - 1$ carry the deviations. $\var(S_n^2) = 2\sigma^4/(n-1)$. The independence fails for non-Gaussian data.
+\item $t_k$ is $Z/\sqrt{V/k}$ with $Z$ and $V \sim \chi^2_k$ independent: symmetric, heavier tails than the Gaussian (variance $k/(k-2)$), converging to it as $k \to \infty$ by the LLN and Slutsky; $t_1$ is the Cauchy.
+\item The $t$ pivot: $\sqrt{n}(\bar{X}_n - \mu)/S_n \sim t_{n-1}$ exactly for Gaussian data. The $t$-test and $t$-interval have exact level and coverage at every $n$ for Gaussian data, and asymptotic level for any parent with finite variance.
+\item Two samples: with equal variances the pooled statistic is exactly $t_{n+m-2}$; with unequal variances Welch's statistic is approximately $t_{\hat{\nu}}$, with $\hat{\nu}$ from matching the denominator's mean and variance, between $\min(n,m) - 1$ and $n + m - 2$.
+\item Many tests: Bonferroni's $\alpha/N$ controls the probability of any false rejection, with no assumption on dependence; Benjamini--Hochberg's rising threshold $i\alpha/N$ controls the expected fraction of false rejections, for independent $p$-values, and rejects more.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:t-exercises}
+
+\begin{exercise}
+\label{ex:t-chisq-moments}
+Let $\Xton \iid \Gauss(3, \sigma^2)$ with $\sigma^2$ unknown and the mean known to be $3$. (a) Find a constant $a$ and an integer $k$ such that $a\sum_i (X_i - 3)^2 \sim \chi^2_k$. (b) Compute the mean and variance of the estimator $\tilde{\sigma}^2 = \frac1n\sum_i(X_i - 3)^2$ and compare its variance with that of $S_n^2$. (c) A dart lands at $(Z_1, Z_2)$ with i.i.d.\ standard Gaussian coordinates. What is the probability that it lands within distance $2$ of the origin?
+\end{exercise}
+\begin{solution}
+(a) $(X_i - 3)/\sigma \iid \Gauss(0,1)$, so $a = 1/\sigma^2$ and $k = n$. (b) $\tilde{\sigma}^2 = \sigma^2 V/n$ with $V \sim \chi^2_n$: mean $\sigma^2$, variance $2\sigma^4/n$, against $2\sigma^4/(n-1)$ for $S_n^2$. Knowing the mean buys one degree of freedom. (c) $\Pr(Z_1^2 + Z_2^2 \leq 4) = \Pr(\chi^2_2 \leq 4) = 1 - e^{-2} = 0.865$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-cochran-two}
+Let $X_1, X_2 \iid \Gauss(0, 1)$ and set $U = (X_1 + X_2)/\sqrt{2}$, $W = (X_1 - X_2)/\sqrt{2}$. Starting from the joint density of $(X_1, X_2)$, show that $(U, W)$ has the same joint density, and conclude that $U$ and $W$ are independent standard Gaussians. Deduce \cref{thm:cochran} for $n = 2$.
+\end{exercise}
+\begin{solution}
+The joint density of $(X_1, X_2)$ is $\frac{1}{2\pi}e^{-(x_1^2 + x_2^2)/2}$. The map $(x_1, x_2) \mapsto (u, w) = ((x_1 + x_2)/\sqrt{2}, (x_1 - x_2)/\sqrt{2})$ is linear with matrix $Q = \frac{1}{\sqrt{2}}\begin{pmatrix} 1 & 1 \\ 1 & -1\end{pmatrix}$, which is orthogonal ($Q^\top Q = I$, $\det Q = -1$), and $u^2 + w^2 = x_1^2 + x_2^2$. By the change of variables formula \toolkit{sec:math-gaussvec}, the density of $(U, W)$ is $\frac{1}{2\pi}e^{-(u^2 + w^2)/2}/\abs{\det Q} = \frac{1}{2\pi}e^{-u^2/2}e^{-w^2/2}$, a product of two standard Gaussian densities, so $U$ and $W$ are independent standard Gaussians. Then $\bar{X}_2 = U/\sqrt{2}$ and $S_2^2 = (X_1 - X_2)^2/2 = W^2 \sim \chi^2_1$, independent of $\bar{X}_2$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-nplus1}
+For $\Xton \iid \Gauss(\mu, \sigma^2)$ consider the estimators $\hat{\sigma}^2_c = c\sum_i(X_i - \bar{X}_n)^2$ of $\sigma^2$. Using \cref{thm:cochran}, find the bias, variance and quadratic risk of $\hat{\sigma}^2_c$ as functions of $c$, and show that the risk is minimized at $c = 1/(n+1)$, not at $1/(n-1)$ (unbiased) or $1/n$ (maximum likelihood). Compute the three risks for $n = 12$ and $\sigma = 1$.
+\end{exercise}
+\begin{solution}
+$\sum_i(X_i - \bar{X}_n)^2 = \sigma^2 V$ with $V \sim \chi^2_{n-1}$, so $\E[\hat{\sigma}^2_c] = c(n-1)\sigma^2$, bias $(c(n-1) - 1)\sigma^2$, variance $2c^2(n-1)\sigma^4$, and risk $\sigma^4\big[2c^2(n-1) + (c(n-1) - 1)^2\big]$. The derivative in $c$ is $\sigma^4[4c(n-1) + 2(n-1)(c(n-1) - 1)]$, zero at $c(2 + n - 1) = 1$, that is, $c = 1/(n+1)$, a minimum since the risk is a convex parabola in $c$. The risks are $2\sigma^4/(n-1)$ for $c = 1/(n-1)$, $(2n-1)\sigma^4/n^2$ for $c = 1/n$ and $2\sigma^4/(n+1)$ for $c = 1/(n+1)$: at $n = 12$, $0.182$, $0.160$ and $0.154$. This is the claim of the bridge in \cref{ch:estimators}.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-variance}
+Let $V \sim \chi^2_k$ with density $f_k$ from \cref{prop:chisq-props}. (a) Show that $\E[1/V] = 1/(k-2)$ for $k \geq 3$, using $\Gamma(x + 1) = x\Gamma(x)$. (b) Deduce that $\var(T) = k/(k-2)$ for $T \sim t_k$, $k \geq 3$, and explain why $\E[T] = 0$ needs $k \geq 2$. (c) What are the variances of $t_3$, $t_5$ and $t_{30}$, and what do they say about the table of quantiles in \cref{sec:t-student}?
+\end{exercise}
+\begin{solution}
+(a) $\E[1/V] = \frac{1}{2^{k/2}\Gamma(k/2)}\int_0^\infty v^{k/2 - 2}e^{-v/2}\,\mathrm{d}v$. Substituting $v = 2s$, the integral is $2^{k/2 - 1}\int_0^\infty s^{k/2 - 2}e^{-s}\,\mathrm{d}s$, which is $2^{k/2-1}\Gamma(k/2 - 1)$, finite when $k/2 - 1 > 0$. So $\E[1/V] = \frac12\Gamma(k/2 - 1)/\Gamma(k/2) = \frac12 \cdot \frac{1}{k/2 - 1} = 1/(k-2)$. (b) By independence, $\E[T^2] = \E[Z^2]\,\E[k/V] = k/(k-2)$, and $\E[T] = \E[Z]\,\E[\sqrt{k/V}] = 0$ provided $\E[1/\sqrt{V}] < \infty$, which needs $\int_0 v^{k/2 - 3/2}\,\mathrm{d}v$ to converge at $0$, that is, $k \geq 2$; for $k = 1$ the mean is the Cauchy's, undefined. (c) $3$, $1.67$ and $1.07$: $t_3$ has standard deviation $1.73$, so its quantiles are far outside the Gaussian's; by $k = 30$ the standard deviation is $1.04$ and the quantiles are within a few percent.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-mle-pivot}
+Let $\Xton \iid \Gauss(\mu, \sigma^2)$ with maximum likelihood estimators $\hat{\mu} = \bar{X}_n$ and $\hat{\sigma}^2 = \frac1n\sum_i(X_i - \bar{X}_n)^2$ (\cref{ch:likelihood}). (a) Show that $\sqrt{n-1}\,(\hat{\mu} - \mu)/\hat{\sigma} \sim t_{n-1}$. (b) Propose a test of $H_0: \mu \geq 0$ against $H_1: \mu < 0$ with exact level $\alpha$ and prove its level, including for $\mu > 0$.
+\end{exercise}
+\begin{solution}
+(a) $\hat{\sigma}^2 = \frac{n-1}{n}S_n^2$, so $\sqrt{n-1}(\hat{\mu} - \mu)/\hat{\sigma} = \sqrt{n-1}(\bar{X}_n - \mu)/\big(\sqrt{(n-1)/n}\,S_n\big) = \sqrt{n}(\bar{X}_n - \mu)/S_n \sim t_{n-1}$ by \cref{thm:t-pivot}. (b) Reject when $T = \sqrt{n-1}\,\hat{\mu}/\hat{\sigma} < -q_\alpha(t_{n-1})$. At $\mu = 0$, $T$ is the pivot and the probability is $\alpha$ by symmetry of $t_{n-1}$. For $\mu > 0$, $T = T^* + \sqrt{n-1}\,\mu/\hat{\sigma}$ with $T^* \sim t_{n-1}$ and the added term positive, so $T > T^*$ and $\Pr_\mu(T < -q) \leq \Pr(T^* < -q) = \alpha$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-coverage}
+A $95\%$ Gaussian interval $\bar{X}_n \pm 1.96\,S_n/\sqrt{n}$ is computed from $n$ Gaussian observations. (a) Write its exact coverage in terms of the $t_{n-1}$ distribution and evaluate it for $n = 3, 5, 12, 30$ using \cref{fig:tdensities} (the value at $n = 3$ is $0.189$). (b) How large must $n$ be for the coverage to reach $94\%$?
+\end{exercise}
+\begin{solution}
+(a) The interval contains $\mu$ exactly when $\abs{\sqrt{n}(\bar{X}_n - \mu)/S_n} \leq 1.96$, so the coverage is $\Pr(\abs{t_{n-1}} \leq 1.96) = 1 - \Pr(\abs{t_{n-1}} > 1.96)$: from the figure's values $0.189, 0.122, 0.076, 0.060$, the coverages are $81\%$, $88\%$, $92\%$ and $94\%$. (b) $\Pr(\abs{t_{n-1}} > 1.96) \leq 0.06$ first holds at $n = 30$ ($0.0597$); at $n = 29$ it is $0.06002$, just above.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-two-sample}
+A larger version of the clinical trial has $n = 70$ treated and $m = 50$ control patients, with mean decreases $156.4$ and $132.7$ and sample variances $S_1^2 = 5198.4$ and $S_2^2 = 3867.0$ (standard deviations $72.1$ and $62.2$, far larger than in the small trial). Test $H_0: \mu_1 - \mu_2 \leq 0$ against $H_1: \mu_1 - \mu_2 > 0$ at $5\%$ with Welch's test, report the one-sided $p$-value, and say what changes if the two-sided $p$-value is reported by mistake.
+\end{exercise}
+\begin{solution}
+$T = (156.4 - 132.7)/\sqrt{5198.4/70 + 3867.0/50} = 23.7/12.31 = 1.925$. $\hat{\nu} = (74.26 + 77.34)^2/\big(74.26^2/69 + 77.34^2/49\big) = 22{,}983/(79.9 + 122.1) = 113.8$, rounded down to $113$, between $49$ and $118$. The threshold is $q_{0.05}(t_{113}) = 1.66$, so the test rejects, with one-sided $p$-value $\Pr(t_{113} > 1.925) = 0.028$; the Gaussian $p$-value is $0.027$, since at these sizes the two agree. The two-sided $p$-value is twice that, $0.057$, which would wrongly fail to reject at $5\%$: the hypothesis is one-sided, and the $p$-value must match it.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-fratio}
+Let $\Xton \iid \Gauss(\mu_1, \sigma_1^2)$ and $Y_1, \ldots, Y_m \iid \Gauss(\mu_2, \sigma_2^2)$ be independent samples. (a) Show that $(S_1^2/\sigma_1^2)/(S_2^2/\sigma_2^2) \sim F_{n-1,m-1}$. (b) For the boarding data ($S_1 = 2.1$, $n = 72$; $S_2 = 1.3$, $m = 56$), compute the ratio $S_1^2/S_2^2$ and explain why, with $\Pr(F_{71,55} > 2.61) < 0.001$, the pooled test was not the right choice even though it gave the same answer.
+\end{exercise}
+\begin{solution}
+(a) By \cref{thm:cochran}, $V = (n-1)S_1^2/\sigma_1^2 \sim \chi^2_{n-1}$ and $W = (m-1)S_2^2/\sigma_2^2 \sim \chi^2_{m-1}$, independent since the samples are, and $(S_1^2/\sigma_1^2)/(S_2^2/\sigma_2^2) = (V/(n-1))/(W/(m-1))$ is $F_{n-1,m-1}$ by definition. (b) $2.1^2/1.3^2 = 2.61$. If the variances were equal this ratio would be an $F_{71,55}$ draw, and a value of $2.61$ or more happens less than once in $1{,}000$ such draws: the variances differ, and the pooled pivot's hypothesis fails. Welch's statistic is the one with a justification; here both are $27$ or more standard errors from zero, so the decision is the same.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-bonferroni}
+(a) For the salmon's $8{,}064$ tests at level $0.001$, compute the expected number of false rejections, the FWER assuming independence, and Bonferroni's per-test level. (b) The scanner is used on a live subject with $N = 8{,}064$ volumes of which $N_0 = 8{,}000$ have no true activity, and each test has level $0.001$. Without correction, how many false rejections are expected, and how many does Bonferroni at $\alpha = 0.05$ expect? (c) If the uncorrected tests reject $50$ volumes in all, what fraction of them are expected to be false?
+\end{exercise}
+\begin{solution}
+(a) $8064 \times 0.001 = 8.06$; $1 - 0.999^{8064} = 0.9997$; $0.001/8064 = 1.24 \times 10^{-7}$. (b) $8000 \times 0.001 = 8$; with Bonferroni each test has level $0.05/8064 = 6.2 \times 10^{-6}$, so $8000 \times 6.2 \times 10^{-6} = 0.05$ false rejections are expected, and the FWER is at most $0.05$. (c) About $8$ of $50$, or $16\%$: the uncorrected procedure's realized false discovery proportion in this batch.
+\end{solution}
+
+\begin{exercise}
+\label{ex:t-bh}
+Ten tests give $p$-values $0.001, 0.008, 0.012, 0.03, 0.06, 0.2, 0.35, 0.5, 0.7, 0.9$. (a) Which tests does Bonferroni reject at $\alpha = 0.05$? (b) Which does Benjamini--Hochberg reject? (c) Suppose the fourth and fifth $p$-values were $0.022$ and $0.024$ instead of $0.03$ and $0.06$. What changes, and why does the fifth $p$-value affect whether the fourth test is rejected?
+\end{exercise}
+\begin{solution}
+(a) The threshold is $0.005$: only the first. (b) The thresholds $i\alpha/N$ are $0.005$, $0.010$, $0.015$, $0.020$, $0.025$ and so on. The first three $p$-values are under their thresholds ($0.001 \leq 0.005$, $0.008 \leq 0.010$, $0.012 \leq 0.015$), the fourth is not ($0.03 > 0.020$), the fifth is not ($0.06 > 0.025$), and no later one is, so $i_{\max} = 3$ and the first three are rejected. (c) Now $P_{(4)} = 0.022 > 0.020$ still fails its own threshold, but $P_{(5)} = 0.024 \leq 0.025$ passes, so $i_{\max} = 5$ and the first five are rejected, the fourth included. The procedure takes the largest $i$ whose $p$-value is under the line, not the first one that fails, so a small enough fifth $p$-value pulls the fourth in with it: the small $p$-values vouch for each other.
+\end{solution}

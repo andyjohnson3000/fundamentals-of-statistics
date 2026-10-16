@@ -205,3 +205,104 @@ Hence with probability tending to $1$ the right side is below $3\epsilon$, and s
 \end{proof}
 
 The theorem is applied in \cref{thm:mle-consistent} with $g(x, \theta) = \log p_\theta(x)$, where the envelope $G = \sup_\theta\abs{\log p_\theta(X)}$ is the hypothesis stated there (with a finite second moment, which the book's version of the LLN needs).
+
+\section{The densities of the chi-squared and Student distributions}
+\label{sec:proof-chisq-density}
+
+\Cref{prop:chisq-props}(3) in \cref{ch:t-test} states the density of $\chi^2_k$, and \cref{prop:student-props}(2) the density of $t_k$.
+The chapter proves the $k = 1$ case of the first, and afterwards uses the chi-squared density only in \cref{ex:t-variance}, for the variance of $t_k$: its tests and intervals need only the definitions of the two distributions as a sum of squares and as a ratio, and their quantiles.
+\textbf{Nothing later in the book depends on this section.}
+
+\begin{proposition}
+For $k \geq 1$, the density of $\chi^2_k$ is $f_k(v) = \dfrac{1}{2^{k/2}\Gamma(k/2)}v^{k/2 - 1}e^{-v/2}$ for $v > 0$.
+\end{proposition}
+\optionalproof{Induction on $k$: adding one more squared Gaussian convolves $f_k$ with $f_1$, and the convolution integral is a Beta integral.}
+\begin{proof}
+The case $k = 1$ is in the chapter.
+Suppose the formula holds for $k$, and let $V \sim \chi^2_k$ and $Z^2 \sim \chi^2_1$ be independent, so $V + Z^2 \sim \chi^2_{k+1}$.
+The density of a sum of independent variables is the convolution of the densities: for $x > 0$,
+\[
+f_{k+1}(x) = \int_0^x f_k(u)\,f_1(x - u)\,\mathrm{d}u = \frac{1}{2^{k/2}\Gamma(k/2)}\cdot\frac{1}{2^{1/2}\Gamma(1/2)}\,e^{-x/2}\int_0^x u^{k/2 - 1}(x - u)^{-1/2}\,\mathrm{d}u,
+\]
+since $e^{-u/2}e^{-(x-u)/2} = e^{-x/2}$ comes out of the integral.
+Substituting $u = xs$,
+\[
+\int_0^x u^{k/2 - 1}(x - u)^{-1/2}\,\mathrm{d}u = x^{(k+1)/2 - 1}\int_0^1 s^{k/2 - 1}(1 - s)^{-1/2}\,\mathrm{d}s = x^{(k+1)/2 - 1}\,\frac{\Gamma(k/2)\,\Gamma(1/2)}{\Gamma((k+1)/2)},
+\]
+where the last step is the Beta integral $\int_0^1 s^{a-1}(1-s)^{b-1}\,\mathrm{d}s = \Gamma(a)\Gamma(b)/\Gamma(a+b)$, a standard identity of calculus.
+The Gamma factors cancel against those in front, leaving
+\[
+f_{k+1}(x) = \frac{1}{2^{(k+1)/2}\,\Gamma\big(\frac{k+1}{2}\big)}\,x^{(k+1)/2 - 1}e^{-x/2},
+\]
+the formula for $k + 1$.
+\end{proof}
+
+\begin{proposition}
+For $k \geq 1$, the density of $t_k$ is $g_k(t) = \dfrac{\Gamma\big(\frac{k+1}{2}\big)}{\sqrt{k\pi}\,\Gamma\big(\frac{k}{2}\big)}\Big(1 + \dfrac{t^2}{k}\Big)^{-(k+1)/2}$.
+For $k = 1$ it is the Cauchy density $1/(\pi(1 + t^2))$.
+\end{proposition}
+\optionalproof{Condition on the denominator: given $V = v$, the ratio is a Gaussian scaled by $\sqrt{k/v}$. Integrate the resulting Gaussian density against the density of $V$; the integral is a Gamma integral.}
+\begin{proof}
+Let $T = Z/\sqrt{V/k}$ with $Z \sim \Gauss(0,1)$ and $V \sim \chi^2_k$ independent, and let $\varphi$ and $\Phi$ be the standard Gaussian density and CDF.
+Since $V > 0$, $\{T \leq t\} = \{Z \leq t\sqrt{V/k}\}$, and by independence, conditioning on $V$,
+\[
+\Pr(T \leq t) = \int_0^\infty \Phi\big(t\sqrt{v/k}\big)\,f_k(v)\,\mathrm{d}v.
+\]
+Differentiating in $t$ under the integral (the integrand's derivative, $\varphi(t\sqrt{v/k})\sqrt{v/k}\,f_k(v)$, is bounded by $\sqrt{v/k}f_k(v)$, which is integrable),
+\begin{align*}
+g_k(t) &= \int_0^\infty \frac{1}{\sqrt{2\pi}}e^{-t^2 v/(2k)}\sqrt{\frac{v}{k}}\cdot\frac{v^{k/2-1}e^{-v/2}}{2^{k/2}\Gamma(k/2)}\,\mathrm{d}v \\
+&= \frac{1}{\sqrt{2\pi k}\,2^{k/2}\Gamma(k/2)}\int_0^\infty v^{\frac{k+1}{2} - 1}\exp\Big(-\frac{v}{2}\Big(1 + \frac{t^2}{k}\Big)\Big)\mathrm{d}v.
+\end{align*}
+The integral is $\int_0^\infty v^{a-1}e^{-bv}\,\mathrm{d}v = \Gamma(a)/b^a$ with $a = (k+1)/2$ and $b = \frac12(1 + t^2/k)$, that is, $\Gamma\big(\frac{k+1}{2}\big)\,2^{(k+1)/2}(1 + t^2/k)^{-(k+1)/2}$.
+Collecting the powers of $2$, $2^{-1/2}\cdot 2^{-k/2}\cdot 2^{(k+1)/2} = 1$, gives the formula.
+For $k = 1$, $\Gamma(1) = 1$ and $\Gamma(\frac12) = \sqrt{\pi}$, so $g_1(t) = 1/(\pi(1 + t^2))$.
+\end{proof}
+
+\section{The Benjamini--Hochberg procedure controls the false discovery rate}
+\label{sec:proof-bh}
+
+\Cref{thm:bh} in \cref{ch:t-test} states that the Benjamini--Hochberg procedure has $\mathrm{FDR} = (N_0/N)\alpha$ when the $p$-values of the true nulls are uniform on $[0,1]$ and independent of each other and of the remaining $p$-values.
+\textbf{Nothing later in the book depends on this section.}
+
+Recall the procedure: with $P_{(1)} \leq \cdots \leq P_{(N)}$ the sorted $p$-values, $i_{\max} = \max\{i : P_{(i)} \leq i\alpha/N\}$ ($0$ if the set is empty), and the tests with the $i_{\max}$ smallest $p$-values are rejected.
+Write $R = i_{\max}$ for the number of rejections and $V$ for the number of rejected true nulls.
+Two observations about the procedure are the heart of the proof.
+
+\begin{lemma}
+\label{lem:bh-monotone}
+(a) Lowering any one $p$-value cannot decrease $R$.
+(b) Fix a test $i$ and let $R^{(i)}$ be the number of rejections when $P_i$ is replaced by $0$ and the others are unchanged. Then test $i$ is rejected if and only if $P_i \leq \alpha R^{(i)}/N$, and on that event $R = R^{(i)}$.
+\end{lemma}
+\optionalproof{(a) Sorted values move down when any value does. (b) Zeroing a rejected $p$-value shuffles only the ranks below it, so the count of rejections is unchanged; conversely, if $P_i$ is under the line set by the zeroed vector, enough values are under it in the original vector too.}
+\begin{proof}
+(a) If one $p$-value is lowered, every sorted value $P_{(j)}$ can only go down, so every index $j$ with $P_{(j)} \leq j\alpha/N$ before still satisfies it after, and the largest such index cannot fall.
+
+(b) Write $P'$ for the modified vector (with $P'_i = 0$) and $R' = R^{(i)}$.
+By (a), $R' \geq R$.
+Suppose first that test $i$ is rejected, so its rank is at most $R$ and $P_i \leq P_{(R)} \leq R\alpha/N$.
+Moving $P_i$ to $0$ changes the sorted vector only at ranks up to the rank of $P_i$, which is at most $R$; for $j > R$, $P'_{(j)} = P_{(j)} > j\alpha/N$ by the maximality of $R$, so $R' \leq R$.
+Hence $R' = R$ and $P_i \leq \alpha R'/N$.
+Conversely, suppose $P_i \leq \alpha R'/N$.
+Under $P'$ the $R'$ smallest values are rejected and $P'_i = 0$ is among them; the other $R' - 1$ rejected values are unchanged original $p$-values, each at most $P'_{(R')} \leq R'\alpha/N$.
+Together with $P_i$ itself, at least $R'$ of the original $p$-values are at most $R'\alpha/N$, so $P_{(R')} \leq R'\alpha/N$ and $R \geq R'$; with (a), $R = R'$.
+Finally, test $i$ has rank at most $R$: otherwise $P_i \geq P_{(R+1)} > (R+1)\alpha/N > R\alpha/N = R'\alpha/N$, contradicting the assumption.
+So test $i$ is rejected.
+\end{proof}
+
+\optionalproof{Write the false discovery proportion as a sum over the true nulls, replace $R$ by $R^{(i)}$ using the lemma, and condition on the other $p$-values: the uniform $P_i$ falls under its threshold with probability exactly $\alpha R^{(i)}/N$, and the $R^{(i)}$ cancels.}
+\begin{proof}[Proof of \cref{thm:bh}]
+On the event that nothing is rejected, $V/\max(R,1) = 0$; otherwise $R \geq 1$ and $V/R$ counts the rejected true nulls.
+So, summing over the true nulls $i$ and using \cref{lem:bh-monotone}(b) to rewrite each indicator and to replace $R$ by $R^{(i)}$ on the event,
+\[
+\mathrm{FDR} = \E\Big[\frac{V}{\max(R,1)}\Big] = \sum_{i \text{ true null}} \E\Big[\frac{\ind\{P_i \leq \alpha R^{(i)}/N\}}{R^{(i)}}\Big].
+\]
+Note that $R^{(i)} \geq 1$ always, since the modified vector has a $p$-value equal to $0 \leq \alpha/N$.
+The number $R^{(i)}$ is a function of the other $p$-values only (with $P_i$ replaced by the constant $0$), so by independence, conditioning on them and using that $P_i$ is uniform,
+\[
+\E\Big[\frac{\ind\{P_i \leq \alpha R^{(i)}/N\}}{R^{(i)}}\Big] = \E\Big[\frac{\Pr(P_i \leq \alpha R^{(i)}/N \mid \text{others})}{R^{(i)}}\Big] = \E\Big[\frac{\alpha R^{(i)}/N}{R^{(i)}}\Big] = \frac{\alpha}{N},
+\]
+where $\alpha R^{(i)}/N \leq \alpha \leq 1$ keeps the uniform probability equal to its argument.
+Summing over the $N_0$ true nulls gives $\mathrm{FDR} = N_0\alpha/N$.
+\end{proof}
+
+Without independence the identity can fail; Benjamini and Yekutieli (2001) proved, by an argument not reproduced here, the general bound $\mathrm{FDR} \leq (N_0/N)\,\alpha\,(1 + \frac12 + \cdots + \frac1N)$, which is why the procedure is sometimes run at the level $\alpha/(1 + \frac12 + \cdots + \frac1N)$ when the tests are arbitrarily dependent.

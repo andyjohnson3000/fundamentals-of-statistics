@@ -294,7 +294,50 @@ Suppose the Hessian is negative definite at every point of a domain that contain
 
 \textbf{Where the book uses it.} The Gaussian maximum likelihood estimator (\cref{sec:lik-families}) is found by a two-step argument, and its Hessian at the maximum is negative definite; the EM algorithm (\cref{sec:lik-em}) maximizes in five coordinates; \cref{ch:mle-properties} turns the Hessian of the log-likelihood into the Fisher information matrix.
 
+\section{Vectors of independent Gaussians and rotations}
+\label{sec:math-gaussvec}
+
+Cochran's theorem (\cref{thm:cochran}) rests on one fact: a vector of independent standard Gaussians looks the same after any rotation of the axes.
+Three pieces of calculus and linear algebra make it precise.
+
+\textbf{Joint densities.}
+If $Z_1, \ldots, Z_n$ are independent continuous random variables with densities $f_1, \ldots, f_n$, the vector $Z = (Z_1, \ldots, Z_n)$ has the joint density $f(z) = f_1(z_1)\cdots f_n(z_n)$ on $\real^n$: the probability that $Z$ lands in a region is the integral of $f$ over it, and the product form is what independence means for densities.
+Conversely, if a joint density factors as a product of a function of $z_1$ alone, a function of $z_2$ alone and so on, the coordinates are independent, each with the density its factor gives after normalizing.
+For i.i.d.\ standard Gaussians,
+\[
+f(z) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}}e^{-z_i^2/2} = (2\pi)^{-n/2}\exp\Big(-\frac{\norm{z}^2}{2}\Big), \qquad \norm{z}^2 = z_1^2 + \cdots + z_n^2.
+\]
+The density depends on $z$ only through its length $\norm{z}$, so it is the same at every point of a sphere around the origin: the cloud of draws is round (\cref{fig:gaussrotation}).
+
+\textbf{Orthogonal matrices.}
+An $n \times n$ matrix $Q$ is \textbf{orthogonal} if $Q^\top Q = I$, which says that its columns are unit vectors perpendicular to each other: an orthonormal basis of $\real^n$ written as a matrix. Since $Q$ is square, $Q^\top Q = I$ makes $Q^\top$ the inverse of $Q$, so $QQ^\top = I$ as well: the rows are orthonormal too, and $Q^\top$ is itself orthogonal.
+Multiplying by $Q$ rotates (and possibly reflects) the axes.
+Two consequences: $Q$ preserves lengths, $\norm{Qz}^2 = (Qz)^\top(Qz) = z^\top Q^\top Q z = \norm{z}^2$, and $\det Q = \pm 1$, since $\det(Q^\top Q) = (\det Q)^2 = 1$.
+Any unit vector $u_1$ can be made the first row of an orthogonal matrix: extend it to a basis of $\real^n$ and run the Gram--Schmidt process, which subtracts from each new vector its components along the previous ones and normalizes, producing an orthonormal basis $u_1, \ldots, u_n$ that keeps $u_1$ as it is.
+The proof of \cref{thm:cochran} uses $u_1 = (1, \ldots, 1)/\sqrt{n}$.
+
+\textbf{Change of variables for a linear map.}
+If $Z$ has density $f$ on $\real^n$ and $A$ is an invertible $n \times n$ matrix, then $Y = AZ$ has density
+\[
+f_Y(y) = \frac{f(A^{-1}y)}{\abs{\det A}}.
+\]
+This is the substitution rule of multivariable calculus: a linear map multiplies every volume by $\abs{\det A}$, so the probability $f(z)\,\mathrm{d}z$ of a small box around $z$ is spread over a box of volume $\abs{\det A}\,\mathrm{d}z$ around $y = Az$.
+For $n = 1$ it is the familiar $f_Y(y) = f(y/a)/\abs{a}$ for $Y = aZ$, the affine property of \cref{ch:gaussian}.
+
+\textbf{Rotation invariance.}
+Put the three together.
+Let $Z$ have i.i.d.\ $\Gauss(0,1)$ coordinates and $Q$ be orthogonal, and set $Y = QZ$.
+Then $A^{-1} = Q^{-1} = Q^\top$, $\abs{\det Q} = 1$, and $\norm{Q^\top y} = \norm{y}$, so
+\[
+f_Y(y) = (2\pi)^{-n/2}\exp\Big(-\frac{\norm{Q^\top y}^2}{2}\Big) = (2\pi)^{-n/2}\exp\Big(-\frac{\norm{y}^2}{2}\Big) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}}e^{-y_i^2/2}.
+\]
+The density of $Y$ is the same product, so $Y_1, \ldots, Y_n$ are again i.i.d.\ $\Gauss(0,1)$, and $\norm{Y} = \norm{Z}$.
+In words: rotate a round Gaussian cloud and you get the same round Gaussian cloud, with the new coordinates as independent as the old ones.
+\Cref{ex:t-cochran-two} does the computation by hand for $n = 2$ and the $45^\circ$ rotation.
+
+\textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
+
 \section{To be added with later chapters}
 \label{sec:math-later}
 
-Vectors, matrices, the rank of a matrix and projections (for \cref{ch:regression-multi}); the chi-squared, Student's $t$ and $F$ families and how they arise from Gaussians (for \cref{ch:t-test}); eigenvalues and eigenvectors (for \cref{ch:pca}).
+Vectors, matrices, the rank of a matrix and projections (for \cref{ch:regression-multi}); eigenvalues and eigenvectors (for \cref{ch:pca}).
