@@ -288,7 +288,7 @@ The method of moments (\cref{ch:mom-mestimation}) and the chi-squared goodness-o
 \section{Where the limit theorems are used in the rest of the book}
 \label{sec:conv-where-used}
 
-Every asymptotic statement in the later chapters is one of the facts of \cref{ch:lln,ch:clt} or this chapter in disguise, with two exceptions the table names (the two theorems about the whole empirical CDF behind the Kolmogorov--Smirnov test).
+Every asymptotic statement in the later chapters is one of the facts of \cref{ch:lln,ch:clt} or this chapter in disguise, with one exception the table names (Donsker's theorem about the whole empirical CDF, behind the Kolmogorov--Smirnov test).
 The table says which.
 `LLN' means the Law of Large Numbers (\cref{thm:wlln}), `CLT' the Central Limit Theorem (\cref{thm:clt}), `CMT' the continuous mapping theorem (\cref{thm:cmt}), `Slutsky' \cref{thm:slutsky}, and `delta' the delta method (\cref{thm:delta}).
 
@@ -310,7 +310,7 @@ Likelihood ratio test (Wilks' theorem) & \cref{ch:wald-lrt} & a second-order Tay
 Score test & \cref{ch:wald-lrt} & multivariate CLT applied to the score, then CMT \\[3pt]
 $t$-test & \cref{ch:t-test} & nothing here: exact for Gaussian data (Cochran's theorem) \\[3pt]
 Chi-squared goodness-of-fit test & \cref{ch:gof} & multivariate CLT for the rotated standardized deviations of the counts, then CMT; with estimated parameters, the nuisance-parameter theorem of \cref{ch:wald-lrt} \\[3pt]
-Kolmogorov--Smirnov and Lilliefors tests & \cref{ch:ks} & two named theorems stated there without proof: Glivenko--Cantelli (a uniform LLN) and Donsker (a CLT for the whole empirical CDF) \\[3pt]
+Kolmogorov--Smirnov and Lilliefors tests & \cref{ch:ks} & Glivenko--Cantelli (a uniform LLN), proved there from the LLN at finitely many points; Donsker's theorem (a CLT for the whole empirical CDF), stated without proof \\[3pt]
 Bayesian posteriors concentrate on the truth; Bernstein--von Mises & \cref{ch:bayes-intro} & LLN and CLT for the likelihood; stated, not proved \\[3pt]
 Inference for least squares with non-Gaussian errors & \cref{ch:regression-multi} & CLT (exact $t$ and $F$ when errors are Gaussian) \\[3pt]
 Asymptotic normality of GLM estimates & \cref{ch:glm-links} & the MLE result again \\[3pt]

@@ -22,7 +22,17 @@ $\bar{R}_n$, $\hat{p}$ & the kiss experiment: $R_i = 1$ if couple $i$ turns righ
 $\bar{T}_n$, $\hat{\lambda}$ & the subway inter-arrival times, $T_i \iid \Expo(\lambda)$, $\hat{\lambda} = 1/\bar{T}_n$; $n = 64$, $\bar{T}_n = 6.23$ \\[2pt]
 $X_n \convp X$ & convergence in probability (\cref{def:convp}) \\[2pt]
 $X_n \convd X$ & convergence in distribution (\cref{def:convd}); the limit may be written as a distribution, $X_n \convd \Gauss(0,1)$ \\[2pt]
-$X_n \convas X$, $X_n \convasp X$ & convergence almost surely (\cref{app:modes}); both arrows at once, which is how the two laws of large numbers are written together \\[2pt]
+$X_n \convas X$, $X_n \convasp X$ & convergence almost surely (\cref{app:modes}); both arrows at once, which is how the two laws of large numbers are written together \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.55in}>{\raggedright\arraybackslash}p{4.35in}@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
 $\statmodel$ & a statistical model: sample space $E$ and a family of candidate distributions indexed by $\theta \in \Theta$ (\cref{def:statmodel}) \\[2pt]
 $\theta$, $\theta^*$, $\ethn$ & a parameter, the true parameter, an estimator of it from $n$ observations \\[2pt]
 $\Bias$, $R(\ethn)$ & bias $\E_\theta[\ethn] - \theta$ and quadratic risk $\E_\theta[(\ethn - \theta)^2]$ (\cref{ch:estimators}) \\[2pt]
@@ -34,6 +44,7 @@ $I(\theta)$ & the Fisher information of one observation (\cref{ch:mle-properties
 $\Gauss_d(m, \Sigma)$ & the Gaussian vector in $\real^d$ with mean $m$ and positive definite covariance matrix $\Sigma$ \toolkit{sec:math-gaussquad} \\[2pt]
 $o_\Pr(1)$ & a sequence of random quantities that converges in probability to $0$ (\cref{ch:wald-lrt}) \\[2pt]
 $N_j$, $\Mult(n, \mathbf{p})$ & the count in category $j$; the multinomial distribution of $(N_1, \ldots, N_K)$ (\cref{ch:gof}) \\[2pt]
+$F_n$, $X_{(i)}$ & the empirical CDF; the $i$th smallest observation (\cref{ch:ks}) \\[2pt]
 r.v., CDF, PDF, PMF & random variable; cumulative distribution function $F(x) = \Pr(X \leq x)$; density; probability mass function \\[2pt]
 CLT, LLN, CMT & Central Limit Theorem, Law of Large Numbers, continuous mapping theorem \\[2pt]
 (toolkit A.$k$) & a pointer to entry $k$ of the Mathematical Toolkit, \cref{app:math}, which explains the piece of mathematics being used \\
