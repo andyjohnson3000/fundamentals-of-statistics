@@ -56,6 +56,12 @@ On the left, $\Gauss(0, 4)$ is $\Gauss(0, 1)$ stretched to twice the width, and 
 So $\mu$ moves the density without changing its shape, and $\sigma$ stretches it without moving its center.
 On the right, the three shaded regions of the standard Gaussian have probabilities $0.6827$, $0.9545$ and $0.9973$: the `$68$--$95$--$99.7$ rule' of an introductory course, stated exactly.
 
+\begin{bridge}[the empirical rule is a Gaussian fact]
+An introductory course applies the $68$--$95$--$99.7$ rule to data with a bell-shaped histogram, and the restriction matters: the three numbers are the Gaussian's.
+For the Exponential waits of the subway, the shares within one, two and three standard deviations of the mean are $86.5\%$, $95.0\%$ and $98.2\%$, so $1.8\%$ of the waits lie beyond three standard deviations, nearly seven times the Gaussian's $0.27\%$.
+The guarantee that holds for every shape with a finite variance is Chebyshev's rule, from the bridge in \cref{sec:wlln}: at least $75\%$ within two standard deviations and $88.9\%$ within three.
+\end{bridge}
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_gaussian_density}
@@ -139,7 +145,7 @@ Consequently, for $x > 0$:
 Intuitively, when you negate a Gaussian r.v.\ you mirror its distribution about the vertical axis.
 This mirroring doesn't change the shape or the spread of the distribution; it only changes the sign of the values.
 As a result, the negated Gaussian random variable $-X$ maintains the same mean (here, 0) and the same variance $\sigma^2$ as the original r.v.\ $X$.
-For the standard Gaussian the symmetry reads $\Phi(-z) = 1 - \Phi(z)$, which is why tables only print positive $z$.
+For the standard Gaussian the symmetry reads $\Phi(-z) = 1 - \Phi(z)$, which is why some tables print only positive $z$.
 
 \item \textbf{Sums of independent Gaussians are Gaussian.}
 If $X_1 \sim \Gauss(\mu_1, \sigma_1^2)$ and $X_2 \sim \Gauss(\mu_2, \sigma_2^2)$ are independent, then
@@ -158,7 +164,7 @@ For Gaussian data the CLT's conclusion holds at $n = 2$.
 
 \begin{bridge}[$z$-scores]
 Standardization is the $z$-score of an introductory course: `how many standard deviations above the mean is this observation?'
-What the introductory course sometimes leaves unsaid is that the $z$-score of a Gaussian observation is itself a standard Gaussian random variable, which is the reason a single table serves every $\mu$ and $\sigma$.
+An introductory course states that the $z$-score of a normal observation has the standard normal distribution, which is why a single table serves every $\mu$ and $\sigma$.
 Here the same move is applied not to an observation but to an estimator: $\sqrt{n}(\bar{X}_n - \mu)/\sigma$ is the $z$-score of $\bar{X}_n$, and the CLT says it is approximately standard Gaussian.
 Every `$z$-interval' and `$z$-test' you learned is that sentence plus a quantile from \cref{sec:gauss-quantiles}.
 \end{bridge}
@@ -249,7 +255,7 @@ that is, the quantile is of order $1 - \alpha$ and not of order $\alpha$.
 The reason is what the quantile is for.
 In the formulas that follow, $\alpha$ is usually a small tail probability (a $5\%$ level, a $2.5\%$ tail), and $q_\alpha$ is the cutoff that leaves exactly that much probability in the upper tail.
 Indexing the cutoff by the tail it cuts off, rather than by the mass below it, is what makes $q_{0.05}$ mean `the $5\%$ critical value' in every formula that follows.
-In an intro course the same number arrived as $z^* = 1.645$ or $z_{0.05}$ from the back of the book; $q_{0.05}$ is that $z^*$ with the tail it cuts off written into the name.
+In an introductory course the same number arrived as $z^* = 1.645$ or $z_{0.05}$ from the back of the book; $q_{0.05}$ is that $z^*$ with the tail it cuts off written into the name.
 
 \textbf{Properties of quantiles.}
 In the following let $F$ be the CDF of some r.v.\ $X$, assumed continuous and strictly increasing so that $F^{-1}$ exists.
@@ -316,6 +322,13 @@ In this book's notation, $q_\alpha = -\ln(\alpha)/\lambda$: the subway inter-arr
 The median, $\ln 2/\lambda = 4.3$ minutes, splits the mass in half and sits left of the mean of $1/\lambda = 6.2$ minutes because the long right tail pulls the mean up; the quantile $q_{0.05} = 18.7$ minutes leaves $5\%$ of the mass above it.
 For the Gaussian the median and the mean coincide; for a skewed distribution they don't.
 \end{example}
+
+\begin{bridge}[quartiles and the $1.5 \times \mathrm{IQR}$ rule]
+The quartiles of an introductory course are quantiles, and in this book's notation the subscript still names the mass above: the first quartile is $q_{0.75}$, the median $q_{0.5}$ and the third quartile $q_{0.25}$.
+The rule behind the box plot flags as a possible outlier any value beyond the fences, $1.5$ interquartile ranges below the first quartile and above the third.
+For a Gaussian the quartiles are $\mu \pm 0.674\sigma$, so the interquartile range is $1.35\sigma$, the fences sit at $\mu \pm 2.70\sigma$, and $0.70\%$ of the mass lies beyond them: about $7$ flagged values in every $1{,}000$ Gaussian observations.
+For the subway's waits, with $\lambda = 0.16$ per minute, the quartiles are $1.8$ and $8.7$ minutes, the lower fence is below zero and the upper fence is $19.0$ minutes, just above $q_{0.05} = 18.7$: about $48$ waits in every $1{,}000$ lie beyond it.
+\end{bridge}
 
 \begin{figure}[htbp]
 \centering

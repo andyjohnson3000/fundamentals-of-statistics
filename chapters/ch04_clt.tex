@@ -352,12 +352,11 @@ Standardizing pins the sum down, with $\E(Z_n) = 0$ and $\var(Z_n) = 1$ for all 
 Introductory courses offer a rule of thumb: the normal approximation to the sample mean is fine once $n \geq 30$.
 The CLT contains no such number.
 It's a limit statement, and how fast the limit is reached depends on the parent distribution: above all on how asymmetric and heavy-tailed it is.
-\Cref{fig:cltaction} shows a skewed Exponential parent where $n = 30$ is visibly not enough, and a Bernoulli parent with $p = 0.645$ where it's plenty.
-In the top row the parent is the strongly skewed $\Expo(1)$, and the skew is still visible at $n = 30$.
+In the top row of \cref{fig:cltaction} the parent is the strongly skewed $\Expo(1)$, and the skew is still visible at $n = 30$.
 In the bottom row the parent is the kiss experiment's $\Bern(0.645)$; the standardized mean lives on a lattice, visible as bars, and by $n = 124$ the Gaussian is already an excellent description.
 For a symmetric parent, $n = 5$ can be enough; for a heavily skewed one, $n = 200$ may not be.
-The number $30$ is a convention, not a theorem.
-What is a theorem is the \textit{rate}: the Berry--Esseen bound says the gap between the CDF of $Z_n$ and $\Phi$ is at most a constant times $\E\abs{X - \mu}^3 / (\sigma^3 \sqrt{n})$, so the error shrinks like $1/\sqrt{n}$, with a constant that is large for heavy-tailed parents. A finer expansion (the Edgeworth expansion) shows that the leading term of the error is proportional to the parent's skewness, which is why symmetric parents reach the Gaussian faster in practice.
+What is a theorem is the \textit{rate}: the Berry--Esseen bound says the gap between the CDF of $Z_n$ and $\Phi$ is at most a universal constant times $\E\abs{X - \mu}^3 / (\sigma^3 \sqrt{n})$, so the error shrinks like $1/\sqrt{n}$, slowly when the ratio $\E\abs{X - \mu}^3/\sigma^3$ is large, as it is for skewed and heavy-tailed parents.
+A finer expansion (the Edgeworth expansion) shows that, for a continuous parent, the leading term of the error is proportional to the parent's skewness, which is why symmetric parents reach the Gaussian faster in practice.
 \end{bridge}
 
 \subsection{The essence of the CLT: a `stochastic' bound}
@@ -377,11 +376,20 @@ since, for every $n$, the two events are the same:
 \end{align*}
 
 The essence of the CLT is that, despite $\bar{X}_n - \mu$ being an r.v.\ with an unbounded support (when the $X_i$ are unbounded), it's \textit{stochastically} bounded in the sense that, with high probability, it's between $-3\sigma/\sqrt{n}$ and $3\sigma/\sqrt{n}$.
-Replace $3$ by $1.96$ and `overwhelming' by $95\%$ and you have the recipe for every confidence interval in \cref{ch:confidence-intervals}.
+Replace $3$ by $1.96$ and `with high probability' by $95\%$ and you have the recipe for every confidence interval in \cref{ch:confidence-intervals}.
 \Cref{fig:funnel} draws the bound as a funnel around the running average, and it is also the chapter's two theorems in one picture.
 The funnel narrows like $1/\sqrt{n}$: that is the Law of Large Numbers.
 At any fixed $n$ past the first few dozen, about $5\%$ of the paths are outside the inner funnel and almost none outside the outer one (in this simulation, $6\%$ of the points with $n \geq 30$ are outside the inner funnel): that is the stochastic bound.
 The inner funnel at $n = 124$ is the width of the confidence interval of \cref{ch:confidence-intervals}.
+
+\begin{bridge}[the `$np \geq 10$ and $n(1 - p) \geq 10$' condition]
+An introductory course says the sample proportion is approximately normal, with mean $p$ and standard deviation $\sqrt{p(1-p)/n}$, once $np \geq 10$ and $n(1 - p) \geq 10$ (some books say $5$, some $15$).
+That is \cref{thm:clt} for $\Bern(p)$ data, with $\mu = p$ and $\sigma^2 = p(1-p)$; the inner funnel of \cref{fig:funnel} is $p$ plus or minus $1.96$ of those standard deviations.
+The condition is stated in counts rather than in $n$ because the Bernoulli parent's skewness, $(1 - 2p)/\sqrt{p(1-p)}$, grows without bound as $p$ nears $0$ or $1$, and the skewness of the count is that divided by $\sqrt{n}$.
+With both counts at least $10$ the count's skewness is at most $1/\sqrt{10} = 0.32$ in size, whatever $p$ is; at $p = 0.01$ the condition asks for $n = 1{,}000$, where the `$n \geq 30$' rule would accept $n = 30$ and a skewness of $1.8$.
+For the kiss data the counts, with $\hat{p}$ in place of $p$, are the observed $80$ and $44$, and the count's skewness is $-0.05$.
+\Cref{sec:tests-kiss} takes up the continuity correction, which repairs the count's discreteness rather than its skewness.
+\end{bridge}
 
 \begin{figure}[htbp]
 \centering

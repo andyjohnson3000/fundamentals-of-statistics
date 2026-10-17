@@ -18,7 +18,7 @@
 
 Every test in \cref{ch:tests-foundations} asked one question: is the estimate far from the null value, measured in standard errors?
 For the kiss data the estimate is $\hat{p} = 0.645$, the null value is $p_0 = \frac12$, and the answer was yes.
-But `far, in standard errors' can be measured in more than one way, and \cref{ch:distances} already met three numbers for the same question, $11.41$, $10.60$ and $10.45$, each compared with the same cutoff $3.84$.
+But `far, in standard errors' can be measured in more than one way, and \cref{ch:distances} already met three numbers for the same question, $11.41$, $10.60$ and $10.45$, each compared with the same threshold $3.84$.
 This chapter says where the three come from, why each is approximately chi-squared, and which to use.
 
 All three are read off the log-likelihood $\ell_n(p) = 80\log p + 44\log(1 - p)$ of \cref{ch:likelihood}, which peaks at $\hat{p} = 0.645$.
@@ -159,10 +159,10 @@ The other one-sided test is the mirror image.
 Then $\Pr(T^{\mathrm{W}}_n > q) \geq \Pr(T^{\mathrm{W}}_n/n > c/2) \to 1$ as soon as $nc/2 > q$.
 \end{proof}
 
-\begin{sanitycheck}[Why does the cutoff grow with the number of parameters?]
-The $5\%$ cutoffs are $q_{0.05}(\chi^2_1) = 3.84 = 1.96^2$, $q_{0.05}(\chi^2_2) = 5.99$, $q_{0.05}(\chi^2_3) = 7.81$ and $q_{0.05}(\chi^2_5) = 11.07$.
-Each coordinate contributes its own squared standardized error, with mean $1$, so a statistic that adds up $d$ of them is about $d$ by chance alone, and the cutoff must sit above that: for large $d$ it is roughly $d + 1.645\sqrt{2d}$, the mean plus $1.645$ standard deviations of $\chi^2_d$.
-Testing two parameters jointly is not the same as testing each at $5\%$: with independent estimates, rejecting when either of two $5\%$ tests rejects has type 1 error $1 - 0.95^2 = 9.75\%$, the multiple-testing effect of \cref{ch:t-test}, and the joint cutoff $5.99$ is what keeps the chance at $5\%$.
+\begin{sanitycheck}[Why does the threshold grow with the number of parameters?]
+The $5\%$ thresholds are $q_{0.05}(\chi^2_1) = 3.84 = 1.96^2$, $q_{0.05}(\chi^2_2) = 5.99$, $q_{0.05}(\chi^2_3) = 7.81$ and $q_{0.05}(\chi^2_5) = 11.07$.
+Each coordinate contributes its own squared standardized error, with mean $1$, so a statistic that adds up $d$ of them is about $d$ by chance alone, and the threshold must sit above that: for large $d$ it is roughly $d + 1.645\sqrt{2d}$, the mean plus $1.645$ standard deviations of $\chi^2_d$.
+Testing two parameters jointly is not the same as testing each at $5\%$: with independent estimates, rejecting when either of two $5\%$ tests rejects has type 1 error $1 - 0.95^2 = 9.75\%$, the multiple-testing effect of \cref{ch:t-test}, and the joint threshold $5.99$ is what keeps the chance at $5\%$.
 \end{sanitycheck}
 
 \section{The likelihood ratio test}
@@ -197,7 +197,7 @@ The left side is $\Pr_{\theta_1}(\psi^* = 1) - \Pr_{\theta_1}(\psi = 1)$, and th
 \end{proof}
 
 For the kiss data with $\theta_0 = \frac12$ and any $p_1 > \frac12$, the likelihood ratio is $L_n(p_1)/L_n(\frac12) = (2p_1)^S\big(2(1 - p_1)\big)^{n - S}$, where $S$ is the number of right turns.
-Since $2p_1 > 1 > 2(1 - p_1)$, the ratio increases with $S$, so `the ratio exceeds $c$' is the same event as `$S$ is at least some cutoff'.
+Since $2p_1 > 1 > 2(1 - p_1)$, the ratio increases with $S$, so `the ratio exceeds $c$' is the same event as `$S$ is at least some threshold'.
 The test of \cref{ch:tests-foundations} that rejects when $S \geq 72$, whose exact type 1 error is $0.0438$, is therefore $\psi^*$ for every $p_1 > \frac12$ at once, with $c$ depending on $p_1$ and the rejection region not: for $p_1 = 0.645$, every $c$ with $0.93 \leq c < 1.69$ gives it.
 So against every alternative $p > \frac12$ it is the most powerful test whose type 1 error is at most its own: its power is $0.943$ at $p = 0.645$ and $0.704$ at $p = 0.6$, and no test of $124$ couples with a type 1 error no larger than this test's does better at either.
 The best test of \cref{prop:tv-best-test}, which minimized the sum of the two error probabilities by rejecting where the alternative's PMF exceeds the null's, is $\psi^*$ with $c = 1$.
@@ -252,7 +252,7 @@ At finite $n$ the exact distribution of $T^{\mathrm{LR}}_n$ depends on the model
 Wilks' theorem needs the null value in the interior of $\Theta$, condition 3 of \cref{sec:mle-regularity}.
 Testing whether a variance is zero, or whether a mixture needs its second component, puts the null on the edge of the parameter set, and the limit changes.
 For Gaussian data with known variance, $\Theta = [0, \infty)$ and $H_0: \mu = 0$, the constrained and free fits coincide whenever $\bar{X}_n \leq 0$, so $T^{\mathrm{LR}}_n$ is exactly $0$ half the time, and it is $n\bar{X}_n^2/\sigma^2$ the other half: a 50:50 mixture of $0$ and $\chi^2_1$.
-The cutoff $3.84$ then gives level $2.5\%$, not $5\%$ (\cref{ex:wlr-boundary}).
+The threshold $3.84$ then gives level $2.5\%$, not $5\%$ (\cref{ex:wlr-boundary}).
 \end{pitfall}
 
 \section{The score test}
@@ -327,7 +327,7 @@ By the bound \eqref{eq:wlr-bound} with $u = v = U_n$, $\abs{U_n^\top(M_n - I^{-1
 \Cref{thm:wilks} gives $T^{\mathrm{W}}_n - T^{\mathrm{LR}}_n = o_\Pr(1)$, and the limits are \cref{thm:wald,thm:wilks,thm:score}.
 \end{proof}
 
-At finite $n$ the three statistics differ, and near the cutoff the difference can decide the test.
+At finite $n$ the three statistics differ, and near the threshold the difference can decide the test.
 Suppose the subway line of \cref{ch:limit-tools} advertises a train every $5$ minutes on average.
 The $64$ observed gaps of \cref{ch:limit-tools} average $\bar{T}_n = 6.23$ minutes; with gaps modeled as $\Expo(\lambda)$, the null is $\lambda_0 = 0.2$ per minute and $\hat{\lambda} = 1/6.23 = 0.1605$.
 The log-likelihood is $\ell_n(\lambda) = n\log\lambda - \lambda n\bar{T}_n$ and $I(\lambda) = 1/\lambda^2$, and the three statistics are
@@ -335,7 +335,7 @@ The log-likelihood is $\ell_n(\lambda) = n\log\lambda - \lambda n\bar{T}_n$ and 
 T^{\mathrm{W}} = \frac{n(\hat{\lambda} - \lambda_0)^2}{\hat{\lambda}^2} = 3.87, \qquad T^{\mathrm{LR}} = 2n\Big(\log\frac{\hat{\lambda}}{\lambda_0} - 1 + \frac{\lambda_0}{\hat{\lambda}}\Big) = 3.34, \qquad T^{\mathrm{S}} = n(1 - \lambda_0\bar{T}_n)^2 = 3.87,
 \]
 the score statistic equal to Wald's for this model, as the last section found.
-At level $5\%$ the cutoff is $3.84$: Wald and score reject, with $p$-value $0.049$, and the likelihood ratio test does not, with $p$-value $0.068$.
+At level $5\%$ the threshold is $3.84$: Wald and score reject, with $p$-value $0.049$, and the likelihood ratio test does not, with $p$-value $0.068$.
 Which is right?
 This model has a referee: $\lambda n\bar{T}_n$ is exactly $\mathrm{Gamma}(n, 1)$ (\cref{ex:ci-gamma}), which gives an exact test. Its two-sided $p$-value, twice the smaller tail, is $0.062$, siding with the likelihood ratio.
 
@@ -348,7 +348,7 @@ The likelihood ratio interval is within $0.001$ of the exact Gamma interval $[0.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_test_inversion}
-\caption{The statistics against the null value, with the cutoff $3.84$ (dotted) and the $95\%$ intervals (bars). Left: kiss data; Wald (orange), likelihood ratio (LR, blue), score (aqua). Right: subway; Wald in $\lambda$ (equal to score), LR, Wald in $\mu = 1/\lambda$ (yellow), exact (black).}
+\caption{The statistics against the null value, with the threshold $3.84$ (dotted) and the $95\%$ intervals (bars). Left: kiss data; Wald (orange), likelihood ratio (LR, blue), score (aqua). Right: subway; Wald in $\lambda$ (equal to score), LR, Wald in $\mu = 1/\lambda$ (yellow), exact (black).}
 \label{fig:testinversion}
 \end{figure}
 
@@ -474,7 +474,7 @@ with $\chi^2_1$ $p$-values $0.0009$, $0.0053$ and $0.017$.
 Here $I_{\mu\sigma^2} = 0$, so not knowing $\sigma^2$ costs nothing in the limit, and at $n = 12$ the statistics differ only through how they estimate it: Wald's and the score statistic are the same squared distance $n(\hat{\mu} - 10)^2/\sigma^2$, with $\sigma^2$ estimated at $20.25$ and at $38.74$.
 Each is an increasing function of the $t$ statistic $T = \sqrt{12}(14.3 - 10)/4.7 = 3.17$: $T^{\mathrm{W}}_n = \frac{n}{n-1}T^2$, $T^{\mathrm{LR}}_n = n\log\big(1 + \frac{T^2}{n-1}\big)$ (\cref{ex:wlr-t}) and $T^{\mathrm{S}}_n = \frac{nT^2}{n - 1 + T^2}$.
 With $x = T^2/(n - 1)$ these are $nx$, $n\log(1 + x)$ and $nx/(1 + x)$, and since $x/(1 + x) \leq \log(1 + x) \leq x$, the likelihood ratio statistic always lies between the other two.
-So all three reject exactly when $\abs{T}$ is large, as the $t$-test does, and differ only in where the chi-squared approximation puts the cutoff. The exact two-sided $t$-test gives $p = 0.0089$, twice the one-sided $0.0045$ of \cref{ch:t-test}, and once more the likelihood ratio is the closest.
+So all three reject exactly when $\abs{T}$ is large, as the $t$-test does, and differ only in where the chi-squared approximation puts the threshold. The exact two-sided $t$-test gives $p = 0.0089$, twice the one-sided $0.0045$ of \cref{ch:t-test}, and once more the likelihood ratio is the closest.
 \end{worked}
 
 \Cref{fig:profile} shows what the constrained fit does.
@@ -566,7 +566,7 @@ Every test so far assumed the model.
 \item A Gaussian vector $Z \sim \Gauss_d(m, \Sigma)$ has the distribution of $m + AW$ with $AA^\top = \Sigma$; $(Z - m)^\top\Sigma^{-1}(Z - m) \sim \chi^2_d$, the squared distance in units of the noise.
 \item Under the null all three converge to $\chi^2_d$, and their differences converge in probability to $0$. Wilks' theorem for the likelihood ratio is a second-order Taylor expansion plus \cref{thm:mle-normal}; the score test needs only the CLT.
 \item Neyman--Pearson: for simple hypotheses, rejecting when $L_n(\theta_1)/L_n(\theta_0)$ is large is most powerful. The kiss test $S \geq 72$, with type 1 error $0.0438$, is the most powerful test against every $p > \frac12$ among tests whose type 1 error is no larger.
-\item In small samples the three can disagree near the cutoff (subway, $\lambda_0 = 0.2$: $3.87$, $3.34$, $3.87$). Wald depends on the parameterization ($3.87$ in $\lambda$, $2.49$ in $1/\lambda$); likelihood ratio and score do not. The likelihood ratio test is the default when both fits are available.
+\item In small samples the three can disagree near the threshold (subway, $\lambda_0 = 0.2$: $3.87$, $3.34$, $3.87$). Wald depends on the parameterization ($3.87$ in $\lambda$, $2.49$ in $1/\lambda$); likelihood ratio and score do not. The likelihood ratio test is the default when both fits are available.
 \item With nuisance parameters, the degrees of freedom are the number of constraints; the likelihood ratio uses the constrained fit, equivalently the profile likelihood. Wind data: $10.96$, $7.78$, $5.73$, all increasing in $\abs{T}$. Implicit hypotheses $g(\theta) = 0$ use the delta method. Aspirin: $25.04$, $25.37$, $25.01$.
 \item Wilks' theorem needs an interior null; on the boundary the limit is a mixture.
 \end{itemize}
@@ -600,7 +600,7 @@ $\ell_n(\lambda) = n\bar{X}_n\log\lambda - n\lambda + \text{const}$, $\ell_n'(\l
 
 \begin{exercise}
 \label{ex:wlr-np-coin}
-A coin lands heads with probability $0.25$ or $0.75$, and you test $H_0: p = 0.25$ against $H_1: p = 0.75$ with the likelihood ratio test $\psi^* = \ind\{L_n(0.75) > L_n(0.25)\}$ ($c = 1$). (a) Show that for $n$ flips with $S$ heads the test rejects exactly when $S > n/2$. (b) For $n = 16$, compute its level and its power, and decide for $6$ heads. (c) What does \cref{prop:neyman-pearson} say about any other test with level at most this one's?
+A coin lands heads with probability $0.25$ or $0.75$, and you test $H_0: p = 0.25$ against $H_1: p = 0.75$ with the likelihood ratio test $\psi^* = \ind(L_n(0.75) > L_n(0.25))$ ($c = 1$). (a) Show that for $n$ flips with $S$ heads the test rejects exactly when $S > n/2$. (b) For $n = 16$, compute its level and its power, and decide for $6$ heads. (c) What does \cref{prop:neyman-pearson} say about any other test with level at most this one's?
 \end{exercise}
 \begin{solution}
 (a) $L_n(0.75)/L_n(0.25) = (0.75/0.25)^S(0.25/0.75)^{n - S} = 3^{2S - n}$, which exceeds $1$ exactly when $S > n/2$. (b) For $n = 16$ the test rejects when $S \geq 9$: level $\Pr_{0.25}(S \geq 9) = 0.0075$, power $\Pr_{0.75}(S \geq 9) = 0.973$. With $6$ heads the ratio is $3^{-4} = 0.012$: the null explains the data $81$ times better, and the test does not reject. (c) No test of $16$ flips with a type 1 error no larger than this test's has power above $0.973$ against $p = 0.75$.
@@ -616,10 +616,10 @@ $\ell_n(\mu) = -\frac{1}{2\sigma^2}\sum_i(X_i - \mu)^2 + \text{const} = -\frac{n
 
 \begin{exercise}
 \label{ex:wlr-t}
-For $\Xton \iid \Gauss(\mu, \sigma^2)$ with both unknown and $H_0: \mu = \mu_0$: (a) show that $T^{\mathrm{LR}}_n = n\log\big(1 + T^2/(n - 1)\big)$, where $T = \sqrt{n}(\bar{X}_n - \mu_0)/S_n$ is the $t$ statistic of \cref{ch:t-test}. (b) Conclude that the likelihood ratio test rejects exactly when $\abs{T}$ is large. (c) For $n = 12$, which cutoff on $\abs{T}$ does the $\chi^2_1$ cutoff $3.84$ correspond to, and what is its exact level?
+For $\Xton \iid \Gauss(\mu, \sigma^2)$ with both unknown and $H_0: \mu = \mu_0$: (a) show that $T^{\mathrm{LR}}_n = n\log\big(1 + T^2/(n - 1)\big)$, where $T = \sqrt{n}(\bar{X}_n - \mu_0)/S_n$ is the $t$ statistic of \cref{ch:t-test}. (b) Conclude that the likelihood ratio test rejects exactly when $\abs{T}$ is large. (c) For $n = 12$, which threshold on $\abs{T}$ does the $\chi^2_1$ threshold $3.84$ correspond to, and what is its exact level?
 \end{exercise}
 \begin{solution}
-(a) For fixed $\mu$ the log-likelihood is maximized at $\sigma^2(\mu) = \frac1n\sum_i(X_i - \mu)^2 = \hat{\sigma}^2 + (\bar{X}_n - \mu)^2$, where it equals $-\frac{n}{2}\log(2\pi\sigma^2(\mu)) - \frac{n}{2}$. So $T^{\mathrm{LR}}_n = n\log\big(\sigma^2(\mu_0)/\hat{\sigma}^2\big) = n\log\big(1 + (\bar{X}_n - \mu_0)^2/\hat{\sigma}^2\big)$, and since $\hat{\sigma}^2 = \frac{n-1}{n}S_n^2$, $(\bar{X}_n - \mu_0)^2/\hat{\sigma}^2 = T^2/(n - 1)$. (b) $x \mapsto n\log(1 + x^2/(n-1))$ is increasing in $\abs{x}$. (c) $T^{\mathrm{LR}}_n > 3.84$ when $\abs{T} > \sqrt{11(e^{3.84/12} - 1)} = 2.04$, while the exact $5\%$ cutoff is $q_{0.025}(t_{11}) = 2.20$; the chi-squared version has exact level $\Pr(\abs{t_{11}} > 2.04) = 0.066$.
+(a) For fixed $\mu$ the log-likelihood is maximized at $\sigma^2(\mu) = \frac1n\sum_i(X_i - \mu)^2 = \hat{\sigma}^2 + (\bar{X}_n - \mu)^2$, where it equals $-\frac{n}{2}\log(2\pi\sigma^2(\mu)) - \frac{n}{2}$. So $T^{\mathrm{LR}}_n = n\log\big(\sigma^2(\mu_0)/\hat{\sigma}^2\big) = n\log\big(1 + (\bar{X}_n - \mu_0)^2/\hat{\sigma}^2\big)$, and since $\hat{\sigma}^2 = \frac{n-1}{n}S_n^2$, $(\bar{X}_n - \mu_0)^2/\hat{\sigma}^2 = T^2/(n - 1)$. (b) $x \mapsto n\log(1 + x^2/(n-1))$ is increasing in $\abs{x}$. (c) $T^{\mathrm{LR}}_n > 3.84$ when $\abs{T} > \sqrt{11(e^{3.84/12} - 1)} = 2.04$, while the exact $5\%$ threshold is $q_{0.025}(t_{11}) = 2.20$; the chi-squared version has exact level $\Pr(\abs{t_{11}} > 2.04) = 0.066$.
 \end{solution}
 
 \begin{exercise}
@@ -627,7 +627,7 @@ For $\Xton \iid \Gauss(\mu, \sigma^2)$ with both unknown and $H_0: \mu = \mu_0$:
 Let $X_1, \ldots, X_{100}$ be i.i.d.\ with density $\theta x^{-\theta - 1}$ for $x > 1$ (a Pareto distribution), and $H_0: \theta = 2$. (a) Find the maximum likelihood estimator and $I(\theta)$. (b) With $\hat{\theta} = 2.45$, compute $T^{\mathrm{LR}}$ and $T^{\mathrm{W}}$ and decide at $5\%$. (c) Show that $\log X_i \sim \Expo(\theta)$, and explain why the numbers resemble the subway's.
 \end{exercise}
 \begin{solution}
-(a) $\ell_n(\theta) = n\log\theta - (\theta + 1)\sum_i\log X_i$, so $\hat{\theta} = n/\sum_i\log X_i$ and $\ell''(\theta) = -1/\theta^2$, $I(\theta) = 1/\theta^2$. (b) $\sum_i\log X_i = n/\hat{\theta}$, so $T^{\mathrm{LR}} = 2n\big(\log(\hat{\theta}/\theta_0) - (\hat{\theta} - \theta_0)/\hat{\theta}\big) = 200(0.2029 - 0.1837) = 3.85 > 3.84$: reject, just ($p = 0.0496$). $T^{\mathrm{W}} = n(\hat{\theta} - \theta_0)^2/\hat{\theta}^2 = 100(0.45/2.45)^2 = 3.37$: do not reject ($p = 0.066$). (c) $\Pr(\log X > t) = \Pr(X > e^t) = e^{-\theta t}$, the $\Expo(\theta)$ tail. The model is the exponential rate model in disguise, and the two tests sit on either side of the cutoff for the same reason as in \cref{fig:testinversion}; here they disagree in the other direction, since $\hat{\theta} > \theta_0$ puts the null on the other side of the asymmetric log-likelihood.
+(a) $\ell_n(\theta) = n\log\theta - (\theta + 1)\sum_i\log X_i$, so $\hat{\theta} = n/\sum_i\log X_i$ and $\ell''(\theta) = -1/\theta^2$, $I(\theta) = 1/\theta^2$. (b) $\sum_i\log X_i = n/\hat{\theta}$, so $T^{\mathrm{LR}} = 2n\big(\log(\hat{\theta}/\theta_0) - (\hat{\theta} - \theta_0)/\hat{\theta}\big) = 200(0.2029 - 0.1837) = 3.85 > 3.84$: reject, just ($p = 0.0496$). $T^{\mathrm{W}} = n(\hat{\theta} - \theta_0)^2/\hat{\theta}^2 = 100(0.45/2.45)^2 = 3.37$: do not reject ($p = 0.066$). (c) $\Pr(\log X > t) = \Pr(X > e^t) = e^{-\theta t}$, the $\Expo(\theta)$ tail. The model is the exponential rate model in disguise, and the two tests sit on either side of the threshold for the same reason as in \cref{fig:testinversion}; here they disagree in the other direction, since $\hat{\theta} > \theta_0$ puts the null on the other side of the asymmetric log-likelihood.
 \end{solution}
 
 \begin{exercise}
@@ -640,7 +640,7 @@ $\hat{\mu} = -0.8$ and $\hat{\sigma}^2 = 3.86/5 = 0.772$. Wald at the estimate: 
 
 \begin{exercise}
 \label{ex:wlr-boundary}
-Let $\Xton \iid \Gauss(\mu, 1)$ with $\Theta = [0, \infty)$, and test $H_0: \mu = 0$. (a) Show that the maximum likelihood estimator is $\max(\bar{X}_n, 0)$ and that $T^{\mathrm{LR}}_n = n\bar{X}_n^2\ind\{\bar{X}_n > 0\}$. (b) Show that under $H_0$, $\Pr(T^{\mathrm{LR}}_n > c) = \frac12\Pr(\chi^2_1 > c)$ for $c > 0$, so that the cutoff $3.84$ gives level $2.5\%$. (c) Which cutoff gives level $5\%$?
+Let $\Xton \iid \Gauss(\mu, 1)$ with $\Theta = [0, \infty)$, and test $H_0: \mu = 0$. (a) Show that the maximum likelihood estimator is $\max(\bar{X}_n, 0)$ and that $T^{\mathrm{LR}}_n = n\bar{X}_n^2\ind(\bar{X}_n > 0)$. (b) Show that under $H_0$, $\Pr(T^{\mathrm{LR}}_n > c) = \frac12\Pr(\chi^2_1 > c)$ for $c > 0$, so that the threshold $3.84$ gives level $2.5\%$. (c) Which threshold gives level $5\%$?
 \end{exercise}
 \begin{solution}
 (a) $\ell_n(\mu) = -\frac{n}{2}(\bar{X}_n - \mu)^2 + \text{const}$ is maximized over $[0, \infty)$ at $\bar{X}_n$ if $\bar{X}_n > 0$ and at $0$ otherwise; then $T^{\mathrm{LR}}_n = n\bar{X}_n^2$ or $0$. (b) Under $H_0$, $Z = \sqrt{n}\bar{X}_n \sim \Gauss(0, 1)$ and for $c > 0$, $\Pr(T^{\mathrm{LR}}_n > c) = \Pr(Z > \sqrt{c}) = \frac12\Pr(Z^2 > c)$; at $c = 3.84$ this is $0.025$. (c) $\Pr(Z > \sqrt{c}) = 0.05$ when $\sqrt{c} = 1.645$, so $c = 2.71$: the one-sided test of \cref{ch:tests-foundations}, written in squares.

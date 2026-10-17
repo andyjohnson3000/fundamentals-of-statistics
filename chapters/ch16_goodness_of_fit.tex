@@ -104,18 +104,18 @@ The counts are not independent of one another: they share the $n$ observations, 
 
 \begin{proposition}[Mean and covariance of the counts]
 \label{prop:gof-counts}
-If $(N_1, \ldots, N_K) \sim \Mult(n, \mathbf{p})$, then $\E[N_j] = np_j$, $\var(N_j) = np_j(1 - p_j)$, and $\mathrm{Cov}(N_j, N_k) = -np_jp_k$ for $j \neq k$. The covariance matrix $n\big(\mathrm{diag}(\mathbf{p}) - \mathbf{p}\mathbf{p}^\top\big)$ is not invertible: the vector $(1, \ldots, 1)$ is in its null space.
+If $(N_1, \ldots, N_K) \sim \Mult(n, \mathbf{p})$, then $\E[N_j] = np_j$, $\var(N_j) = np_j(1 - p_j)$, and $\cov(N_j, N_k) = -np_jp_k$ for $j \neq k$. The covariance matrix $n\big(\mathrm{diag}(\mathbf{p}) - \mathbf{p}\mathbf{p}^\top\big)$ is not invertible: the vector $(1, \ldots, 1)$ is in its null space.
 \end{proposition}
 
 \optionalproof{Each count is a sum of $n$ independent indicators, one per observation. Two different indicators of one observation are never both $1$, which makes their covariance $-p_jp_k$.}
 \begin{proof}
-$N_j = \sum_{i=1}^n \ind\{X_i = a_j\}$.
-For one observation, $\E[\ind\{X = a_j\}] = p_j$ and $\var(\ind\{X = a_j\}) = p_j(1 - p_j)$, and for $j \neq k$ the product $\ind\{X = a_j\}\ind\{X = a_k\}$ is $0$, so the covariance of the two indicators is $0 - p_jp_k$.
+$N_j = \sum_{i=1}^n \ind(X_i = a_j)$.
+For one observation, $\E[\ind(X = a_j)] = p_j$ and $\var(\ind(X = a_j)) = p_j(1 - p_j)$, and for $j \neq k$ the product $\ind(X = a_j)\ind(X = a_k)$ is $0$, so the covariance of the two indicators is $0 - p_jp_k$.
 Indicators of different observations are independent, so means, variances and covariances add over the $n$ observations.
-Finally, the $j$th entry of the covariance matrix times $(1, \ldots, 1)$ is $\sum_k \mathrm{Cov}(N_j, N_k) = \mathrm{Cov}(N_j, N_1 + \cdots + N_K) = \mathrm{Cov}(N_j, n) = 0$.
+Finally, the $j$th entry of the covariance matrix times $(1, \ldots, 1)$ is $\sum_k \cov(N_j, N_k) = \cov(N_j, N_1 + \cdots + N_K) = \cov(N_j, n) = 0$.
 \end{proof}
 
-For Mendel's null, $\mathrm{Cov}(N_1, N_2) = -556 \times \frac{9}{16} \times \frac{3}{16} = -58.6$, a correlation of $-0.54$ between the round-yellow and the round-green counts.
+For Mendel's null, $\cov(N_1, N_2) = -556 \times \frac{9}{16} \times \frac{3}{16} = -58.6$, a correlation of $-0.54$ between the round-yellow and the round-green counts.
 A covariance matrix that is not invertible is not positive definite, so the Gaussian vectors of the Toolkit \toolkit{sec:math-gaussquad} do not cover the limit of the full vector of counts.
 The next section works around this by rotating the deviations, and \cref{sec:gof-score} by dropping a category.
 
@@ -145,14 +145,14 @@ The superscript is the one of \cref{ch:wald-lrt}: \cref{sec:gof-score} shows tha
 
 For Mendel's peas the four terms are $2.25^2/312.75 = 0.016$, $3.75^2/104.25 = 0.135$, $3.25^2/104.25 = 0.101$ and $2.75^2/34.75 = 0.218$, so $T^{\mathrm{S}} = 0.47$.
 The smallest category contributes the most, although its deviation is not the largest, since its deviation is measured against an expected count of only $35$.
-With $K - 1 = 3$ degrees of freedom the $5\%$ cutoff is $7.81$, and the $p$-value is $\Pr(\chi^2_3 > 0.47) = 0.93$.
+With $K - 1 = 3$ degrees of freedom the $5\%$ threshold is $7.81$, and the $p$-value is $\Pr(\chi^2_3 > 0.47) = 0.93$.
 \Cref{fig:mendel} draws both steps: the observed counts against the expected ones, and the observed statistic against its null distribution.
 If Mendel's theory is exactly right, about $925$ of $1{,}000$ repetitions of his experiment would land farther from $9:3:3:1$, in this measure, than his did.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_mendel_peas}
-\caption{Mendel's $556$ peas. Left: observed counts (bars) and counts expected under $9:3:3:1$ (black ticks). Right: the $\chi^2_3$ density, the observed statistic $0.47$ (orange), the area to its right (shaded), the $5\%$ cutoff (dotted).}
+\caption{Mendel's $556$ peas. Left: observed counts (bars) and counts expected under $9:3:3:1$ (black ticks). Right: the $\chi^2_3$ density, the observed statistic $0.47$ (orange), the area to its right (shaded), the $5\%$ threshold (dotted).}
 \label{fig:mendel}
 \end{figure}
 
@@ -169,7 +169,7 @@ Let $\Xton \iid \Pr_{\mathbf{p}}$ in the categorical model, and let $\mathbf{p}^
 
 \coreproof{Write $T^{\mathrm{S}}_n$ as the squared length of the vector of standardized deviations $R_j = \sqrt{n}(\hat{p}_j - p^0_j)/\sqrt{p^0_j}$. Since the counts add up to $n$, that vector is perpendicular to the unit vector $u = (\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$. Rotate so that $u$ becomes the first axis, as in the proof of Cochran's theorem (\cref{thm:cochran}): the first rotated coordinate is exactly $0$, and by the CLT the other $K - 1$ are approximately independent standard Gaussians, whose squares add up to a $\chi^2_{K-1}$.}
 \begin{proof}
-(1) Let $Y_i = (\ind\{X_i = a_1\}, \ldots, \ind\{X_i = a_K\})$, so that $\hat{\mathbf{p}} = \bar{Y}_n$, and let $D = \mathrm{diag}(\mathbf{p}^0)$.
+(1) Let $Y_i = (\ind(X_i = a_1), \ldots, \ind(X_i = a_K))$, so that $\hat{\mathbf{p}} = \bar{Y}_n$, and let $D = \mathrm{diag}(\mathbf{p}^0)$.
 The vector $R = \sqrt{n}\,D^{-1/2}(\hat{\mathbf{p}} - \mathbf{p}^0)$ has coordinates $R_j = \sqrt{n}(\hat{p}_j - p^0_j)/\sqrt{p^0_j}$, so $T^{\mathrm{S}}_n = \norm{R}^2$.
 Let $u = (\sqrt{p^0_1}, \ldots, \sqrt{p^0_K}) = D^{-1/2}\mathbf{p}^0$, a unit vector since $\norm{u}^2 = \sum_j p^0_j = 1$.
 Then
@@ -226,8 +226,8 @@ the single squared standardized binomial count, which is $\chi^2_1$ in the limit
 \begin{pitfall}[the counts are not independent]
 Adding up the $K$ squared deviations $(N_j - np^0_j)^2$, each divided by its own binomial variance $np^0_j(1 - p^0_j)$, and comparing the sum with $\chi^2_K$ treats the counts as independent.
 They are not (\cref{prop:gof-counts}).
-For $K = 2$ the two terms are equal, since $N_2 - np^0_2 = -(N_1 - np^0_1)$ and $p^0_2(1 - p^0_2) = p^0_1(1 - p^0_1)$, so in the limit the sum is twice a single $\chi^2_1$, and it exceeds the $\chi^2_2$ cutoff $5.99$ with probability $\Pr(\chi^2_1 > 3.00) = 8.3\%$, not $5\%$ (\cref{ex:gof-naive}).
-Pearson's denominators and the $K - 1$ degrees of freedom come as a pair, and changing only one of them is just as wrong: for $K = 2$, Pearson's statistic against the $\chi^2_2$ cutoff rejects a true null $1.4\%$ of the time, and the sum above against the $\chi^2_1$ cutoff $16.6\%$.
+For $K = 2$ the two terms are equal, since $N_2 - np^0_2 = -(N_1 - np^0_1)$ and $p^0_2(1 - p^0_2) = p^0_1(1 - p^0_1)$, so in the limit the sum is twice a single $\chi^2_1$, and it exceeds the $\chi^2_2$ threshold $5.99$ with probability $\Pr(\chi^2_1 > 3.00) = 8.3\%$, not $5\%$ (\cref{ex:gof-naive}).
+Pearson's denominators and the $K - 1$ degrees of freedom come as a pair, and changing only one of them is just as wrong: for $K = 2$, Pearson's statistic against the $\chi^2_2$ threshold rejects a true null $1.4\%$ of the time, and the sum above against the $\chi^2_1$ threshold $16.6\%$.
 \end{pitfall}
 
 \section{Pearson's test is a score test}
@@ -255,12 +255,12 @@ the $G^2$ statistic, with the terms where $N_j = 0$ counted as $0$; and, when ev
 
 \optionalproof{Differentiate the log-likelihood in the $K - 1$ free coordinates. The information is a diagonal matrix plus a constant one, and its inverse is the covariance matrix of the first $K - 1$ indicators, which multiplying out confirms. The score at $\mathbf{p}^0$ turns out to be exactly $n$ times the information times the estimation error, so the score statistic is a quadratic form in that error, which adds up to Pearson's statistic; Wald's statistic is the same form with the information at the estimate.}
 \begin{proof}
-(1) For one observation, $\log p(X) = \sum_{j<K}\ind\{X = a_j\}\log p_j + \ind\{X = a_K\}\log(1 - p_1 - \cdots - p_{K-1})$, so for $j, k < K$
+(1) For one observation, $\log p(X) = \sum_{j<K}\ind(X = a_j)\log p_j + \ind(X = a_K)\log(1 - p_1 - \cdots - p_{K-1})$, so for $j, k < K$
 \begin{align*}
-\frac{\partial}{\partial p_j}\log p(X) &= \frac{\ind\{X = a_j\}}{p_j} - \frac{\ind\{X = a_K\}}{p_K}, \\
-\frac{\partial^2}{\partial p_j\,\partial p_k}\log p(X) &= -\frac{\ind\{X = a_j\}}{p_j^2}\ind\{j = k\} - \frac{\ind\{X = a_K\}}{p_K^2}.
+\frac{\partial}{\partial p_j}\log p(X) &= \frac{\ind(X = a_j)}{p_j} - \frac{\ind(X = a_K)}{p_K}, \\
+\frac{\partial^2}{\partial p_j\,\partial p_k}\log p(X) &= -\frac{\ind(X = a_j)}{p_j^2}\ind(j = k) - \frac{\ind(X = a_K)}{p_K^2}.
 \end{align*}
-Taking expectations and changing the sign (\cref{thm:fisher-curvature}) gives $I_{jk} = \ind\{j = k\}/p_j + 1/p_K$.
+Taking expectations and changing the sign (\cref{thm:fisher-curvature}) gives $I_{jk} = \ind(j = k)/p_j + 1/p_K$.
 Write $\mathbf{q} = \mathbf{p}_{-K}$ for short and $\mathrm{diag}(1/\mathbf{q})$ for $\mathrm{diag}(1/p_1, \ldots, 1/p_{K-1})$, so that $\mathrm{diag}(1/\mathbf{q})\,\mathbf{q} = \mathbf{1}$, and note $\mathbf{1}^\top\mathbf{q} = 1 - p_K$.
 Multiplying out,
 \[
@@ -308,7 +308,7 @@ Neyman's test, which divides by the observed counts and so is infinite whenever 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{fig_gof_sizes}
-\caption{Mendel's null $9:3:3:1$: exact type 1 error at the $\chi^2_3$ cutoff $7.81$ against the sample size, for Pearson's (score; aqua, dash-dot), $G^2$ (likelihood ratio; blue) and Neyman's (Wald; orange, dashed) statistics. Dotted: $5\%$.}
+\caption{Mendel's null $9:3:3:1$: exact type 1 error at the $\chi^2_3$ threshold $7.81$ against the sample size, for Pearson's (score; aqua, dash-dot), $G^2$ (likelihood ratio; blue) and Neyman's (Wald; orange, dashed) statistics. Dotted: $5\%$.}
 \label{fig:gofsizes}
 \end{figure}
 
@@ -342,7 +342,7 @@ To test $H_0$: $\mathbf{p} = \mathbf{p}(\theta)$ for some $\theta \in \Theta$, a
 T^{\mathrm{S}}_n = \sum_{j=1}^K\frac{\big(N_j - np_j(\hat{\theta})\big)^2}{np_j(\hat{\theta})},
 \]
 and the test of asymptotic level $\alpha$ rejects when $T^{\mathrm{S}}_n > q_\alpha(\chi^2_{K-1-d})$.
-The likelihood ratio version is $G^2 = 2\sum_j N_j\log\big(N_j/(np_j(\hat{\theta}))\big)$, with the terms where $N_j = 0$ counted as $0$, compared with the same cutoff.
+The likelihood ratio version is $G^2 = 2\sum_j N_j\log\big(N_j/(np_j(\hat{\theta}))\big)$, with the terms where $N_j = 0$ counted as $0$, compared with the same threshold.
 \end{definition}
 
 \begin{inwords}
@@ -443,7 +443,7 @@ They give little reason to trust it either: if the $24$ values came from a geome
 \Cref{thm:gof-family} needs $\hat{\theta}$ to be the maximum likelihood estimator from the counts.
 In practice the parameter is often estimated from the raw data, the sample mean for a Poisson, which carries more information than counts with a pooled category.
 Then the limit is no longer $\chi^2_{K-1-d}$: Chernoff and Lehmann (\textit{Annals of Mathematical Statistics}, 1954) showed that it is $\chi^2_{K-1-d}$ plus $d$ further independent $\chi^2_1$ variables with weights between $0$ and $1$, so its tail probabilities lie between those of $\chi^2_{K-1-d}$ and $\chi^2_{K-1}$, and the test with $K - 1 - d$ degrees of freedom rejects too often.
-In the setting of \cref{fig:gofestimated} the excess is small, a type 1 error of $5.4\%$ at the $\chi^2_1$ cutoff against $5.0\%$ for the estimate from the counts; for Gaussian data grouped into four cells that are equally likely under the true distribution, with the mean and variance estimated from the raw data, it is $10.5\%$ in the limit.
+In the setting of \cref{fig:gofestimated} the excess is small, a type 1 error of $5.4\%$ at the $\chi^2_1$ threshold against $5.0\%$ for the estimate from the counts; for Gaussian data grouped into four cells that are equally likely under the true distribution, with the mean and variance estimated from the raw data, it is $10.5\%$ in the limit.
 The correct $p$-value lies between the $\chi^2_{K-1-d}$ and the $\chi^2_{K-1}$ $p$-values: report both, as for the siblings data, and if they fall on opposite sides of $\alpha$, estimate from the counts instead.
 When the categories are the possible values themselves, as for the binomial family of \cref{ex:gof-binomial}, the raw data are the counts and the issue disappears.
 \end{pitfall}
@@ -563,7 +563,7 @@ Estimating parameters changes that statistic's null distribution, as estimating 
 
 \begin{itemize}[nosep]
 \item A goodness-of-fit test tests a whole distribution. For $K$ categories, `any other distribution' is the categorical model, parametric with $K - 1$ free probabilities; the maximum likelihood estimator is the vector of proportions, and $\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}) = n\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}})$.
-\item The counts are multinomial and negatively correlated, $\mathrm{Cov}(N_j, N_k) = -np_jp_k$, and their covariance matrix is not invertible.
+\item The counts are multinomial and negatively correlated, $\cov(N_j, N_k) = -np_jp_k$, and their covariance matrix is not invertible.
 \item Pearson's $T^{\mathrm{S}}_n = \sum_j(N_j - np^0_j)^2/(np^0_j) \convd \chi^2_{K-1}$: the standardized deviations are perpendicular to $(\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$, and in the other $K - 1$ directions they are independent standard Gaussians in the limit. Mendel: $0.47$, $p = 0.93$. Kiss data: $10.45$.
 \item Pearson's statistic is the score statistic of the model with one category dropped, and also Wald's statistic with the information at the null; $G^2 = 2\sum_jN_j\log(N_j/(np^0_j))$ is the likelihood ratio statistic, and Neyman's $\sum_j(N_j - np^0_j)^2/N_j$ is Wald's statistic in the coordinates $p_1, \ldots, p_{K-1}$. For counts, Pearson's keeps its level best.
 \item A family with $d$ parameters estimated from the counts: $\chi^2_{K-1-d}$. Horse kicks: $0.32$ on $2$ degrees of freedom; siblings: no evidence against the Poisson model. Estimating from the raw data puts the limit between $\chi^2_{K-1-d}$ and $\chi^2_{K-1}$ ($10.5\%$ instead of $5\%$ for a Gaussian in four cells).
@@ -608,7 +608,7 @@ A die is rolled $15$ times, and the faces $1$ to $6$ come up $3$, $1$, $1$, $2$,
 
 \begin{exercise}
 \label{ex:gof-zodiac}
-Fortune magazine recorded the zodiac signs of $256$ heads of large companies. From Aries to Pisces the counts were $23$, $20$, $18$, $23$, $20$, $19$, $18$, $21$, $19$, $22$, $24$ and $29$. (a) Test whether the twelve signs are equally likely: give Pearson's statistic, its degrees of freedom and its $p$-value. (b) Pisces has $29$, more than a third above its expected share. Taken on its own, as if Pisces had been named before the data were seen, how surprising is that? (c) Why is (b) the wrong question once Pisces has been picked out because its count is the largest? (When all twelve signs are equally likely, the largest of the twelve counts is $29$ or more in $56\%$ of samples of $256$.)
+\textit{Fortune} magazine recorded the zodiac signs of $256$ heads of the $400$ largest companies (De Veaux, Velleman and Bock, \textit{Intro Stats}). From Aries to Pisces the counts were $23$, $20$, $18$, $23$, $20$, $19$, $18$, $21$, $19$, $22$, $24$ and $29$. (a) Test whether the twelve signs are equally likely: give Pearson's statistic, its degrees of freedom and its $p$-value. (b) Pisces has $29$, more than a third above its expected share. Taken on its own, as if Pisces had been named before the data were seen, how surprising is that? (c) Why is (b) the wrong question once Pisces has been picked out because its count is the largest? (When all twelve signs are equally likely, the largest of the twelve counts is $29$ or more in $56\%$ of samples of $256$.)
 \end{exercise}
 \begin{solution}
 (a) Each sign expects $256/12 = 21.33$. Since $\sum_j(N_j - E)^2/E = \sum_jN_j^2/E - n$, $T^{\mathrm{S}} = 5{,}570 \times 12/256 - 256 = 5.09$, with $K - 1 = 11$ degrees of freedom and $p$-value $\Pr(\chi^2_{11} > 5.09) = 0.93$: no evidence that the signs are unequally represented. Pisces contributes $(29 - 21.33)^2/21.33 = 2.76$, more than half of the total. (b) On its own, the Pisces count is $\Bin(256, \frac{1}{12})$, with standard deviation $\sqrt{256 \times \frac{1}{12} \times \frac{11}{12}} = 4.42$, so $29$ is $1.73$ standard deviations above its mean, a two-sided $p$-value of about $0.08$ by the Gaussian approximation. (c) Pisces was singled out after the data were seen because its count was the largest. The relevant chance is that the largest of twelve counts is at least $29$, which is $56\%$: when all the signs are equally likely, some sign reaches $29$ more often than not. Testing the most extreme of many categories as if it had been named in advance is the multiple-testing error of \cref{sec:t-multiple}; Pearson's statistic, which looks at all twelve signs at once, does not make it.
@@ -619,7 +619,7 @@ Fortune magazine recorded the zodiac signs of $256$ heads of large companies. Fr
 A random sample of $275$ jurors from a small county had $205$ White, $26$ Black, $25$ Hispanic and $19$ jurors of other groups. Among the county's registered voters, the people eligible for jury duty, the four groups make up $72\%$, $7\%$, $12\%$ and $9\%$ (Diez, Barr and \c{C}etinkaya-Rundel, \textit{OpenIntro Statistics}). (a) Compute the expected counts, Pearson's statistic and its $p$-value. Is there evidence that the jurors are not representative of the voters? (b) If the jurors' proportions stayed the same, from about how many jurors on would the test reject at the $5\%$ level?
 \end{exercise}
 \begin{solution}
-(a) The expected counts are $275 \times 0.72 = 198$, $19.25$, $33$ and $24.75$. $T^{\mathrm{S}} = 7^2/198 + 6.75^2/19.25 + 8^2/33 + 5.75^2/24.75 = 0.247 + 2.367 + 1.939 + 1.336 = 5.89$, with $3$ degrees of freedom and $p$-value $\Pr(\chi^2_3 > 5.89) = 0.12$: not significant at $5\%$. Black jurors are $9.5\%$ of the sample against $7\%$ of the voters, Hispanic jurors $9.1\%$ against $12\%$. (b) With the proportions fixed, $T^{\mathrm{S}} = n\sum_j(\hat{p}_j - p^0_j)^2/p^0_j = 0.0214\,n$, which exceeds the cutoff $7.81$ from about $n = 365$ (\cref{sec:gof-limits}).
+(a) The expected counts are $275 \times 0.72 = 198$, $19.25$, $33$ and $24.75$. $T^{\mathrm{S}} = 7^2/198 + 6.75^2/19.25 + 8^2/33 + 5.75^2/24.75 = 0.247 + 2.367 + 1.939 + 1.336 = 5.89$, with $3$ degrees of freedom and $p$-value $\Pr(\chi^2_3 > 5.89) = 0.12$: not significant at $5\%$. Black jurors are $9.5\%$ of the sample against $7\%$ of the voters, Hispanic jurors $9.1\%$ against $12\%$. (b) With the proportions fixed, $T^{\mathrm{S}} = n\sum_j(\hat{p}_j - p^0_j)^2/p^0_j = 0.0214\,n$, which exceeds the threshold $7.81$ from about $n = 365$ (\cref{sec:gof-limits}).
 \end{solution}
 
 \begin{exercise}
@@ -664,8 +664,8 @@ For $K = 2$, let $V_n = \sum_{j=1}^2(N_j - np^0_j)^2/(np^0_j(1 - p^0_j))$, the s
 
 \begin{exercise}
 \label{ex:gof-power}
-Take Mendel's null $\mathbf{p}^0 = (9, 3, 3, 1)/16$ and the alternative $\mathbf{p} = (9, 3, 3, 0.75)/15.75$, in which wrinkled green peas are about a quarter rarer. (a) Compute $c = \sum_j(p_j - p^0_j)^2/p^0_j$. (b) Show that under $\mathbf{p}$, $\E[T^{\mathrm{S}}_n] = nc + \sum_jp_j(1 - p_j)/p^0_j$. (c) Evaluate this mean at $n = 556$ and at $n = 2{,}000$, and compare it with the cutoff $7.81$ and with the simulated rejection rates of \cref{sec:gof-limits}.
+Take Mendel's null $\mathbf{p}^0 = (9, 3, 3, 1)/16$ and the alternative $\mathbf{p} = (9, 3, 3, 0.75)/15.75$, in which wrinkled green peas are about a quarter rarer. (a) Compute $c = \sum_j(p_j - p^0_j)^2/p^0_j$. (b) Show that under $\mathbf{p}$, $\E[T^{\mathrm{S}}_n] = nc + \sum_jp_j(1 - p_j)/p^0_j$. (c) Evaluate this mean at $n = 556$ and at $n = 2{,}000$, and compare it with the threshold $7.81$ and with the simulated rejection rates of \cref{sec:gof-limits}.
 \end{exercise}
 \begin{solution}
-(a) In decimals the alternative is $(0.5714, 0.1905, 0.1905, 0.0476)$ and the null is $(0.5625, 0.1875, 0.1875, 0.0625)$, so $c = 0.0089^2/0.5625 + 2 \times 0.0030^2/0.1875 + 0.0149^2/0.0625 = 0.00378$, most of it from the last category. (b) $\E[(N_j - np^0_j)^2] = \var(N_j) + (\E[N_j] - np^0_j)^2 = np_j(1 - p_j) + n^2(p_j - p^0_j)^2$; divide by $np^0_j$ and add over $j$. (c) The second term is $2.806$, close to $K - 1 = 3$. At $n = 556$ the mean is $2.101 + 2.806 = 4.91$, below the cutoff $7.81$, and the test rejects only $18\%$ of the time; at $n = 2{,}000$ it is $7.559 + 2.806 = 10.36$, above the cutoff, and the test rejects $64\%$ of the time. The mean crosses the cutoff $q_{0.05}(\chi^2_3) = 7.815$ at about $n = (7.815 - 2.806)/0.00378 = 1{,}325$.
+(a) In decimals the alternative is $(0.5714, 0.1905, 0.1905, 0.0476)$ and the null is $(0.5625, 0.1875, 0.1875, 0.0625)$, so $c = 0.0089^2/0.5625 + 2 \times 0.0030^2/0.1875 + 0.0149^2/0.0625 = 0.00378$, most of it from the last category. (b) $\E[(N_j - np^0_j)^2] = \var(N_j) + (\E[N_j] - np^0_j)^2 = np_j(1 - p_j) + n^2(p_j - p^0_j)^2$; divide by $np^0_j$ and add over $j$. (c) The second term is $2.806$, close to $K - 1 = 3$. At $n = 556$ the mean is $2.101 + 2.806 = 4.91$, below the threshold $7.81$, and the test rejects only $18\%$ of the time; at $n = 2{,}000$ it is $7.559 + 2.806 = 10.36$, above the threshold, and the test rejects $64\%$ of the time. The mean crosses the threshold $q_{0.05}(\chi^2_3) = 7.815$ at about $n = (7.815 - 2.806)/0.00378 = 1{,}325$.
 \end{solution}

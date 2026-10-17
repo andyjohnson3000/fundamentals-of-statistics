@@ -244,7 +244,7 @@ Every empirical loss is one, so the argument goes through, with one change: the 
 \label{def:jk}
 For a loss $\rho$ twice differentiable in $\mu$, with $\mu \in \real^d$, define
 \[
-J(\mu) = \E\big[\nabla^2_\mu\,\rho(X, \mu)\big], \qquad K(\mu) = \mathrm{Cov}\big(\nabla_\mu\,\rho(X, \mu)\big),
+J(\mu) = \E\big[\nabla^2_\mu\,\rho(X, \mu)\big], \qquad K(\mu) = \cov\big(\nabla_\mu\,\rho(X, \mu)\big),
 \]
 the expected Hessian of the loss (the curvature of $Q$ at $\mu$) and the covariance matrix of its gradient (as the Fisher information matrix of \cref{def:fisher} is the covariance of the score). For $d = 1$ they are $J(\mu) = \E[\partial^2_\mu\rho(X, \mu)]$ and $K(\mu) = \var(\partial_\mu\rho(X, \mu))$.
 \end{definition}
@@ -384,7 +384,7 @@ Maximum likelihood has the smallest variance when the model is right; the method
 \item Method of moments: $\hat{\theta}^{\text{MM}} = M^{-1}(\hat{m}_1, \ldots, \hat{m}_d)$, the parameter whose first $d$ moments match the sample's. Bernoulli, Poisson, exponential and Gaussian all give the MLE; $\Unif([0, \theta])$ gives $2\bar{X}_n$, not the MLE.
 \item Its asymptotic variance, by the multivariate CLT and the delta method, is $\nabla M^{-1}\,\Sigma\,(\nabla M^{-1})^\top$; for $d = 1$, $((M^{-1})')^2\var(X)$. It is never below $1/I$. Higher moments make worse estimators ($11/9$ against $1$ for the Poisson rate).
 \item M-estimator: $\hat{\mu}_n = \operatorname{argmin}\frac1n\sum_i\rho(X_i, \mu)$ for a loss whose expectation $Q$ is minimized at $\mu^*$. Squared loss gives the mean, absolute loss the median ($Q' = 2F - 1$), check loss the quantile, negative log-likelihood the MLE, Huber's loss a robust center.
-\item Asymptotic variance $J^{-1}KJ^{-1}$ with $J = \E[\nabla^2\rho]$ (resistance) and $K = \mathrm{Cov}(\nabla\rho)$ (push); for the MLE $J = K = I$. Laplace median $1$ against mean $2$; Gaussian median $\pi/2$ against mean $1$; Huber with $\delta = 1$ on Laplace data $1.32$.
+\item Asymptotic variance $J^{-1}KJ^{-1}$ with $J = \E[\nabla^2\rho]$ (resistance) and $K = \cov(\nabla\rho)$ (push); for the MLE $J = K = I$. Laplace median $1$ against mean $2$; Gaussian median $\pi/2$ against mean $1$; Huber with $\delta = 1$ on Laplace data $1.32$.
 \item Cauchy data have no mean; the sample mean of $100$ of them is as noisy as one. The median, Huber and the MLE still work.
 \end{itemize}
 

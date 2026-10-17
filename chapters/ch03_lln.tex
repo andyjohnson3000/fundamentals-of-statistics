@@ -156,6 +156,14 @@ On the left, the density of $\bar{X}_n$ collapses onto $\mu = 1$ as $n$ grows; t
 On the right, after the $\sqrt{n}$ magnification, the density of $\sqrt{n}(\bar{X}_n - \mu)$ keeps a fixed spread and its shape settles down to a Gaussian; this is the Central Limit Theorem.
 At $n = 1$ the magnified density is the skewed exponential itself, shifted; by $n = 64$ it is hard to tell from $\Gauss(0, \sigma^2)$.
 
+\begin{bridge}[the gambler's fallacy]
+An introductory course states the Law of Large Numbers for coin tosses (the proportion of heads settles near $\frac12$) and warns against the gambler's fallacy: the belief that after a run of heads the coin is due for tails.
+The law and the warning are both right, since the proportion settles by swamping, not by compensation.
+The tosses are independent, so after $10$ heads in a row the expected excess of heads over $n/2$ stays at $5$ for every $n \geq 10$, and the expected proportion, $\frac12 + 5/n$, tends to $\frac12$ only because the excess is divided by $n$.
+In general the excess is the proportion's error multiplied by $n$ rather than $\sqrt{n}$, and its standard deviation $\sqrt{n}/2$ grows ($5$ at $n = 100$, $50$ at $n = 10{,}000$) while the proportion's, $1/(2\sqrt{n})$, shrinks ($0.05$, then $0.005$).
+The running sums of \cref{fig:whyrootn}, later in this chapter, are heads minus tails, twice this excess.
+\end{bridge}
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_lln_clt_two_views}
@@ -394,6 +402,16 @@ Then, for every $\epsilon > 0$:
 That is, $\bar{X}_n \convp \mu$.
 \end{theorem}
 
+\begin{bridge}[probability as long-run relative frequency]
+An introductory course defines the probability of an event as the proportion of times it happens in a very long series of repetitions.
+\Cref{thm:wlln} makes that sentence a theorem.
+Repeat the experiment independently and let $X_i = \ind(A \text{ happens on repetition } i)$ for the event $A$: then $\mu = \Pr(A)$, the variance $\Pr(A)(1 - \Pr(A)) \leq \frac14$ is always finite, $\bar{X}_n$ is the relative frequency of $A$, and the theorem says $\bar{X}_n \convp \Pr(A)$.
+This case, proved by Jacob Bernoulli and published in 1713, was the first law of large numbers.
+For the kiss data, $A$ is `the couple turns right' and $\bar{R}_n = 80/124 = 0.645$ is its relative frequency in $124$ repetitions.
+The theorem cannot serve as the definition, since its conclusion is itself a statement about probabilities: the axioms of probability come first, and the frequency meaning follows from them.
+The version about one endless run, which is what `long run' describes, is the Strong Law (\cref{thm:slln}), and \cref{fig:sllnpaths} draws six such runs of a fair coin.
+\end{bridge}
+
 Let's motivate this all-important result.
 Suppose you have some probability distribution with a certain mean, $\mu$, and variance, $\sigma^2$, which is assumed finite.
 Then you draw $n$ independent r.v.s, $\Xton$, from the distribution so that the $X_i$'s are independent and identically distributed (i.i.d.\ r.v.s).
@@ -494,6 +512,13 @@ That is, the WLLN states that for any $\epsilon > 0$, as $n \to \infty$ you have
 
 So the probability of falling far from the mean diminishes to zero as you draw more and more samples.
 
+\begin{bridge}[Chebyshev's rule]
+Some introductory courses teach Chebyshev's rule beside the empirical rule: whatever the shape of the data, at least $75\%$ of the values lie within two standard deviations of the mean and at least $88.9\%$ within three, against $95\%$ and $99.7\%$ for a normal shape.
+The rule is Chebyshev's inequality with $\epsilon = k\sigma$: at least $1 - 1/k^2$ of any distribution with finite variance lies within $k$ standard deviations of its mean.
+The proof below is the rule applied to $\bar{X}_n$, whose standard deviation is the standard error $\sigma/\sqrt{n}$: a fixed distance $\epsilon$ from $\mu$ is $k = \epsilon\sqrt{n}/\sigma$ standard errors, $k$ grows like $\sqrt{n}$, and the guaranteed share $1 - 1/k^2 = 1 - \sigma^2/(n\epsilon^2)$ climbs to $1$.
+For the kiss data, $\epsilon = 0.084$ is $1.95$ standard errors at $n = 124$, so at least $73$ of every $100$ samples of $124$ couples land that close (the worked example below); four times as many couples double $k$ to $3.9$ and raise the guarantee to $93$ in $100$.
+\end{bridge}
+
 To make the interpretation of the WLLN more concrete, suppose again that you're conducting one long experiment, and during that experiment you draw $n$ i.i.d.\ r.v.s, $\Xton$, from the same parent distribution.
 One way of thinking about the $X_i$ is that each one equals the true mean, $\mu$, plus some measurement noise, $U_i$, where $\E[U_i] = 0$ for all $i$ and the $U_i$ are independent.
 You can then express these noisy measurements as $X_i = \mu + U_i$ for $i = 1, \ldots, n$.
@@ -530,13 +555,14 @@ Chebyshev's inequality with $n = 124$, $\epsilon = 0.084$ and the worst case $p(
 and with $p(1-p)$ evaluated at $0.645$ the bound is $0.26$.
 The bound is true but loose: the CLT (\cref{ch:clt}) says the probability is really about $0.05$.
 Chebyshev's inequality is the right tool for proving that something converges, and the wrong tool for saying how fast.
-\Cref{fig:bounds} in the next chapter shows all the bounds on the same axes.
 \end{worked}
 
+\Cref{fig:bounds} in the next chapter shows all the bounds on the same axes.
+
 \begin{bridge}[consistency]
-An estimator that converges in probability to the parameter it estimates is called \textit{consistent}.
-The WLLN says the sample mean is a consistent estimator of the population mean, and the sample proportion is a consistent estimator of the population proportion.
 In an introductory course you were told `with a bigger sample the estimate gets closer to the truth'; the WLLN is that sentence with every word defined.
+An estimator that converges in probability to the parameter it estimates is called \textit{consistent} (\cref{def:consistent}).
+The WLLN says the sample mean is a consistent estimator of the population mean, and the sample proportion is a consistent estimator of the population proportion.
 Note what it does not say: it doesn't say $\bar{X}_n$ equals $\mu$ for any finite $n$, and it doesn't say how big $n$ must be for a given accuracy.
 The CLT and Hoeffding's inequality, both in \cref{ch:clt}, handle the second question.
 \end{bridge}

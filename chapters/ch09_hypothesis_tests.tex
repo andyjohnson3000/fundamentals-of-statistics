@@ -121,13 +121,13 @@ The \textbf{rejection region} of $\psi$ is the set of samples on which it reject
 \[
 R_\psi = \{ (x_1, \ldots, x_n) \in E^n : \psi(x_1, \ldots, x_n) = 1 \},
 \]
-so that $\psi = \ind\{R_\psi\}$ \toolkit{sec:math-indicator}.
+so that $\psi = \ind(R_\psi)$ \toolkit{sec:math-indicator}.
 \end{definition}
 
 \begin{inwords}
 \textbf{In words.} A test is a rule, fixed before the data arrive, that sorts every possible sample into two bins: reject or don't. The rejection region is the `reject' bin, and the test is its indicator. Because the rule is applied to a random sample, $\psi$ is a random variable, a Bernoulli one, and asking how often it equals $1$ is a probability question, like asking how often an interval covers.
 \par\smallskip
-\textbf{For the kiss data.} `Reject $p = \frac12$ if $72$ or more of the $124$ couples turn right' is the test $\psi = \ind\{n\bar{R}_n \geq 72\}$. Its rejection region is every sequence of $124$ zeros and ones with at least $72$ ones. On the sample we have, $n\bar{R}_n = 80$ and $\psi = 1$.
+\textbf{For the kiss data.} `Reject $p = \frac12$ if $72$ or more of the $124$ couples turn right' is the test $\psi = \ind(n\bar{R}_n \geq 72)$. Its rejection region is every sequence of $124$ zeros and ones with at least $72$ ones. On the sample we have, $n\bar{R}_n = 80$ and $\psi = 1$.
 \end{inwords}
 
 The definition contains no probability: a test is a partition of the sample space $E^n$ of \cref{sec:models-sample-space} into two pieces.
@@ -135,7 +135,7 @@ Probability enters when you ask how the test behaves under each candidate $\Pr_\
 
 In practice every test in this book has the form
 \[
-\psi = \ind\{ T_n > c \}
+\psi = \ind( T_n > c )
 \]
 for a statistic $T_n = T_n(\Xton)$, called the \textbf{test statistic}, and a number $c$, the \textbf{threshold}; the rejection region is then $\{T_n > c\}$ (for a count, `$\geq 72$' is `$> 71$', so the strict inequality is only a matter of where $c$ sits).
 The test statistic compresses the sample into one number that measures how far the data are from what $H_0$ predicts, and the threshold says how far is too far.
@@ -143,7 +143,7 @@ Everything a test does is in those two choices, and the sections that follow are
 
 \begin{bridge}[the test statistic you already know]
 In an introductory course the test statistic was $z = (\bar{x} - \mu_0)/(\sigma/\sqrt{n})$, or $t$ with $s$ in place of $\sigma$, and the threshold was a number from a table, $1.96$ or $1.645$ or a $t$ critical value.
-That is $\psi = \ind\{\abs{T_n} > c\}$ with $T_n$ the standardized mean.
+That is $\psi = \ind(\abs{T_n} > c)$ with $T_n$ the standardized mean.
 What this chapter adds is the function $\psi$ itself as an object, so that `the test rejects with probability $\alpha$ when $H_0$ is true' is a statement about a random variable with a definition, and so that tests with other statistics (likelihood ratios in \cref{ch:wald-lrt}, chi-squared distances in \cref{ch:gof}) are the same object with a different $T_n$.
 \end{bridge}
 
@@ -187,7 +187,7 @@ For a test $\psi$ of $H_0: \theta \in \Theta_0$ against $H_1: \theta \in \Theta_
 \begin{inwords}
 \textbf{In words.} Fix a truth $\theta$ and imagine rerunning the study many times. If $\theta$ is in the null set, the fraction of reruns on which the test rejects is the type 1 error at that $\theta$; if $\theta$ is in the alternative, the fraction on which it fails to reject is the type 2 error at that $\theta$, and the fraction on which it rejects is the power at that $\theta$. The power of the test is the worst case of that last fraction over the whole alternative: the least the test can be relied on to detect a departure from $H_0$.
 \par\smallskip
-\textbf{For the kiss data.} For $\psi = \ind\{n\bar{R}_n \geq 72\}$ and the one-sided hypotheses $H_0: p = \frac12$, $H_1: p > \frac12$: the type 1 error is the single number $\Pr_{1/2}(n\bar{R}_n \geq 72) = 0.044$. The type 2 error at $p = 0.645$ is $\Pr_{0.645}(n\bar{R}_n \leq 71) = 0.057$, so the test detects a true $p$ of $0.645$ with probability $0.943$. The power in the definition's sense is $\inf_{p > 1/2}$ of that detection probability, which is $0.044$, approached as $p \downarrow \frac12$: no test can reliably detect a $p$ just above $\frac12$ with $124$ couples, and the infimum records that.
+\textbf{For the kiss data.} For $\psi = \ind(n\bar{R}_n \geq 72)$ and the one-sided hypotheses $H_0: p = \frac12$, $H_1: p > \frac12$: the type 1 error is the single number $\Pr_{1/2}(n\bar{R}_n \geq 72) = 0.044$. The type 2 error at $p = 0.645$ is $\Pr_{0.645}(n\bar{R}_n \leq 71) = 0.057$, so the test detects a true $p$ of $0.645$ with probability $0.943$. The power in the definition's sense is $\inf_{p > 1/2}$ of that detection probability, which is $0.044$, approached as $p \downarrow \frac12$: no test can reliably detect a $p$ just above $\frac12$ with $124$ couples, and the infimum records that.
 \end{inwords}
 
 \begin{figure}[htbp]
@@ -225,7 +225,7 @@ A good test has a rejection curve that is low on $\Theta_0$ and climbs quickly t
 \end{figure}
 
 \begin{bridge}[$\alpha$, $\beta$ and the power calculation]
-The introductory course called the type 1 error probability $\alpha$ and the type 2 error probability $\beta$, said `power $= 1 - \beta$', and may have made you compute the sample size needed for $80\%$ power against a specific alternative.
+An introductory course calls the type 1 error probability $\alpha$ and the type 2 error probability $\beta$, says `power $= 1 - \beta$', and may have made you compute the sample size needed for $80\%$ power against a specific alternative.
 All of that is here. The only addition is that $\alpha$ and $\beta$ are functions of $\theta$, not single numbers: a type 2 error of $0.057$ is a type 2 error \textit{at} $p = 0.645$, and at $p = 0.55$ the same test has a type 2 error of $0.72$, which is why failing to reject is not accepting: this test misses a true $p$ of $0.55$ nearly three times in four.
 The power calculation of an introductory course picks one alternative and reads one point off \cref{fig:powercurve}'s curve; the power $\pi_\psi$ of \cref{def:errors} takes the infimum over all of them, which for a composite alternative that touches $\Theta_0$ is the rejection probability at the edge of $\Theta_0$, $0.044$ here: at most the level, and useless as a summary of what the test can detect. The one-point version is the useful one in planning a study, and the infimum is the one that describes the test over the whole alternative.
 \end{bridge}
@@ -247,7 +247,7 @@ where $\psi_n$ is the test built on $n$ observations \toolkit{sec:math-limits}.
 \begin{inwords}
 \textbf{In words.} A test of level $5\%$ is one that convicts the innocent at most $5\%$ of the time, whichever innocent $\theta$ is the truth. The level is a cap on the worst case of the type 1 error over the whole null set, not the type 1 error at one point. `Asymptotic' means the cap is guaranteed only in the limit of large samples, which is what a CLT-based threshold delivers.
 \par\smallskip
-\textbf{For the kiss data.} $\psi = \ind\{n\bar{R}_n \geq 72\}$ has level $5\%$ for $H_0: p = \frac12$ exactly, since $0.044 \leq 0.05$; it also has level $5\%$ for the composite null $H_0: p \leq \frac12$, since $\Pr_p(n\bar{R}_n \geq 72)$ only decreases as $p$ falls below $\frac12$. The threshold $71$ would not do: $\Pr_{1/2}(n\bar{R}_n \geq 71) = 0.063$.
+\textbf{For the kiss data.} $\psi = \ind(n\bar{R}_n \geq 72)$ has level $5\%$ for $H_0: p = \frac12$ exactly, since $0.044 \leq 0.05$; it also has level $5\%$ for the composite null $H_0: p \leq \frac12$, since $\Pr_p(n\bar{R}_n \geq 72)$ only decreases as $p$ falls below $\frac12$. The threshold $71$ would not do: $\Pr_{1/2}(n\bar{R}_n \geq 71) = 0.063$.
 \end{inwords}
 
 Two remarks on the definition, both consequences of the asymmetry of \cref{sec:tests-hypotheses}.
@@ -286,17 +286,17 @@ T_n = \sqrt{n}\, \frac{\bar{X}_n - \mu_0}{\sigma}.
 If $H_0$ is true then $\mu = \mu_0$ and the CLT (\cref{thm:clt}) says $T_n \convd \Gauss(0, 1)$.
 So under $H_0$ the probability that $\abs{T_n}$ exceeds $q_{\alpha/2}$ tends to $\Pr(\abs{Z} > q_{\alpha/2}) = \alpha$, and the test
 \[
-\psi_\alpha = \ind\{ \abs{T_n} > q_{\alpha/2} \}
+\psi_\alpha = \ind( \abs{T_n} > q_{\alpha/2} )
 \]
 has asymptotic level $\alpha$.
-The one-sided versions use one tail: for $H_1: \mu > \mu_0$, $\psi_\alpha = \ind\{T_n > q_\alpha\}$; for $H_1: \mu < \mu_0$, $\psi_\alpha = \ind\{T_n < -q_\alpha\}$.
+The one-sided versions use one tail: for $H_1: \mu > \mu_0$, $\psi_\alpha = \ind(T_n > q_\alpha)$; for $H_1: \mu < \mu_0$, $\psi_\alpha = \ind(T_n < -q_\alpha)$.
 \Cref{fig:gaussquantiles} in \cref{ch:gaussian} is the picture: $q_{\alpha/2}$ leaves $\alpha/2$ in each tail, $q_\alpha$ leaves $\alpha$ in one.
 
 \begin{proposition}[The standardized-mean test]
 \label{prop:clt-test}
 Under the assumptions above, with $\sigma$ known or replaced by any consistent estimator $\hat{\sigma}_n$:
 \begin{enumerate}[nosep]
-\item $\psi_\alpha = \ind\{\abs{T_n} > q_{\alpha/2}\}$ has asymptotic level $\alpha$ for $H_0: \mu = \mu_0$, and $\ind\{T_n > q_\alpha\}$ has asymptotic level $\alpha$ for $H_0: \mu \leq \mu_0$.
+\item $\psi_\alpha = \ind(\abs{T_n} > q_{\alpha/2})$ has asymptotic level $\alpha$ for $H_0: \mu = \mu_0$, and $\ind(T_n > q_\alpha)$ has asymptotic level $\alpha$ for $H_0: \mu \leq \mu_0$.
 \item Under any $\mu \neq \mu_0$ in the alternative, $\Pr_\mu(\psi_\alpha = 1) \to 1$: the type 2 error at every fixed alternative tends to $0$.
 \end{enumerate}
 \end{proposition}
@@ -397,7 +397,7 @@ For $80$ right turns, far from either threshold, the decision is the same every 
 \begin{bridge}[the binomial test and the $z$-test for a proportion]
 An introductory course presents these as two tests: the `exact binomial test' when $n$ is small, the `$z$-test for a proportion' when $np_0$ and $n(1 - p_0)$ are both at least $10$.
 They test the same hypothesis with the same statistic, the count, and differ only in whether the count's distribution under $H_0$ is used as it is or replaced by its Gaussian limit.
-The rule of thumb is a statement about when \cref{fig:exactclt}'s staircase and curve are close enough that the thresholds agree.
+The rule of thumb keeps the count's skewness small (the `$np \geq 10$' bridge in \cref{sec:clt}); it does nothing about discreteness, which is why the two-sided thresholds above still differ by one count with $np_0 = 62$.
 \end{bridge}
 
 \section{\texorpdfstring{$p$}{p}-values}
@@ -446,7 +446,7 @@ So one number replaces the whole family of tests.
 A reader who wants level $5\%$ compares the $p$-value with $0.05$; one who wants $1\%$ compares with $0.01$; and the smaller the $p$-value, the more levels reject, the more confidently $H_0$ is rejected.
 
 \begin{bridge}[$p < 0.05$]
-`Reject if $p < 0.05$' was the intro course's rule, and the golden rule is its justification: the $p$-value is the smallest level that rejects, so a $p$-value below $0.05$ means the level-$5\%$ test rejects, no more and no less.
+`Reject if $p < 0.05$' was the rule of an introductory course, and the golden rule is its justification: the $p$-value is the smallest level that rejects, so a $p$-value below $0.05$ means the level-$5\%$ test rejects, no more and no less.
 Two habits from that course transfer intact. The $p$-value is computed from the null distribution of the statistic, which is why it needed $\mu_0$ (or $p_0$) and not any guess at the alternative. And a one-sided $p$-value is half the two-sided one for a symmetric statistic when the data lean the alternative's way, so the choice of sides made in \cref{sec:tests-hypotheses} before seeing the data is the choice that fixes the $p$-value.
 \end{bridge}
 
@@ -482,7 +482,7 @@ Then the set of values not rejected,
 \mathcal{I} = \{ \theta_0 \in \Theta : \psi(\theta_0) = 0 \},
 \]
 is a confidence set of level $1 - \alpha$ for $\theta$.
-\item Conversely, if $\mathcal{I}$ is a confidence interval of level $1 - \alpha$ for $\theta$, then for every $\theta_0$ the test $\psi(\theta_0) = \ind\{\theta_0 \notin \mathcal{I}\}$ has level $\alpha$ for $H_0: \theta = \theta_0$.
+\item Conversely, if $\mathcal{I}$ is a confidence interval of level $1 - \alpha$ for $\theta$, then for every $\theta_0$ the test $\psi(\theta_0) = \ind(\theta_0 \notin \mathcal{I})$ has level $\alpha$ for $H_0: \theta = \theta_0$.
 \end{enumerate}
 The same holds with `asymptotic' in front of both levels.
 \end{proposition}
@@ -538,7 +538,7 @@ In all of them the level is the cap on the type 1 error, the power is what the t
 
 \begin{itemize}[nosep]
 \item Hypotheses: $H_0: \theta \in \Theta_0$ against $H_1: \theta \in \Theta_1$, disjoint. The data are used only to try to reject $H_0$; failing to reject is not accepting. Simple ($\{\theta_0\}$) or composite; one-sided or two-sided, and the side is chosen before the data are seen.
-\item A test is $\psi: E^n \to \{0,1\}$, the indicator of its rejection region; in practice $\psi = \ind\{T_n > c\}$ for a test statistic $T_n$ and a threshold $c$.
+\item A test is $\psi: E^n \to \{0,1\}$, the indicator of its rejection region; in practice $\psi = \ind(T_n > c)$ for a test statistic $T_n$ and a threshold $c$.
 \item Type 1 error $\alpha_\psi(\theta) = \Pr_\theta(\psi = 1)$ on $\Theta_0$; type 2 error $\beta_\psi(\theta) = \Pr_\theta(\psi = 0)$ on $\Theta_1$; power $\pi_\psi = \inf_{\Theta_1}(1 - \beta_\psi)$. At fixed $n$ the two errors trade off; only $n$ lowers both.
 \item Level $\alpha$: $\alpha_\psi \leq \alpha$ on all of $\Theta_0$, a cap on the worst case; asymptotic level: the same in the limit. For a composite null the worst case is at the boundary, so $H_0: \theta \leq \theta_0$ and $H_0: \theta = \theta_0$ get the same test. For a test the level is $\alpha$; for an interval it is $1 - \alpha$.
 \item The standardized-mean test: $T_n = \sqrt{n}(\bar{X}_n - \mu_0)/\sigma$, reject if $\abs{T_n} > q_{\alpha/2}$ (two-sided) or $T_n > q_\alpha$ (one-sided). Asymptotic level $\alpha$ by the CLT, plus Slutsky if $\sigma$ is estimated; consistent (power $\to 1$ at every fixed alternative) by the LLN. Under $H_0$ the parameter is known, so no plug-in is needed.
@@ -587,7 +587,7 @@ $T_n = -0.73$, CLT $p$-value $2\Phi(-0.73) = 0.47$. Exactly, $\Pr_{1/2}(\mathrm{
 For $\Xton \iid \Pois(\lambda)$, build a test of asymptotic level $5\%$ for $H_0: \abs{\lambda - 2} \leq 1$ against $H_1: \abs{\lambda - 2} > 1$.
 \end{exercise}
 \begin{solution}
-$\Theta_0 = [1, 3]$. Reject when $\hat{\lambda}$ is far outside it on either side, with a margin that shrinks like $1/\sqrt{n}$ and uses the standard deviation $\sqrt{\lambda}$ at its own endpoint: $\psi = \ind\{\hat{\lambda} > 3 + s\sqrt{3/n}\} + \ind\{\hat{\lambda} < 1 - s\sqrt{1/n}\}$ for a number $s$ to be chosen (the two events are disjoint, since $\hat{\lambda}$ cannot be both above $3$ and below $1$). The type 1 error at $\lambda \in [1, 3]$ is largest at the endpoints: at $\lambda = 3$ the first indicator is the event $\sqrt{n}(\hat{\lambda} - 3)/\sqrt{3} > s$, whose probability tends to $\Pr(Z > s)$ by the CLT, and the second indicator's probability tends to $0$ by the LLN; at $\lambda = 1$ the reverse, with limit $\Pr(Z < -s)$. At any interior $\lambda$ both probabilities tend to $0$. Choosing $s = 1.645$ makes each endpoint's limiting type 1 error $0.05$, so the test has asymptotic level $5\%$ (not $2.5\%$ per side: at any one $\lambda$ only one side can fire in the limit). Each side uses the standard deviation $\sqrt{\lambda}$ at its own endpoint, which is the `parameter known under the null' idea applied endpoint by endpoint.
+$\Theta_0 = [1, 3]$. Reject when $\hat{\lambda}$ is far outside it on either side, with a margin that shrinks like $1/\sqrt{n}$ and uses the standard deviation $\sqrt{\lambda}$ at its own endpoint: $\psi = \ind(\hat{\lambda} > 3 + s\sqrt{3/n}) + \ind(\hat{\lambda} < 1 - s\sqrt{1/n})$ for a number $s$ to be chosen (the two events are disjoint, since $\hat{\lambda}$ cannot be both above $3$ and below $1$). The type 1 error at $\lambda \in [1, 3]$ is largest at the endpoints: at $\lambda = 3$ the first indicator is the event $\sqrt{n}(\hat{\lambda} - 3)/\sqrt{3} > s$, whose probability tends to $\Pr(Z > s)$ by the CLT, and the second indicator's probability tends to $0$ by the LLN; at $\lambda = 1$ the reverse, with limit $\Pr(Z < -s)$. At any interior $\lambda$ both probabilities tend to $0$. Choosing $s = 1.645$ makes each endpoint's limiting type 1 error $0.05$, so the test has asymptotic level $5\%$ (not $2.5\%$ per side: at any one $\lambda$ only one side can fire in the limit). Each side uses the standard deviation $\sqrt{\lambda}$ at its own endpoint, which is the `parameter known under the null' idea applied endpoint by endpoint.
 \end{solution}
 
 \begin{exercise}
@@ -600,7 +600,7 @@ For $u \in (0, 1)$, $\Pr_{H_0}(P \leq u) = \Pr_{H_0}(1 - F_0(T) \leq u) = \Pr_{H
 
 \begin{exercise}
 \label{ex:tests-solve-inversion}
-Show that the set of $p_0 \in (0,1)$ not rejected by the test $\psi(p_0) = \ind\{\abs{\bar{R}_n - p_0} > q_{\alpha/2}\sqrt{p_0(1 - p_0)/n}\}$ is exactly the solve interval of \cref{sec:ci-three-solutions}, and that inverting the test with the plug-in standard error gives the plug-in interval.
+Show that the set of $p_0 \in (0,1)$ not rejected by the test $\psi(p_0) = \ind(\abs{\bar{R}_n - p_0} > q_{\alpha/2}\sqrt{p_0(1 - p_0)/n})$ is exactly the solve interval of \cref{sec:ci-three-solutions}, and that inverting the test with the plug-in standard error gives the plug-in interval.
 \end{exercise}
 \begin{solution}
 Not rejecting $p_0$ means $\abs{\bar{R}_n - p_0} \leq q_{\alpha/2}\sqrt{p_0(1-p_0)/n}$, that is, $(\bar{R}_n - p_0)^2 \leq q_{\alpha/2}^2\, p_0(1 - p_0)/n$, the quadratic inequality in $p_0$ whose solution set is the solve interval (\cref{eq:wilson}). With $\sqrt{\bar{R}_n(1 - \bar{R}_n)/n}$ in place of $\sqrt{p_0(1-p_0)/n}$ the inequality is $\abs{\bar{R}_n - p_0} \leq q_{\alpha/2}\sqrt{\bar{R}_n(1 - \bar{R}_n)/n}$, whose solution set is $\bar{R}_n \pm q_{\alpha/2}\sqrt{\bar{R}_n(1-\bar{R}_n)/n}$, the plug-in interval. The conservative interval inverts the test that uses the worst-case standard error $1/(2\sqrt{n})$ for every $p_0$.

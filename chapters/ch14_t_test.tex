@@ -334,8 +334,8 @@ $\infty$ (Gaussian) & 1.28 & 1.645 & 1.96 & 2.33 & 2.58 \\
 \bottomrule
 \end{tabular}
 \end{center}
-With one degree of freedom the $2.5\%$ cutoff is $12.7$ instead of $1.96$: a single sample variance is so unreliable that the test demands a sample mean more than twelve estimated standard errors from the null before it will reject at $5\%$.
-With $30$ degrees of freedom the cutoff is $2.04$, and the introductory rule of thumb that `$n \geq 30$ is large' is the observation that the row for $30$ is within $4\%$ of the Gaussian row at the levels an introductory course uses, $5\%$ and $2.5\%$.
+With one degree of freedom the $2.5\%$ threshold is $12.7$ instead of $1.96$: a single sample variance is so unreliable that the test demands a sample mean more than twelve estimated standard errors from the null before it will reject at $5\%$.
+With $30$ degrees of freedom the threshold is $2.04$, and the introductory rule of thumb that `$n \geq 30$ is large' is the observation that the row for $30$ is within $4\%$ of the Gaussian row at the levels an introductory course uses, $5\%$ and $2.5\%$.
 
 \begin{figure}[htbp]
 \centering
@@ -386,9 +386,9 @@ T_n = \sqrt{n}\,\frac{\bar{X}_n - \mu_0}{S_n}.
 \textbf{Student's $t$-test} at level $\alpha$ is
 \[
 \begin{array}{lll}
-H_0: \mu = \mu_0,\ H_1: \mu \neq \mu_0: & \psi_\alpha = \ind\{\abs{T_n} > q_{\alpha/2}(t_{n-1})\}, & p\text{-value } \Pr(\abs{t_{n-1}} > \abs{T_n^{\text{obs}}}); \\[2pt]
-H_0: \mu \leq \mu_0,\ H_1: \mu > \mu_0: & \psi_\alpha = \ind\{T_n > q_{\alpha}(t_{n-1})\}, & p\text{-value } \Pr(t_{n-1} > T_n^{\text{obs}}); \\[2pt]
-H_0: \mu \geq \mu_0,\ H_1: \mu < \mu_0: & \psi_\alpha = \ind\{T_n < -q_{\alpha}(t_{n-1})\}, & p\text{-value } \Pr(t_{n-1} < T_n^{\text{obs}}).
+H_0: \mu = \mu_0,\ H_1: \mu \neq \mu_0: & \psi_\alpha = \ind(\abs{T_n} > q_{\alpha/2}(t_{n-1})), & p\text{-value } \Pr(\abs{t_{n-1}} > \abs{T_n^{\text{obs}}}); \\[2pt]
+H_0: \mu \leq \mu_0,\ H_1: \mu > \mu_0: & \psi_\alpha = \ind(T_n > q_{\alpha}(t_{n-1})), & p\text{-value } \Pr(t_{n-1} > T_n^{\text{obs}}); \\[2pt]
+H_0: \mu \geq \mu_0,\ H_1: \mu < \mu_0: & \psi_\alpha = \ind(T_n < -q_{\alpha}(t_{n-1})), & p\text{-value } \Pr(t_{n-1} < T_n^{\text{obs}}).
 \end{array}
 \]
 where $T_n^{\text{obs}}$ is the value of $T_n$ computed from the data.
@@ -399,7 +399,7 @@ The \textbf{$t$-interval} is
 \end{definition}
 
 \begin{inwords}
-\textbf{In words.} Standardize the sample mean's distance from the null value by its estimated standard error $S_n/\sqrt{n}$, and compare with a Student cutoff instead of a Gaussian one. The cutoff is larger, by a lot for small $n$ and by a little for large $n$, to pay for the noise in $S_n$. The interval is the usual `estimate $\pm$ cutoff $\times$ standard error' with the Student cutoff.
+\textbf{In words.} Standardize the sample mean's distance from the null value by its estimated standard error $S_n/\sqrt{n}$, and compare with a Student threshold instead of a Gaussian one. The threshold is larger, by a lot for small $n$ and by a little for large $n$, to pay for the noise in $S_n$. The interval is the usual `estimate $\pm$ threshold $\times$ standard error' with the Student threshold.
 \par\smallskip
 \textbf{For the kiss data.} $T = 3.36$ against $q_{0.025}(t_{123}) = 1.979$: reject $p = \frac12$ at $5\%$, with $p$-value $\Pr(\abs{t_{123}} > 3.36) = 0.0010$. The $t$-interval is $0.645 \pm 1.979 \times 0.480/\sqrt{124} = [0.560, 0.730]$, against the plug-in interval $[0.561, 0.729]$ of \cref{ch:confidence-intervals}: at $n = 124$ the two recipes agree to within $0.001$.
 \end{inwords}
@@ -611,7 +611,7 @@ The \textbf{false discovery rate} is $\mathrm{FDR} = \E\big[V/\max(R, 1)\big]$, 
 \end{definition}
 
 \begin{inwords}
-\textbf{In words.} The FWER asks for no false alarm at all in the whole batch; controlling it at $5\%$ means that in $95$ of $100$ batches, every rejection is a true discovery. The FDR tolerates false alarms as long as they are a small fraction of what is reported; controlling it at $5\%$ means that, on average, $5\%$ of the findings you announce are wrong. The first is the stricter demand: since $V/\max(R,1) \leq \ind\{V \geq 1\}$, $\mathrm{FDR} \leq \mathrm{FWER}$, and anything that controls the FWER controls the FDR, not conversely.
+\textbf{In words.} The FWER asks for no false alarm at all in the whole batch; controlling it at $5\%$ means that in $95$ of $100$ batches, every rejection is a true discovery. The FDR tolerates false alarms as long as they are a small fraction of what is reported; controlling it at $5\%$ means that, on average, $5\%$ of the findings you announce are wrong. The first is the stricter demand: since $V/\max(R,1) \leq \ind(V \geq 1)$, $\mathrm{FDR} \leq \mathrm{FWER}$, and anything that controls the FWER controls the FDR, not conversely.
 \par\smallskip
 \textbf{For the kiss data.} One test, $N = 1$: if the null is true both rates are the level, $\alpha$, and if it is false both are $0$. The salmon's $8{,}064$ tests at $\alpha = 0.001$ have $\mathrm{FWER} = 0.9997$, and since every null is true, every rejection is false and $\mathrm{FDR} = \Pr(R \geq 1) = 0.9997$ as well.
 \end{inwords}

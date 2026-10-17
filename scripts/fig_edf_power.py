@@ -1,5 +1,5 @@
 """Power of four tests of H0: the data are Gauss(0, 1), with n = 50, each
-at exact level 5% (cutoffs from 40,000 samples under the null). The tests:
+at exact level 5% (thresholds from 40,000 samples under the null). The tests:
 Kolmogorov-Smirnov (blue, solid), Anderson-Darling (orange, dashed), and
 Pearson's chi-squared test on the counts in 4 (aqua, dash-dot) or 10
 (yellow, dotted) cells that are equally likely under the null. Left: data

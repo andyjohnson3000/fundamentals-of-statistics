@@ -42,6 +42,14 @@ The pitfall box in \cref{sec:conv-dist} gave the counterexample: $X_n = -Z$ and 
 The marginal limits don't determine the limit of the sum because they say nothing about how $X_n$ and $Y_n$ are related.
 This is where Slutsky's theorem comes in: it's the special case where one of the two limits is a constant, so there's no relationship to worry about.
 
+\begin{bridge}[variances add, standard deviations do not]
+An introductory course combines independent random variables with the rule `variances add': $\var(X \pm Y) = \var(X) + \var(Y)$, for a difference as well as a sum.
+Without independence there is a third term, $\var(X \pm Y) = \var(X) + \var(Y) \pm 2\cov(X, Y)$, and the covariance is one part of the relation between $X_n$ and $Y_n$ that the marginal limits leave out.
+In the counterexample above both variables have variance $1$: $X_n = -Y_n$ gives $\var(X_n + Y_n) = 0$, independence gives $2$, and $X_n = Y_n$ gives $4$, the case in which the standard deviations add, $1 + 1 = 2$.
+Independence is the hypothesis behind the two-sample standard error $\sqrt{s_1^2/n_1 + s_2^2/n_2}$: two independent kiss studies of $124$ couples give two sample proportions with standard error $0.043$ each, and their difference has standard error $\sqrt{0.043^2 + 0.043^2} = 0.061$, not $0.086$.
+Before-and-after measurements on the same subjects are usually positively correlated, so the two-sample formula overstates the variance of their difference, and the paired analysis of an introductory course works with the differences instead.
+\end{bridge}
+
 \section{Slutsky's theorem}
 \label{sec:slutsky}
 
@@ -98,12 +106,12 @@ This is the plug-in route to the confidence interval for $p$, and it's the justi
 \end{worked}
 
 \begin{bridge}[why you're allowed to use $s$ in place of $\sigma$]
-Every introductory course replaces the unknown $\sigma$ by the sample standard deviation $s$ in the standard error and carries on as if nothing happened (sometimes switching from $z$ to $t$ as an apology).
-Slutsky's theorem is the reason this works for large $n$: $s \convp \sigma$ by the Law of Large Numbers applied to the squares, so
+Every introductory course replaces the unknown $\sigma$ by the sample standard deviation $s$ in the standard error, and for a mean switches from $z$ to $t$.
+Slutsky's theorem is the reason this works for large $n$: $s \convp \sigma$ by the Law of Large Numbers applied to the data and to their squares (for the squares in its finite-mean form, \cref{thm:slln}) and the continuous mapping theorem of \cref{sec:cmt}, so
 \[
 \frac{\bar{X}_n - \mu}{s/\sqrt{n}} = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \cdot \frac{\sigma}{s} \convd \Gauss(0,1) \cdot 1.
 \]
-The $t$ distribution is the exact finite-sample answer when the data are Gaussian (\cref{ch:t-test}); Slutsky is the large-sample answer for any parent.
+The $t$ distribution is the exact finite-sample answer when the data are Gaussian (\cref{ch:t-test}); Slutsky is the large-sample answer for any parent with finite variance.
 \end{bridge}
 
 \section{Continuous mapping theorem (CMT)}
@@ -285,10 +293,18 @@ The proofs are the ones above with matrices in place of numbers.
 The method of moments (\cref{ch:mom-mestimation}) and the chi-squared goodness-of-fit test (\cref{ch:gof}) use these, and the book states them again there in the form each needs.
 \end{remark}
 
+\begin{bridge}[the confidence interval for an odds ratio]
+Courses in biostatistics and epidemiology teach a confidence interval for an odds ratio: the log of the estimated odds ratio plus or minus $1.96\sqrt{1/a + 1/b + 1/c + 1/d}$, with $a, b, c, d$ the four counts of the two-by-two table, exponentiated at both ends.
+The square root is the delta method.
+For one group with $S$ successes in $n$ trials, the log odds $g(p) = \log\big(p/(1-p)\big)$ has $g'(p) = 1/\big(p(1-p)\big)$, so \cref{thm:delta} gives it approximate variance $g'(p)^2 \, p(1-p)/n = \big(1/p + 1/(1-p)\big)/n$, which with $\hat{p} = S/n$ plugged in is $1/S + 1/(n - S)$.
+For the kiss data the log odds of turning right is $\log(80/44) = 0.598$ with standard error $\sqrt{1/80 + 1/44} = 0.188$, and exponentiating the ends of $0.598 \pm 1.96 \times 0.188$, which keeps the level (\cref{sec:ci-subway}), gives $[1.26, 2.63]$ for the odds.
+An odds ratio compares two independent groups, so its log is the difference of two independent log odds, and the variance of that difference adds all four reciprocals.
+\end{bridge}
+
 \section{Where the limit theorems are used in the rest of the book}
 \label{sec:conv-where-used}
 
-Every asymptotic statement in the later chapters is one of the facts of \cref{ch:lln,ch:clt} or this chapter in disguise, with one exception the table names (Donsker's theorem about the whole empirical CDF, behind the Kolmogorov--Smirnov test).
+Every asymptotic statement in the later chapters is one of the facts of \cref{ch:lln,ch:clt} or this chapter in disguise, with two exceptions the table names, both stated without proof (Donsker's theorem about the whole empirical CDF, behind the Kolmogorov--Smirnov test, and the Bernstein--von Mises theorem of \cref{ch:bayes-intro}).
 The table says which.
 `LLN' means the Law of Large Numbers (\cref{thm:wlln}), `CLT' the Central Limit Theorem (\cref{thm:clt}), `CMT' the continuous mapping theorem (\cref{thm:cmt}), `Slutsky' \cref{thm:slutsky}, and `delta' the delta method (\cref{thm:delta}).
 
@@ -311,7 +327,7 @@ Score test & \cref{ch:wald-lrt} & multivariate CLT applied to the score, then CM
 $t$-test & \cref{ch:t-test} & nothing here: exact for Gaussian data (Cochran's theorem) \\[3pt]
 Chi-squared goodness-of-fit test & \cref{ch:gof} & multivariate CLT for the rotated standardized deviations of the counts, then CMT; with estimated parameters, the nuisance-parameter theorem of \cref{ch:wald-lrt} \\[3pt]
 Kolmogorov--Smirnov and Lilliefors tests & \cref{ch:ks} & Glivenko--Cantelli (a uniform LLN), proved there from the LLN at finitely many points; Donsker's theorem (a CLT for the whole empirical CDF), stated without proof \\[3pt]
-Bayesian posteriors concentrate on the truth; Bernstein--von Mises & \cref{ch:bayes-intro} & LLN and CLT for the likelihood; stated, not proved \\[3pt]
+Bayesian posteriors concentrate on the truth (proved for Beta priors); Bernstein--von Mises & \cref{ch:bayes-intro} & LLN and Chebyshev for the concentration; Bernstein--von Mises stated, not proved \\[3pt]
 Inference for least squares with non-Gaussian errors & \cref{ch:regression-multi} & CLT (exact $t$ and $F$ when errors are Gaussian) \\[3pt]
 Asymptotic normality of GLM estimates & \cref{ch:glm-links} & the MLE result again \\[3pt]
 Sample covariance converges to the true covariance & \cref{ch:pca} & LLN entrywise, then CMT for the eigenvectors \\

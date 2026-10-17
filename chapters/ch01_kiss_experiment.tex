@@ -57,12 +57,12 @@ On the right, $78$ of $100$ were cured and $p$ is unknown; the curve shows how p
 
 Notice what the right of the figure is \textit{not}.
 It isn't a probability distribution for $p$: in this book $p$ is a fixed unknown number, not a random variable, and the curve is a plausibility ranking of candidate truths, not a density.
-The one place where $p$ does get a distribution is \cref{ch:bayes-intro}, and the difference is the whole point of that chapter.
+The one place where $p$ does get a distribution is Part VII, starting with \cref{ch:bayes-intro}, and the difference is the whole point of that chapter.
 
 \begin{bridge}[descriptive and inferential statistics]
 An introductory course divides statistics into descriptive (summarize the data you have) and inferential (say something about the population you don't have).
 This book is entirely about the second, and it adds the step the introductory course leaves implicit: a mathematical model of how the data were produced, precise enough that the inferential statements can be proved rather than asserted.
-The model is the thing on the left of the diagram, and every method in the book is a way of traveling the orange arrow with a guarantee attached.
+The model is a list of candidates for the thing on the left of the diagram, and every method in the book is a way of traveling the orange arrow with a guarantee attached.
 \end{bridge}
 
 \section{The kiss experiment}
@@ -94,6 +94,16 @@ How large?
 Another way to put the problem: for $n = 124$, what is the minimum number of couples turning right that you would need to see to be convinced that $p > 50\%$?
 $63$? $72$? $75$? $80$?
 Mathematical modeling is needed to understand the accuracy of this procedure, and the number turns out to be $72$ (\cref{sec:kiss-trinity}).
+
+\begin{bridge}[experiments, observational studies and random sampling]
+An introductory course reserves `experiment' for a study that imposes a treatment, which makes the kiss experiment an observational study: nobody told the couples which way to turn.
+This book's `statistical experiment' is any procedure whose outcome is random, as in probability theory.
+An introductory course also teaches what randomness in the design buys: random assignment licenses a conclusion about cause and effect, and random sampling licenses a generalization from the sample to a population.
+The aspirin trial of \cref{sec:wlr-nuisance} assigned $22{,}071$ physicians at random to aspirin or placebo, so its gap of $17$ against $9$ heart attacks per $1{,}000$ physicians can be credited to aspirin.
+The kiss experiment has neither kind of randomness: the $124$ couples were whoever kissed where the observer was watching.
+The model of \cref{sec:kiss-assumptions} takes as given what a random sample would have supplied: random outcomes, a common $p$ and independence.
+The common $p$ is the proportion of all kissing couples who turn right if the way the $124$ were found has nothing to do with the way they turned.
+\end{bridge}
 
 \section{Modeling assumptions}
 \label{sec:kiss-assumptions}
@@ -228,6 +238,17 @@ The estimate is a point, $\hat{p} = 0.645$.
 The $95\%$ confidence interval is a bracket around it, $[0.56, 0.73]$: the truths under which the data are not surprising.
 The test compares the data to one particular truth, $p = \frac12$: if the observed proportion lands at or beyond the threshold $72/124 = 0.581$, in the shaded region, the data count as evidence against $p = \frac12$ and for $p > \frac12$, and the threshold is set so that this happens only $5\%$ of the time when $p = \frac12$ really is the truth.
 \Cref{ch:confidence-intervals} and \cref{ch:tests-foundations} build the bracket and the threshold; the point is where both start.
+
+\begin{bridge}[the conditions for a one-proportion interval]
+An introductory course computes the one-proportion $z$-interval $\hat{p} \pm 1.96\sqrt{\hat{p}(1 - \hat{p})/n} = 0.645 \pm 0.084$, the $[0.56, 0.73]$ above, after checking three conditions: a random sample, a sample of at most $10\%$ of the population, and at least $10$ successes and $10$ failures (some texts ask for $15$).
+The first two are assumptions (2) and (3) of \cref{sec:kiss-assumptions} in checklist form.
+Drawing without replacement from $N$ couples makes the $R_i$ slightly dependent and puts a second factor in the standard deviation of $\hat{p}$,
+\[
+\sqrt{\var(\hat{p})} = \sqrt{\frac{p(1-p)}{n}} \, \sqrt{\frac{N - n}{N - 1}},
+\]
+and the $10\%$ condition keeps that factor above $\sqrt{0.9} \approx 0.95$; for the $5{,}000$ couples of \cref{sec:kiss-population} it is $0.988$.
+The third condition is not about how the data were produced but about whether the Gaussian approximation behind the interval is accurate at this $n$: the kiss data pass with $80$ right turns and $44$ left, and the interval's actual coverage at $p = 0.645$ is $0.939$ (\cref{sec:ci-coverage}).
+\end{bridge}
 
 \begin{figure}[htbp]
 \centering

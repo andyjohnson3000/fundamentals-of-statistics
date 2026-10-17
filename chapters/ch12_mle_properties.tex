@@ -166,7 +166,7 @@ For a one-parameter model satisfying the regularity conditions of \cref{sec:mle-
 I(\theta) = \var_\theta\big(\ell'(\theta)\big) = \E_\theta\big[\ell'(\theta)^2\big],
 \]
 the variance of the score of one observation.
-For a parameter $\theta \in \real^d$ the score is the gradient $\nabla\ell(\theta)$ and the \textbf{Fisher information matrix} is its $d \times d$ covariance matrix, $I(\theta) = \mathrm{Cov}_\theta(\nabla\ell(\theta))$.
+For a parameter $\theta \in \real^d$ the score is the gradient $\nabla\ell(\theta)$ and the \textbf{Fisher information matrix} is its $d \times d$ covariance matrix, $I(\theta) = \cov_\theta(\nabla\ell(\theta))$.
 \end{definition}
 
 \begin{inwords}
@@ -385,10 +385,10 @@ Then for every $\theta$,
 Unbiasedness says $\int T(x)\,p_\theta^{(n)}(x)\,\mathrm{d}x = \theta$ for every $\theta$, where $p^{(n)}_\theta = \prod_i p_\theta(x_i)$ is the joint density.
 Differentiate in $\theta$, moving the derivative inside (which the finite variance of $T$ and the regularity conditions permit), and use $\partial_\theta p^{(n)}_\theta = p^{(n)}_\theta\,\ell_n'(\theta)$:
 \[
-1 = \int T(x)\,\ell_n'(\theta)\,p^{(n)}_\theta(x)\,\mathrm{d}x = \E_\theta\big[T\,\ell_n'(\theta)\big] = \mathrm{Cov}_\theta\big(T, \ell_n'(\theta)\big),
+1 = \int T(x)\,\ell_n'(\theta)\,p^{(n)}_\theta(x)\,\mathrm{d}x = \E_\theta\big[T\,\ell_n'(\theta)\big] = \cov_\theta\big(T, \ell_n'(\theta)\big),
 \]
 the last step because $\E_\theta[\ell_n'(\theta)] = 0$.
-By the Cauchy--Schwarz inequality for covariances, $\mathrm{Cov}(T, S)^2 \leq \var(T)\var(S)$ (take $c = \mathrm{Cov}(T, S)/\var(S)$ in $0 \leq \var(T - cS) = \var(T) - 2c\,\mathrm{Cov}(T, S) + c^2\var(S)$), with $S = \ell_n'(\theta)$ and $\var_\theta(S) = nI(\theta)$ (a sum of $n$ independent scores):
+By the Cauchy--Schwarz inequality for covariances, $\cov(T, S)^2 \leq \var(T)\var(S)$ (take $c = \cov(T, S)/\var(S)$ in $0 \leq \var(T - cS) = \var(T) - 2c\,\cov(T, S) + c^2\var(S)$), with $S = \ell_n'(\theta)$ and $\var_\theta(S) = nI(\theta)$ (a sum of $n$ independent scores):
 \[
 1 \leq \var_\theta(T)\cdot nI(\theta).
 \]

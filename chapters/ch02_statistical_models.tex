@@ -158,7 +158,7 @@ A sample space that mentions the unknown parameter is not a sample space.
 In an introductory course the model is a sentence: `assume the data are normally distributed', `assume each trial succeeds with the same probability'.
 This book makes the sentence into an object with three parts, and the point of doing so is that every later statement can name exactly what it depends on.
 `The sample mean is unbiased' is a statement about $\E_\theta[\bar{X}_n]$ for every $\theta \in \Theta$; `the $t$-test has level $5\%$' is a statement that holds for every member of the Gaussian family; `the estimator is consistent' means $\hat{\theta}_n \to \theta$ under $\Pr_\theta$ for every $\theta$.
-When a method fails in practice, it's almost always because the data came from outside the family, and you can only say that if the family is written down.
+When a method fails in practice, it is often because the data came from outside the family, and you can only say that if the family is written down.
 \end{bridge}
 
 \section{From the sample space to the data and back}
@@ -217,7 +217,7 @@ For any fixed $n$, think $\Omega = E^n$ and nothing is lost.
 \begin{bridge}[the sampling distribution, defined rather than simulated]
 An introductory course introduces the sampling distribution of the sample mean by rerunning the study: draw many samples, compute $\bar{x}$ for each, draw the histogram.
 That histogram is the right of \cref{fig:layers}, approximated by simulation; this chapter defines it instead, without rerunning anything, by putting a probability on $\Omega$ and asking how $\bar{R}_n(\omega)$ is distributed under it.
-The two pictures agree: each simulated sample is one $\omega$, the intro course's `many samples' are many points of $\Omega$, and the limit of the histogram as the number of samples grows is the distribution of the random variable.
+The two pictures agree: each simulated sample is one $\omega$, an introductory course's `many samples' are many points of $\Omega$, and the limit of the histogram as the number of samples grows is the distribution of the random variable.
 \Cref{fig:twoaverages} in \cref{ch:lln} draws the same picture as rows and columns: a row is an $\omega$, the row average is $\bar{R}_n(\omega)$, and the column of row averages is the sampling distribution.
 Your data set is the one row nature handed you.
 \end{bridge}
@@ -305,6 +305,15 @@ Here are two examples of nonparametric models:
 On the left, one number, $\lambda$, moves you along a single curve through the space of densities; the whole parametric family is this one-dimensional path.
 On the right are four members of the first nonparametric family, all unimodal densities; no finite set of numbers indexes them, the family is the whole space of such shapes, and these are four points in it.
 
+\begin{bridge}[nonparametric and distribution-free tests]
+Some introductory courses teach nonparametric, or distribution-free, tests, such as the sign test and the Wilcoxon tests, for data that do not look normal.
+The word `nonparametric' has this section's meaning: the test's guarantee holds for every member of a nonparametric model.
+The sign test of whether a median equals $m_0$ assumes only that $\Xton$ are i.i.d.\ from some continuous distribution, a family indexed by a whole CDF rather than a list of numbers.
+It counts the observations above $m_0$, and when $m_0$ is the median the count is $\Bin(n, \frac12)$ whatever the CDF is, so one threshold gives the same level for every continuous distribution with median $m_0$: that is what `distribution-free' means.
+Keeping only the signs turns the problem into the kiss experiment's: with right turns as the plus signs, the one-sided $5\%$ threshold of $72$ out of $124$ in \cref{sec:kiss-trinity} is the sign test's threshold.
+The Kolmogorov--Smirnov test of \cref{ch:ks} is distribution-free in the same sense.
+\end{bridge}
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_parametric_vs_nonparametric}
@@ -320,6 +329,13 @@ F(t) = 1 - \exp \left( - \int_0^t h(u) e^{\beta^\top x} \, \mathrm{d}u \right),
 \]
 with $h$ an unknown non-negative nuisance function and $\beta \in \real^d$ the parameter of interest.
 This book does not develop such models; the example is here so that you have seen what a semiparametric parameter space looks like, with $\Theta_1 = \real^d$ for $\beta$ and $\Theta_2$ the space of non-negative functions $h$.
+
+\begin{bridge}[the regression conditions as a model]
+An introductory course checks four conditions, sometimes remembered as LINE, before any inference about a regression slope: the mean of $y$ is a linear function of $x$, and the errors are independent, normal and of equal variance at every $x$.
+Together they are one parametric model, with the $x_i$ treated as fixed: L is the line in $Y_i = \beta_0 + \beta_1 x_i + \epsilon_i$, and I, N and E together say $\epsilon_1, \ldots, \epsilon_n \iid \Gauss(0, \sigma^2)$, so the parameter is $(\beta_0, \beta_1, \sigma^2) \in \real^2 \times (0, \infty)$.
+Replace N by `the errors are i.i.d.\ from some distribution with mean $0$ and finite variance' and the model is semiparametric: $(\beta_0, \beta_1)$ is the parameter of interest and the error distribution is an infinite-dimensional nuisance parameter.
+Least squares still estimates the line without bias in that model; what N adds is the exact $t$ distribution of the slope's $t$ statistic, as it does for the $t$-test of a mean (\cref{ch:t-test}).
+\end{bridge}
 
 \section{Identifiability}
 \label{sec:models-identifiability}
@@ -476,7 +492,7 @@ Identifiable means the curve never takes the same value twice.
 \label{fig:identmaps}
 \end{figure}
 
-\begin{bridge}[non-identifiability you have already met: collinearity]
+\begin{bridge}[collinearity, a non-identifiability you have already met]
 In a regression course, if two predictors are perfectly collinear (say $x_2 = 2x_1$), the software drops one of them or leaves its coefficient blank.
 That is non-identifiability.
 The model $Y = \beta_1 x_1 + \beta_2 x_2 + \epsilon$ with $x_2 = 2x_1$ produces exactly the same distribution of $Y$ for every $(\beta_1, \beta_2)$ with the same value of $\beta_1 + 2\beta_2$: a whole line of parameter vectors, one distribution, exactly like the ray in \cref{fig:identifiability}.
@@ -544,6 +560,13 @@ On the right, each of the $400$ draws came from exactly one component, and its c
 
 An alternative specification of the same r.v.\ is $X = (X^{(1)})^Z (X^{(2)})^{1-Z}$, which picks the same component as before.
 The latent variable perspective is especially useful for inference algorithms like EM (expectation-maximization), where you need to estimate both the component parameters $(\mu_1, \sigma_1^2, \mu_2, \sigma_2^2)$ and the mixture weight $\pi$ without ever observing which component produced which observation.
+
+\begin{bridge}[a histogram with two peaks]
+An introductory course reads a histogram with two peaks as a sign that the data may mix two groups, and suggests separating them if some variable records the group.
+The Gaussian mixture is that reading as a model, for when no variable does: $Z$ is the unrecorded group, each component is the distribution within one group, and $\pi$ is the share of the first group.
+With the groups recorded, $\pi$ would be estimated by the proportion of observations in the first group, a sample proportion like $\hat{p}$, and each component from its own group's mean and variance.
+Without them, \cref{sec:lik-em} estimates all five parameters at once; for the waiting times between eruptions of the Old Faithful geyser, with peaks near $55$ and $80$ minutes, it puts about a third of the waits in the short group.
+\end{bridge}
 
 \subsection{Possible Gaussian mixture models}
 

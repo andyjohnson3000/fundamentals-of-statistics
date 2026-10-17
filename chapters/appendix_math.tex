@@ -350,12 +350,12 @@ The limits in \cref{ch:mle-properties,ch:mom-mestimation,ch:wald-lrt} are Gaussi
 This entry says what such a vector is, building on the round Gaussian cloud of the previous entry, and proves the facts the book uses about it.
 
 \textbf{Covariance matrices.}
-For a random vector $Z = (Z_1, \ldots, Z_d)$ with finite variances, the covariance matrix $\mathrm{Cov}(Z)$ has entries $\mathrm{Cov}(Z_j, Z_k)$, with the variances on the diagonal.
-For a matrix $B$, $\mathrm{Cov}(BZ) = B\,\mathrm{Cov}(Z)\,B^\top$: each entry is the covariance of two linear combinations of the $Z_j$, expanded term by term.
+For a random vector $Z = (Z_1, \ldots, Z_d)$ with finite variances, the covariance matrix $\cov(Z)$ has entries $\cov(Z_j, Z_k)$, with the variances on the diagonal.
+For a matrix $B$, $\cov(BZ) = B\,\cov(Z)\,B^\top$: each entry is the covariance of two linear combinations of the $Z_j$, expanded term by term.
 A covariance matrix $\Sigma$ is symmetric, and $a^\top\Sigma a = \var(a^\top Z) \geq 0$ for every vector $a$.
 It is \textbf{positive definite} when $a^\top\Sigma a > 0$ for every $a \neq 0$, that is, when no nonzero linear combination of the coordinates is constant; a positive definite matrix is invertible, since $\Sigma a = 0$ would give $a^\top\Sigma a = 0$.
 Conversely, an invertible covariance matrix is positive definite.
-If $a^\top\Sigma a = \var(a^\top Z) = 0$, then $a^\top Z$ is constant, so $(\Sigma a)_j = \mathrm{Cov}(Z_j, a^\top Z) = 0$ for every $j$; that is, $\Sigma a = 0$, and invertibility forces $a = 0$.
+If $a^\top\Sigma a = \var(a^\top Z) = 0$, then $a^\top Z$ is constant, so $(\Sigma a)_j = \cov(Z_j, a^\top Z) = 0$ for every $j$; that is, $\Sigma a = 0$, and invertibility forces $a = 0$.
 The inverse of a positive definite matrix is positive definite too: for $a \neq 0$, $b = \Sigma^{-1}a$ is not $0$, and $a^\top\Sigma^{-1}a = b^\top\Sigma b > 0$.
 The Fisher information matrix is the covariance matrix of the score (\cref{def:fisher}), so when it is invertible it is positive definite, and so is its inverse.
 
@@ -364,7 +364,7 @@ Let $m \in \real^d$ and let $\Sigma$ be a symmetric positive definite $d \times 
 A random vector $Z$ has the \textbf{Gaussian distribution} $\Gauss_d(m, \Sigma)$ if it has the distribution of $m + AW$, where $W$ has $d$ independent $\Gauss(0, 1)$ coordinates and $A$ is an invertible $d \times d$ matrix with $AA^\top = \Sigma$.
 The definition concerns only the distribution of $Z$, which is all that a limit in distribution, such as the one in the Central Limit Theorem, delivers.
 Such an $A$ exists for every positive definite $\Sigma$; one choice is the lower-triangular matrix of the Cholesky factorization, a standard result of linear algebra, and for $d = 2$ it is explicit: for $\Sigma = \begin{pmatrix} a & b \\ b & c\end{pmatrix}$, $A = \begin{pmatrix} \sqrt{a} & 0 \\ b/\sqrt{a} & \sqrt{c - b^2/a}\end{pmatrix}$.
-$\mathrm{Cov}(Z) = A\,\mathrm{Cov}(W)A^\top = AA^\top = \Sigma$, and every nonzero linear combination $a^\top Z$ has the distribution of $a^\top m + (A^\top a)^\top W$, a sum of independent Gaussians plus a constant, so it is $\Gauss(a^\top m, a^\top\Sigma a)$ by the sum rule and the affine property of \cref{ch:gaussian}.
+$\cov(Z) = A\,\cov(W)A^\top = AA^\top = \Sigma$, and every nonzero linear combination $a^\top Z$ has the distribution of $a^\top m + (A^\top a)^\top W$, a sum of independent Gaussians plus a constant, so it is $\Gauss(a^\top m, a^\top\Sigma a)$ by the sum rule and the affine property of \cref{ch:gaussian}.
 That is the description of $\Gauss_d$ used in the recall lines of \cref{ch:mom-mestimation}.
 (Conversely, a vector all of whose linear combinations are Gaussian, with positive definite covariance matrix, has this form; the proof uses characteristic functions, which this book does not develop, and nothing in the book needs it.)
 

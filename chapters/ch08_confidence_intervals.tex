@@ -107,7 +107,7 @@ For $\alpha = 0.05$ it is $\bar{X}_n \pm 1.96 \, \sigma/\sqrt{n}$.
 The interval you learned is `point estimate $\pm$ (critical value) $\times$ (standard error)'.
 The recipe says where each piece comes from: the point estimate is the center because the pivot is centered at the parameter; the critical value is the quantile that traps the pivot; the standard error is the pivot's scale, $\sigma/\sqrt{n}$.
 When $\sigma$ is unknown, an introductory course replaces it by $s$ and switches to a $t$ critical value: that is a different pivot, $\sqrt{n}(\bar{X}_n - \mu)/s$, with an exact Student distribution for Gaussian data, and \cref{ch:t-test} derives it.
-For large $n$ and any parent distribution, the replacement is justified by Slutsky instead (\cref{sec:slutsky}), which is the route this chapter takes.
+For large $n$ and any parent distribution with finite variance, the replacement is justified by Slutsky instead (\cref{sec:slutsky}), which is the route this chapter takes.
 \end{bridge}
 
 \textbf{One-sided intervals.}
@@ -284,7 +284,7 @@ where $\mathcal{I}(k)$ is the interval the rule produces when $k$ of the $n$ cou
 \Cref{fig:cicoverage} plots this against $p$ for the three intervals, at $n = 124$ and at $n = 20$.
 The conservative interval over-covers away from $p = \frac12$: its coverage is $0.99995$ at $p = 0.05$.
 The plug-in interval under-covers, mildly at $n = 124$ ($0.939$ at $p = 0.645$) and badly at $n = 20$ near the edges.
-The solve interval stays near $0.95$ at $n = 124$ ($0.952$ at $p = 0.645$) and above $0.92$ at $n = 20$ for $p$ between $0.01$ and $0.99$, where the plug-in interval falls as low as $0.33$, below the bottom of the plot.
+The solve interval stays near $0.95$ at $n = 124$ ($0.952$ at $p = 0.645$); at $n = 20$ it stays above $0.92$ for $p$ between $0.1$ and $0.9$ and above $0.89$ for $p$ between $0.01$ and $0.99$, while on the first of those ranges the plug-in interval falls to $0.81$, and at $p = 0.01$ to $0.18$, below the bottom of the plot.
 The saw teeth are real, not noise: $\bar{R}_n$ takes only $n + 1$ values, so there are only $n + 1$ possible intervals, and the coverage jumps whenever $p$ crosses an endpoint of one of them.
 
 \begin{figure}[htbp]
@@ -302,6 +302,19 @@ And the conservative interval is not free: its extra width buys coverage you did
 This is the chapter's instance of the book's stance on asymptotics (the intuition box that opens \cref{ch:lln}, and \cref{sec:conv-what-limits-buy}): the theorem licenses the Gaussian replacement and is silent about the error at your $n$.
 For a proportion the error can be computed, as here.
 For most models it can't, and the plug-in interval is used on trust and on the experience that $n$ in the dozens with a parameter away from the boundary is usually enough.
+
+\begin{bridge}[the plus-four interval]
+Some introductory courses teach a plus-four interval for a proportion: add two successes and two failures, so that $\tilde{p} = (S + 2)/(n + 4)$ with $S = n\bar{R}_n$, and report $\tilde{p} \pm 1.96\sqrt{\tilde{p}(1 - \tilde{p})/(n + 4)}$ (Agresti and Coull, \textit{The American Statistician}, 1998).
+It is a close approximation to the solve interval that needs no quadratic formula.
+By \cref{eq:wilson} the solve interval is centered at
+\[
+\frac{\bar{R}_n + q_{\alpha/2}^2/(2n)}{1 + q_{\alpha/2}^2/n} = \frac{S + q_{\alpha/2}^2/2}{n + q_{\alpha/2}^2},
+\]
+and at $95\%$, $q_{0.025}^2 = 3.84$, so $(S + 2)/(n + 4)$ is that center with $3.84$ rounded to $4$.
+For the kiss data $\tilde{p} = 82/128 = 0.641$ and the solve center is $81.92/127.84 = 0.641$; the plus-four interval is $[0.558, 0.724]$, the solve interval to three decimals, where the plug-in interval is $[0.561, 0.729]$.
+At $n = 20$ its exact coverage stays above $0.92$ for every $p$ between $0.01$ and $0.99$.
+\Cref{ch:bayes-intro} reads $\tilde{p}$ as a posterior mean.
+\end{bridge}
 
 \section{The subway: when the scale depends on the parameter in a new way}
 \label{sec:ci-subway}
@@ -411,7 +424,14 @@ Three readings that sound the same and are not:
 The first reading is the one everyone wants, a probability statement about the parameter given the data.
 It is available, but at a price: you must treat $\lambda$ as random, with a distribution before the data (a prior), and compute its distribution after the data (the posterior).
 That is the Bayesian approach of \cref{ch:bayes-intro}, and the interval it produces, which \cref{ch:jeffreys} calls a Bayesian confidence region, does carry the probability $0.95$ in the sense of reading 1.
-For large $n$ the two kinds of interval nearly coincide, which is the Bernstein--von Mises result mentioned in \cref{sec:conv-where-used}; what differs is what the number $0.95$ is a probability \textit{of}.
+For large $n$ the two kinds of interval nearly coincide, a consequence of the Bernstein--von Mises theorem (\cref{thm:bvm}); what differs is what the number $0.95$ is a probability \textit{of}.
+
+\begin{bridge}[what the margin of error leaves out]
+An introductory course warns that a margin of error covers only random sampling error, not undercoverage, nonresponse or the wording of a question.
+The definition says why: the $95\%$ is a statement about $\Pr_\theta(\mathcal{I} \ni \theta)$, a probability computed under the model, and for a poll the model says each $R_i$ is a draw from $\Bern(p)$ with $p$ the proportion in the whole population.
+If the design makes the draws come from $\Bern(p')$ with $p' \neq p$, the interval covers $p'$ about $95\%$ of the time and covers $p$ with a probability that goes to $0$ as $n$ grows, since it shrinks around $p'$.
+The \textit{Literary Digest} poll of \cref{sec:est-strengths} is the extreme case: from about $2.4$ million ballots its plug-in interval for Roosevelt's share is $0.43 \pm 0.0006$, $19$ points below the $0.62$ he won.
+\end{bridge}
 
 \section{What comes next}
 \label{sec:ci-next}

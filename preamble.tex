@@ -191,6 +191,8 @@
 \newcommand{\Unif}{\mathrm{Unif}}
 \newcommand{\Bin}{\mathrm{Bin}}
 \newcommand{\Mult}{\mathrm{Mult}}
+\newcommand{\Betad}{\mathrm{Beta}}   % the Beta distribution (Chapter 18)
+\newcommand{\Gammad}{\mathrm{Gamma}} % the Gamma distribution, shape and rate (Chapter 18)
 
 % Pointer to the Mathematical Toolkit (Appendix A), e.g. \toolkit{sec:math-mvt}.
 \newcommand{\toolkit}[1]{{\small\textcolor{gray!70!black}{(toolkit \ref{#1})}}}
@@ -198,8 +200,13 @@
 % One italic line before a proof: its strategy, and whether to read it now.
 %   \coreproof{strategy}      -- a proof the reader should follow
 %   \optionalproof{strategy}  -- here for completeness; skip on a first reading
-\newcommand{\coreproof}[1]{\par\noindent{\small\textit{Proof strategy (core).} #1}\par\nobreak}
-\newcommand{\optionalproof}[1]{\par\noindent{\small\textit{Proof strategy (for completeness; skip on a first reading).} #1}\par\nobreak}
+% \@afterheading keeps the strategy line on the same page as the proof that follows it
+% (a bare \nobreak is undone by the penalty the proof environment's list inserts);
+% \interlinepenalty\@M at the strategy's own \par keeps the strategy in one piece.
+\makeatletter
+\newcommand{\coreproof}[1]{\par\noindent{\small\textit{Proof strategy (core).} #1}{\interlinepenalty\@M\par}\nobreak\@afterheading}
+\newcommand{\optionalproof}[1]{\par\noindent{\small\textit{Proof strategy (for completeness; skip on a first reading).} #1}{\interlinepenalty\@M\par}\nobreak\@afterheading}
+\makeatother
 
 % A chapter-opening summary of what is coming.
 \newtcolorbox{chaptergoals}{%

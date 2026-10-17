@@ -16,7 +16,7 @@ $\Xton \iid \Bern(p)$ & the $X_i$ are i.i.d.\ with the named distribution; Bern,
 $\Gauss(\mu, \sigma^2)$ & Gaussian with mean $\mu$ and \textit{variance} $\sigma^2$ (most software takes the standard deviation) \\[2pt]
 $\varphi$, $\Phi$ & density and CDF of $\Gauss(0,1)$ \\[2pt]
 $q_\alpha$ & the quantile with probability $\alpha$ \textit{above} it: $\Pr(Z > q_\alpha) = \alpha$, so $q_{0.05} = 1.645$, $q_{0.025} = 1.96$ (software indexes by the probability below) \\[2pt]
-$\Pr$, $\E$, $\var$ & probability, expectation, variance; $\Pr_\theta$, $\E_\theta$ when they are computed under the distribution with parameter $\theta$ \\[2pt]
+$\Pr$, $\E$, $\var$, $\cov$ & probability, expectation, variance, covariance; $\Pr_\theta$, $\E_\theta$ when they are computed under the distribution with parameter $\theta$ \\[2pt]
 $\ind(A)$ & the indicator: $1$ if $A$ holds, $0$ otherwise; $\E[\ind(A)] = \Pr(A)$ \\[2pt]
 $\bar{R}_n$, $\hat{p}$ & the kiss experiment: $R_i = 1$ if couple $i$ turns right, $\hat{p} = \bar{R}_n$; $n = 124$, $80$ right turns, $\bar{R}_n = 0.645$ \\[2pt]
 $\bar{T}_n$, $\hat{\lambda}$ & the subway inter-arrival times, $T_i \iid \Expo(\lambda)$, $\hat{\lambda} = 1/\bar{T}_n$; $n = 64$, $\bar{T}_n = 6.23$ \\[2pt]
@@ -45,6 +45,9 @@ $\Gauss_d(m, \Sigma)$ & the Gaussian vector in $\real^d$ with mean $m$ and posit
 $o_\Pr(1)$ & a sequence of random quantities that converges in probability to $0$ (\cref{ch:wald-lrt}) \\[2pt]
 $N_j$, $\Mult(n, \mathbf{p})$ & the count in category $j$; the multinomial distribution of $(N_1, \ldots, N_K)$ (\cref{ch:gof}) \\[2pt]
 $F_n$, $X_{(i)}$ & the empirical CDF; the $i$th smallest observation (\cref{ch:ks}) \\[2pt]
+$\pi(\theta)$, $\pi(\theta \mid \mathbf{x})$ & prior and posterior density (or PMF) of $\theta$, with $\mathbf{x} = (x_1, \ldots, x_n)$ (\cref{ch:bayes-intro}) \\[2pt]
+$\Betad(a, b)$, $\Gammad(\alpha, \beta)$ & the Beta distribution on $(0, 1)$; the Gamma distribution with shape $\alpha$ and rate $\beta$ (\cref{ch:bayes-intro}) \\[2pt]
+$\propto$ & `is proportional to, as a function of $\theta$': $\pi(\theta \mid \mathbf{x}) \propto L_n(\mathbf{x}; \theta)\pi(\theta)$ (\cref{ch:bayes-intro}) \\[2pt]
 r.v., CDF, PDF, PMF & random variable; cumulative distribution function $F(x) = \Pr(X \leq x)$; density; probability mass function \\[2pt]
 CLT, LLN, CMT & Central Limit Theorem, Law of Large Numbers, continuous mapping theorem \\[2pt]
 (toolkit A.$k$) & a pointer to entry $k$ of the Mathematical Toolkit, \cref{app:math}, which explains the piece of mathematics being used \\

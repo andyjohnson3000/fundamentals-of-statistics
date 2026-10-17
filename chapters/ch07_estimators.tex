@@ -307,8 +307,7 @@ Biased and consistent is a common combination, and nothing is wrong with it.
 \end{example}
 
 \begin{bridge}[why the sample variance divides by $n - 1$]
-Every introductory course divides by $n - 1$ and most students never learn why.
-It's a bias calculation.
+An introductory course divides the sum of squared deviations by $n - 1$, and the reason is a bias calculation.
 For $\Xton$ i.i.d.\ with mean $\mu$ and variance $\sigma^2$, the natural estimator $\frac{1}{n} \sum (X_i - \bar{X}_n)^2$ has expectation
 \[
 \E \left[ \frac1n \sum_{i=1}^n (X_i - \bar{X}_n)^2 \right] = \E \left[ \frac1n \sum_{i=1}^n (X_i - \mu)^2 \right] - \E \left[ (\bar{X}_n - \mu)^2 \right] = \sigma^2 - \frac{\sigma^2}{n} = \frac{n-1}{n} \sigma^2,
@@ -396,6 +395,14 @@ R(\ethn) &= \E\left[ ( \ethn - \E[\ethn] + \E[\ethn] - \theta)^2 \right] \\
 In the second term, $\E[\ethn] - \theta$ is a number, so its expectation is itself; in the third, the same number comes out of the expectation, and what remains, $\E[\ethn - \E[\ethn]]$, is zero.
 \end{proof}
 
+\begin{bridge}[the MSE in an ANOVA table]
+An introductory course's ANOVA table reports MSE, the mean square for error: the squared deviations of the observations from their group means, summed and divided by $N - k$ for $N$ observations in $k$ groups (simple regression output divides the sum of squared residuals by $N - 2$ instead).
+It shares a name with the quadratic risk, but the squares it averages are residuals, not an estimator's misses.
+MSE is a statistic, computed from the data, and an unbiased estimator of $\sigma^2$, the common variance of the model's errors.
+The quadratic risk is an expectation under $\Pr_\theta$, a function of the unknown parameter, and no data set produces it.
+The two meet in the standard error: with one group the MSE is the sample variance $S^2$, and $S^2/n$, the square of the estimated standard error $S/\sqrt{n}$, is an unbiased estimator of $\sigma^2/n$, which is the risk of $\bar{X}_n$ since $\bar{X}_n$ is unbiased.
+\end{bridge}
+
 The decomposition is the reason a biased estimator can be the better one: if accepting a little bias buys a large reduction in variance, the risk goes down.
 It also makes a point that is easy to miss when you only ever compute bias and variance separately: the risk is a function of $\theta$, through both terms, and an estimator that is best for one value of $\theta$ need not be best for another.
 \Cref{fig:biasvariance} shows both facts in the kiss model.
@@ -431,9 +438,10 @@ Lower left is the shrinkage estimator of \cref{fig:biasvariance}: a tight group 
 \end{figure}
 
 \begin{bridge}[the $n - 1$ story, finished]
-The unbiased $S^2$ with $n - 1$ is not the minimum-risk estimator of $\sigma^2$.
+Among estimators of the form $c\sum_i (X_i - \bar{X}_n)^2$, the unbiased $S^2$ is not the one with the smallest quadratic risk.
 For Gaussian data, dividing by $n + 1$ instead gives a biased estimator with strictly smaller quadratic risk than both the $n$ and $n - 1$ versions.
-Nobody uses it because unbiasedness is a convention that makes results comparable across studies and because the difference is small, but it shows that `unbiased' and `best' are different properties, and that an unbiasedness calculation settles only the first.
+It is rarely used, since unbiasedness is a convention that makes results comparable across studies.
+At $n = 12$ the risks are $0.182\sigma^4$, $0.160\sigma^4$ and $0.154\sigma^4$ for the divisors $n - 1$, $n$ and $n + 1$, and \cref{ex:t-nplus1} proves the general case.
 \end{bridge}
 
 \section{Strengths and weaknesses of estimators}
@@ -459,6 +467,19 @@ The constant $0.5$ uses none of the data, so nothing can be learned from it; its
 $X_1$ is unbiased, which sounds good, and uses one observation out of $n$, which is the actual problem: its risk doesn't shrink, so its accuracy is limited no matter how many samples are collected.
 $\bar{X}_n$ has every property on the list.
 Unbiasedness is desirable and may be the first thing to check, but the comparison with $X_1$ shows why it isn't enough: there are estimators that are unbiased and have a lot of variability, and risk is the number that catches them.
+
+\begin{bridge}[random sampling for bias, a larger sample for variability]
+An introductory course often draws the four targets of \cref{fig:target} with two rules: random sampling reduces bias, and a larger sample reduces variability.
+The two rules act on the two terms of \cref{thm:bias-variance}.
+Random sampling makes each $R_i$ a draw from $\Bern(p)$ with $p$ the population's proportion, which is all that $\E[\bar{R}_n] = p$ needs.
+A design that over-represents part of the population draws from $\Bern(p')$ instead, with $p' \neq p$, so $\bar{R}_n$ is unbiased and consistent for $p'$, and as an estimator of $p$ it has
+\[
+R(\bar{R}_n) = \frac{p'(1 - p')}{n} + (p' - p)^2,
+\]
+of which a larger sample shrinks only the first term.
+The 1936 \textit{Literary Digest} poll had about $2.4$ million returned ballots and predicted that Landon would beat Roosevelt $57\%$ to $43\%$; of the votes cast for the two, Roosevelt won $62\%$ (Freedman, Pisani and Purves, \textit{Statistics}).
+With $p' = 0.43$ and $p = 0.62$ the first term is $1.0 \times 10^{-7}$, a standard deviation of $0.0003$, and the second is $0.036$: the risk was almost all bias, a miss of $19$ points.
+\end{bridge}
 
 \section{What comes next}
 \label{sec:est-next}

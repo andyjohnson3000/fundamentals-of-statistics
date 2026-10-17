@@ -107,7 +107,7 @@ Split the sum (or integral) defining $\KL(\Pr, \Qr)$ into the part over $A^\star
 \KL(\Pr, \Qr) = \sum_{x \in A^\star} p(x)\log\frac{p(x)}{q(x)} + \sum_{x \notin A^\star} p(x)\log\frac{p(x)}{q(x)} \geq a\log\frac{a}{b} + (1 - a)\log\frac{1 - a}{1 - b}.
 \]
 (If a part has total $\Pr$-probability $0$, it contributes $0$ on both sides.)
-The right-hand side is $\KL(\Bern(a), \Bern(b))$, the divergence between the two distributions of the indicator $\ind\{X \in A^\star\}$.
+The right-hand side is $\KL(\Bern(a), \Bern(b))$, the divergence between the two distributions of the indicator $\ind(X \in A^\star)$.
 By \cref{lem:pinsker-bern} (in the extended form for $a \in [0, 1]$; if $b = 0$ the divergence on the right is $+\infty$, which contradicts the finite left side, so $b \in (0, 1)$),
 \[
 \KL(\Pr, \Qr) \geq \KL(\Bern(a), \Bern(b)) \geq 2(a - b)^2 = 2\,\TV(\Pr, \Qr)^2.
@@ -294,12 +294,12 @@ So test $i$ is rejected.
 On the event that nothing is rejected, $V/\max(R,1) = 0$; otherwise $R \geq 1$ and $V/R$ counts the rejected true nulls.
 So, summing over the true nulls $i$ and using \cref{lem:bh-monotone}(b) to rewrite each indicator and to replace $R$ by $R^{(i)}$ on the event,
 \[
-\mathrm{FDR} = \E\Big[\frac{V}{\max(R,1)}\Big] = \sum_{i \text{ true null}} \E\Big[\frac{\ind\{P_i \leq \alpha R^{(i)}/N\}}{R^{(i)}}\Big].
+\mathrm{FDR} = \E\Big[\frac{V}{\max(R,1)}\Big] = \sum_{i \text{ true null}} \E\Big[\frac{\ind(P_i \leq \alpha R^{(i)}/N)}{R^{(i)}}\Big].
 \]
 Note that $R^{(i)} \geq 1$ always, since the modified vector has a $p$-value equal to $0 \leq \alpha/N$.
 The number $R^{(i)}$ is a function of the other $p$-values only (with $P_i$ replaced by the constant $0$), so by independence, conditioning on them and using that $P_i$ is uniform,
 \[
-\E\Big[\frac{\ind\{P_i \leq \alpha R^{(i)}/N\}}{R^{(i)}}\Big] = \E\Big[\frac{\Pr(P_i \leq \alpha R^{(i)}/N \mid \text{others})}{R^{(i)}}\Big] = \E\Big[\frac{\alpha R^{(i)}/N}{R^{(i)}}\Big] = \frac{\alpha}{N},
+\E\Big[\frac{\ind(P_i \leq \alpha R^{(i)}/N)}{R^{(i)}}\Big] = \E\Big[\frac{\Pr(P_i \leq \alpha R^{(i)}/N \mid \text{others})}{R^{(i)}}\Big] = \E\Big[\frac{\alpha R^{(i)}/N}{R^{(i)}}\Big] = \frac{\alpha}{N},
 \]
 where $\alpha R^{(i)}/N \leq \alpha \leq 1$ keeps the uniform probability equal to its argument.
 Summing over the $N_0$ true nulls gives $\mathrm{FDR} = N_0\alpha/N$.

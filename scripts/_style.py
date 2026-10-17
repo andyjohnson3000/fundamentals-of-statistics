@@ -108,6 +108,17 @@ def gamma_pdf(x, shape, rate):
     return out
 
 
+def beta_pdf(x, a, b):
+    """Density of Beta(a, b) on (0, 1), computed on the log scale."""
+    x = np.asarray(x, float)
+    out = np.zeros_like(x)
+    inside = (x > 0) & (x < 1)
+    xi = x[inside]
+    logB = math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b)
+    out[inside] = np.exp((a - 1) * np.log(xi) + (b - 1) * np.log(1 - xi) - logB)
+    return out
+
+
 def gamma_tail_outside(shape, rate, lo, hi, grid=200000):
     """P(X < lo or X > hi) for X ~ Gamma(shape, rate), by numerical integration."""
     x = np.linspace(lo, hi, grid)

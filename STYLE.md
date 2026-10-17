@@ -126,6 +126,11 @@ is the model.
 - Gauss(mu, sigma^2) has the **variance** second. q_alpha has probability
   alpha **above** it. Both are stated on the notation page and explained in
   the Gaussian chapter.
+- Indicators take parentheses, `\ind(X_i \leq t)`, never braces. The number
+  a test statistic is compared with is the **threshold**, never "cutoff"
+  ("cutoff" stays only for a quantile read off the axis, as in Chapter 6).
+  Covariance is `\cov` (blackboard C, matching `\var`), never
+  `\mathrm{Cov}`. (Reeves, 2026-10-17.)
 - The running example is the kiss experiment: a 2003 study in Nature
   (Güntürkün, "Adult persistence of head-turning asymmetry") observed 124
   kissing couples in public places, and 80 turned their heads to the right,

@@ -4,7 +4,7 @@ Left: the observed counts of the four kinds of pea (blue bars) with the
 counts the 9:3:3:1 theory expects (black ticks: 312.75, 104.25, 104.25,
 34.75). Right: the chi-squared density with three degrees of freedom, the
 observed Pearson statistic 0.47 (orange), the area to its right (the
-p-value 0.93, shaded) and the 5% cutoff 7.81 (dotted)."""
+p-value 0.93, shaded) and the 5% threshold 7.81 (dotted)."""
 from _style import *
 
 obs = np.array([315, 108, 101, 32])
@@ -37,7 +37,7 @@ ax2.axvline(T, color=ORANGE, lw=1.3)
 ax2.vlines(Q3, 0, 0.125, color=GRAY, lw=0.8, ls=DASHES[3])  # stops below the area note
 note(ax2, f"observed {T:.2f}", (T, 0.268), (2.3, 0.281), ha="left")  # leader stays above the peak, 0.242
 note(ax2, "area to the right\nof 0.47: 0.93", (3.4, 0.07), (5.0, 0.165), ha="left")
-note(ax2, "5% cutoff 7.81", (Q3, 0.03), (9.0, 0.075), ha="left")
+note(ax2, "5% threshold 7.81", (Q3, 0.03), (9.0, 0.075), ha="left")
 ax2.set_xlim(0, 14); ax2.set_ylim(0, 0.305)
 ax2.set_xlabel(r"value of Pearson's statistic"); ax2.set_ylabel("density")
 ax2.set_title(r"its null distribution, $\chi^2_3$")
