@@ -315,7 +315,7 @@ The median is twice as precise, and its standard error is $1/\sqrt{n}$ against t
 \Cref{fig:robustmeanmedian} runs the sample mean and the sample median side by side on three symmetric distributions, $20{,}000$ samples of $n = 100$ each.
 For Gaussian data the mean is the better estimator of the center: its standard deviation is $0.100$ against the median's $0.124$, matching the asymptotic variances $1$ and $\pi/2$ (the median's $1/(4f(0)^2)$ with $f(0) = 1/\sqrt{2\pi}$).
 In about $61\%$ of samples the mean lands closer to the truth.
-For Laplace data the order reverses, $0.141$ against $0.108$, and the median is closer in $62\%$ of samples. The mean's $0.141$ is exactly the $\sqrt{2/100}$ of the worked example; the median's $0.108$ is still $8\%$ above its asymptotic $1/\sqrt{100} = 0.100$, because the Laplace density has a corner at the center and the median's distribution approaches its Gaussian limit slowly there.
+For Laplace data the order reverses, $0.141$ against $0.108$, and the median is closer in $62\%$ of samples. The mean's $0.141$ is exactly the $\sqrt{2/100}$ of the worked example; the median's $0.108$ is still $8\%$ above its asymptotic $1/\sqrt{100} = 0.100$ because the Laplace density has a corner at the center and the median's distribution approaches its Gaussian limit slowly there.
 For Cauchy data, with density $f(x) = 1/(\pi(1 + (x - m)^2))$, the mean does not settle at all: its histogram is spread across the whole axis and beyond, with a standard deviation of $72$ over the $20{,}000$ samples, while the median's is $0.158$, close to its asymptotic $(\pi/2)/10 = 0.157$.
 
 \begin{figure}[htbp]

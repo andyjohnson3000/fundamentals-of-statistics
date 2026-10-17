@@ -12,7 +12,7 @@ The material follows the content of MIT's 18.6501x, Fundamentals of Statistics. 
 
 ## Status
 
-Chapters 1 to 15 and Appendices A to C are written. Chapters 16 to 24 are in progress.
+Chapters 1 to 16 and Appendices A to C are written. Chapters 17 to 24 are in progress.
 
 ## Building the PDF
 

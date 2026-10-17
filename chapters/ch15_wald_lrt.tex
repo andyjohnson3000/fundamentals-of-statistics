@@ -515,6 +515,8 @@ The likelihood ratio and score statistics are unchanged by such a change.
 The likelihood ratio statistic compares two maximized values of the same function, whatever its coordinates.
 For the score statistic, let $J$ be the $d \times d$ matrix with entries $\partial\theta_i/\partial\eta_j$, invertible since the change is one-to-one and smooth both ways; the chain rule makes the score in $\eta$ equal to $J^\top\nabla\ell_n$ and the information $J^\top IJ$, so $(J^\top\nabla\ell_n)^\top(J^\top IJ)^{-1}J^\top\nabla\ell_n = \nabla\ell_n^\top I^{-1}\nabla\ell_n$ (\cref{ex:wlr-invariance} does one dimension).
 The change of parameter is defined only near $\theta^*$, but both maximizers lie there with probability tending to $1$, so both statistics converge to $\chi^2_k$.
+
+\textbf{Several independent samples.}
 The theorems of this chapter were proved for one i.i.d.\ sample, and they hold for several independent samples whose sizes grow in fixed proportions, each contributing its own information: $nI(\theta)$ becomes $n_1I_1(\theta) + n_2I_2(\theta)$ for two samples, and the proofs apply the CLT and the LLN to each sample.
 
 \begin{worked}[aspirin and heart attacks]

@@ -1,4 +1,671 @@
 \chapter{Goodness of Fit for Discrete Distributions}
 \label{ch:gof}
 
-% Not yet written. Source material: notes ch. Non-Parametric Hypothesis Tests; unit 5 slides
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item Testing a whole distribution instead of one parameter: the null names every probability, and the alternative is every other distribution. When the data fall into $K$ categories, that alternative is a model with $K - 1$ free probabilities, so the tests of \cref{ch:wald-lrt} apply to it.
+\item Pearson's chi-squared statistic, observed minus expected, squared, over expected, and why its limit has $K - 1$ degrees of freedom: the counts add up to $n$, so one direction of the standardized deviations is dead, and in the limit the other $K - 1$ are independent standard Gaussians.
+\item Pearson's statistic is the score statistic of the model with one category dropped, $G^2$ is the likelihood ratio statistic, and Neyman's statistic is Wald's statistic in the coordinates $p_1, \ldots, p_{K-1}$. For counts, Pearson's keeps its level best.
+\item Testing a family, such as the Poisson, whose parameters are estimated from the counts: one degree of freedom is lost for each parameter. Deaths by horse kick in the Prussian army, and the siblings data of \cref{ch:models}.
+\item Tables of counts: tests of independence and of homogeneity, with $(r - 1)(c - 1)$ degrees of freedom, and the aspirin trial of \cref{ch:wald-lrt}.
+\item What the test cannot do: it needs large expected counts, failing to reject is not confirming, and a fit can be too good (Mendel's peas).
+\end{itemize}
+\Cref{ch:wald-lrt} built three tests for any regular parametric model. This chapter applies them to the model that assumes nothing about a discrete distribution except the list of values it can take.
+\end{chaptergoals}
+
+\section{Testing a whole distribution}
+\label{sec:gof-whole}
+
+Every test so far has been about a parameter of a model taken on trust: whether $p = \frac12$ in the Bernoulli model of the kiss data, whether the mean wind speed is $10$ in a Gaussian model, whether the subway's rate is $0.2$ in an exponential one.
+The model itself was never in question.
+This chapter questions it, for data that fall into finitely many categories.
+
+The classic case is Gregor Mendel's.
+His laws of inheritance predict that peas from plants hybrid for two traits, seed shape (round dominant over wrinkled) and seed color (yellow dominant over green), come in four kinds in the ratio $9:3:3:1$: round and yellow with probability $\frac{9}{16}$, round and green $\frac{3}{16}$, wrinkled and yellow $\frac{3}{16}$, and wrinkled and green $\frac{1}{16}$.
+In one experiment (Mendel, \textit{Versuche über Pflanzen-Hybriden}, 1866) he counted $556$ peas:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+ & round yellow & round green & wrinkled yellow & wrinkled green & total \\
+\midrule
+observed & $315$ & $108$ & $101$ & $32$ & $556$ \\
+expected under $9:3:3:1$ & $312.75$ & $104.25$ & $104.25$ & $34.75$ & $556$ \\
+observed minus expected & $2.25$ & $3.75$ & $-3.25$ & $-2.75$ & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The expected counts are $556 \times \frac{9}{16}$ and so on.
+The question is whether deviations of a few peas, in counts of $32$ to $315$, are the size chance produces when the theory is right.
+Notice the last column: the deviations add up to $0$, since both rows add up to $556$.
+That fact will cost a degree of freedom.
+
+This is a test of a whole distribution.
+The null hypothesis names all four probabilities, and the alternative is every other distribution on the four kinds of pea, not the other values of one parameter.
+A test of this kind is a \textbf{goodness-of-fit test}: it asks whether the data fit a stated distribution.
+For a finite set of outcomes the alternative `any other distribution' is not as large as it sounds.
+A distribution on $K$ outcomes is a list of $K$ probabilities that add up to $1$, so it has $K - 1$ free numbers, and the model of all such distributions is a parametric model with $K - 1$ parameters.
+\Cref{ch:ks} meets the continuous case, where `any other distribution' cannot be described by finitely many numbers.
+
+\begin{definition}[The categorical model]
+\label{def:categorical}
+Let $E = \{a_1, \ldots, a_K\}$ be a set of $K$ categories and
+\[
+\Delta_K = \big\{\mathbf{p} = (p_1, \ldots, p_K) : p_j \geq 0 \text{ for every } j,\ p_1 + \cdots + p_K = 1\big\}
+\]
+the \textbf{probability simplex}.
+For $\mathbf{p} \in \Delta_K$, $\Pr_{\mathbf{p}}$ is the distribution on $E$ with $\Pr_{\mathbf{p}}(X = a_j) = p_j$, and the \textbf{categorical model} is $(E, (\Pr_{\mathbf{p}})_{\mathbf{p} \in \Delta_K})$.
+For $\Xton \iid \Pr_{\mathbf{p}}$ the \textbf{counts} are $N_j = \#\{i : X_i = a_j\}$, with $N_1 + \cdots + N_K = n$, and the likelihood is
+\[
+L_n(\mathbf{p}) = \prod_{i=1}^n \Pr_{\mathbf{p}}(X = X_i) = p_1^{N_1}p_2^{N_2}\cdots p_K^{N_K}.
+\]
+The vector of counts has the \textbf{multinomial distribution} $\Mult(n, \mathbf{p})$:
+\[
+\Pr(N_1 = n_1, \ldots, N_K = n_K) = \frac{n!}{n_1!\cdots n_K!}\,p_1^{n_1}\cdots p_K^{n_K} \qquad \text{for } n_1 + \cdots + n_K = n,
+\]
+where the multinomial coefficient counts the orders in which $n_1$ observations can land in the first category, $n_2$ in the second, and so on.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Each observation lands in one of $K$ boxes, the model allows any probabilities for the boxes, and the data reduce to how many observations landed in each. The order in which they arrived carries no information about $\mathbf{p}$, since the likelihood depends on the data only through the counts.
+\par\smallskip
+\textbf{For the kiss data.} $K = 2$, with the boxes `right' and `left', $\mathbf{p} = (p, 1 - p)$ and counts $(N_1, N_2) = (80, 44)$. $\Mult(124, (p, 1 - p))$ is the Binomial distribution of the number of right turns, and the categorical model with two categories is the Bernoulli model.
+\end{inwords}
+
+The goodness-of-fit question is $H_0: \mathbf{p} = \mathbf{p}^0$ against $H_1: \mathbf{p} \neq \mathbf{p}^0$, for a stated $\mathbf{p}^0 \in \Delta_K$ whose entries are all positive; for Mendel, $\mathbf{p}^0 = (\frac{9}{16}, \frac{3}{16}, \frac{3}{16}, \frac{1}{16})$.
+The natural estimate of $\mathbf{p}$ is the vector of proportions, and it is the maximum likelihood estimator.
+The proof needs no Lagrange multiplier for the constraint $p_1 + \cdots + p_K = 1$: the KL divergence of \cref{ch:distances} takes care of it.
+
+\begin{proposition}[The maximum likelihood estimator is the vector of proportions]
+\label{prop:gof-mle}
+In the categorical model the maximum likelihood estimator is $\hat{\mathbf{p}} = (N_1/n, \ldots, N_K/n)$, and for every $\mathbf{p} \in \Delta_K$,
+\[
+\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}) = n\,\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}}).
+\]
+\end{proposition}
+
+\coreproof{The log-likelihood is $n$ times the average of $\log p_j$ over the empirical distribution of the data. Its drop from $\hat{\mathbf{p}}$ to any other $\mathbf{p}$ is $n$ times a KL divergence, which is never negative and is zero only at $\hat{\mathbf{p}}$.}
+\begin{proof}
+Write $\hat{p}_j = N_j/n$.
+If $p_j = 0$ for some $j$ with $N_j > 0$, then $\ell_n(\mathbf{p}) = -\infty$ and the KL divergence is $+\infty$ (\cref{def:kl}), so the identity holds and $\mathbf{p}$ is not a maximizer.
+Otherwise, with the sums over the $j$ for which $N_j > 0$,
+\[
+\ell_n(\mathbf{p}) = \sum_j N_j\log p_j = n\sum_j \hat{p}_j\log p_j,
+\qquad\text{so}\qquad
+\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}) = n\sum_j \hat{p}_j\log\frac{\hat{p}_j}{p_j} = n\,\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}}).
+\]
+By \cref{prop:kl-properties} the right side is at least $0$, and it is $0$ only if $\Pr_{\mathbf{p}} = \Pr_{\hat{\mathbf{p}}}$, that is, $\mathbf{p} = \hat{\mathbf{p}}$.
+So $\hat{\mathbf{p}}$ is the unique maximizer.
+\end{proof}
+
+The counts are not independent of one another: they share the $n$ observations, so a surplus in one category is a deficit somewhere else.
+
+\begin{proposition}[Mean and covariance of the counts]
+\label{prop:gof-counts}
+If $(N_1, \ldots, N_K) \sim \Mult(n, \mathbf{p})$, then $\E[N_j] = np_j$, $\var(N_j) = np_j(1 - p_j)$, and $\mathrm{Cov}(N_j, N_k) = -np_jp_k$ for $j \neq k$. The covariance matrix $n\big(\mathrm{diag}(\mathbf{p}) - \mathbf{p}\mathbf{p}^\top\big)$ is not invertible: the vector $(1, \ldots, 1)$ is in its null space.
+\end{proposition}
+
+\optionalproof{Each count is a sum of $n$ independent indicators, one per observation. Two different indicators of one observation are never both $1$, which makes their covariance $-p_jp_k$.}
+\begin{proof}
+$N_j = \sum_{i=1}^n \ind\{X_i = a_j\}$.
+For one observation, $\E[\ind\{X = a_j\}] = p_j$ and $\var(\ind\{X = a_j\}) = p_j(1 - p_j)$, and for $j \neq k$ the product $\ind\{X = a_j\}\ind\{X = a_k\}$ is $0$, so the covariance of the two indicators is $0 - p_jp_k$.
+Indicators of different observations are independent, so means, variances and covariances add over the $n$ observations.
+Finally, the $j$th entry of the covariance matrix times $(1, \ldots, 1)$ is $\sum_k \mathrm{Cov}(N_j, N_k) = \mathrm{Cov}(N_j, N_1 + \cdots + N_K) = \mathrm{Cov}(N_j, n) = 0$.
+\end{proof}
+
+For Mendel's null, $\mathrm{Cov}(N_1, N_2) = -556 \times \frac{9}{16} \times \frac{3}{16} = -58.6$, a correlation of $-0.54$ between the round-yellow and the round-green counts.
+A covariance matrix that is not invertible is not positive definite, so the Gaussian vectors of the Toolkit \toolkit{sec:math-gaussquad} do not cover the limit of the full vector of counts.
+The next section works around this by rotating the deviations, and \cref{sec:gof-score} by dropping a category.
+
+\section{Pearson's chi-squared test}
+\label{sec:gof-pearson}
+
+Each count has its own natural scale.
+Under the null, $N_j$ has mean $np^0_j$, and its deviation $N_j - np^0_j$ should be measured against something of the size of $\sqrt{np^0_j}$: a deviation of $3$ is large for a category that expects $4$ and small for one that expects $400$.
+Squaring the scaled deviations and adding them up gives the statistic Karl Pearson proposed in 1900.
+
+\begin{definition}[Pearson's chi-squared test]
+\label{def:pearson}
+For $H_0: \mathbf{p} = \mathbf{p}^0$ against $H_1: \mathbf{p} \neq \mathbf{p}^0$, with every $p^0_j > 0$, \textbf{Pearson's chi-squared statistic} is
+\[
+T^{\mathrm{S}}_n = \sum_{j=1}^K \frac{(N_j - np^0_j)^2}{np^0_j} = n\sum_{j=1}^K\frac{(\hat{p}_j - p^0_j)^2}{p^0_j},
+\]
+and \textbf{Pearson's chi-squared test} of asymptotic level $\alpha$ rejects when $T^{\mathrm{S}}_n > q_\alpha(\chi^2_{K-1})$.
+Its asymptotic $p$-value is $\Pr(\chi^2_{K-1} > T^{\mathrm{S}})$, with $T^{\mathrm{S}}$ the observed value.
+The superscript is the one of \cref{ch:wald-lrt}: \cref{sec:gof-score} shows that $T^{\mathrm{S}}_n$ is a score statistic.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} For each category, take the observed count minus the count the null expects, square it, divide by the expected count, and add over the categories. Compare the total with the chi-squared distribution with $K - 1$ degrees of freedom, one fewer than the number of categories.
+\par\smallskip
+\textbf{For the kiss data.} Under $\mathbf{p}^0 = (\frac12, \frac12)$ the expected counts are $62$ and $62$, and $T^{\mathrm{S}} = (80 - 62)^2/62 + (44 - 62)^2/62 = 10.45 > 3.84 = q_{0.05}(\chi^2_1)$: reject, with $p$-value $0.0012$. This is the square of the statistic $3.23$ of \cref{ch:tests-foundations}, and Pearson's statistic of \cref{ch:distances}.
+\end{inwords}
+
+For Mendel's peas the four terms are $2.25^2/312.75 = 0.016$, $3.75^2/104.25 = 0.135$, $3.25^2/104.25 = 0.101$ and $2.75^2/34.75 = 0.218$, so $T^{\mathrm{S}} = 0.47$.
+The smallest category contributes the most, although its deviation is not the largest, since its deviation is measured against an expected count of only $35$.
+With $K - 1 = 3$ degrees of freedom the $5\%$ cutoff is $7.81$, and the $p$-value is $\Pr(\chi^2_3 > 0.47) = 0.93$.
+\Cref{fig:mendel} draws both steps: the observed counts against the expected ones, and the observed statistic against its null distribution.
+If Mendel's theory is exactly right, about $925$ of $1{,}000$ repetitions of his experiment would land farther from $9:3:3:1$, in this measure, than his did.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_mendel_peas}
+\caption{Mendel's $556$ peas. Left: observed counts (bars) and counts expected under $9:3:3:1$ (black ticks). Right: the $\chi^2_3$ density, the observed statistic $0.47$ (orange), the area to its right (shaded), the $5\%$ cutoff (dotted).}
+\label{fig:mendel}
+\end{figure}
+
+\recall{The Central Limit Theorem for vectors (the vector-versions remark of \cref{ch:limit-tools}): for i.i.d.\ random vectors $Y_i$ with mean $m$ and positive definite covariance matrix $\Sigma$, $\sqrt{n}(\bar{Y}_n - m) \convd \Gauss_d(0, \Sigma)$. The continuous mapping theorem for vectors (\cref{thm:cmt} and the vector-versions remark of \cref{ch:limit-tools}): if $V_n \convd V$ in $\real^d$ and $g: \real^d \to \real^k$ is continuous, then $g(V_n) \convd g(V)$; if $Y_n \convp y$ and $g$ is continuous at $y$, then $g(Y_n) \convp g(y)$. The Law of Large Numbers (\cref{thm:wlln}): the average of i.i.d.\ random variables with finite variance converges in probability to their mean; applied entry by entry, it holds for averages of i.i.d.\ random vectors.}
+
+\begin{theorem}[Pearson's chi-squared test]
+\label{thm:pearson}
+Let $\Xton \iid \Pr_{\mathbf{p}}$ in the categorical model, and let $\mathbf{p}^0 \in \Delta_K$ have every $p^0_j > 0$.
+\begin{enumerate}[nosep]
+\item If $H_0: \mathbf{p} = \mathbf{p}^0$ is true, then $T^{\mathrm{S}}_n \convd \chi^2_{K-1}$, so Pearson's test has asymptotic level $\alpha$.
+\item If $\mathbf{p} \neq \mathbf{p}^0$, then $T^{\mathrm{S}}_n/n \convp \sum_j (p_j - p^0_j)^2/p^0_j > 0$, and the probability that the test rejects tends to $1$.
+\end{enumerate}
+\end{theorem}
+
+\coreproof{Write $T^{\mathrm{S}}_n$ as the squared length of the vector of standardized deviations $R_j = \sqrt{n}(\hat{p}_j - p^0_j)/\sqrt{p^0_j}$. Since the counts add up to $n$, that vector is perpendicular to the unit vector $u = (\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$. Rotate so that $u$ becomes the first axis, as in the proof of Cochran's theorem (\cref{thm:cochran}): the first rotated coordinate is exactly $0$, and by the CLT the other $K - 1$ are approximately independent standard Gaussians, whose squares add up to a $\chi^2_{K-1}$.}
+\begin{proof}
+(1) Let $Y_i = (\ind\{X_i = a_1\}, \ldots, \ind\{X_i = a_K\})$, so that $\hat{\mathbf{p}} = \bar{Y}_n$, and let $D = \mathrm{diag}(\mathbf{p}^0)$.
+The vector $R = \sqrt{n}\,D^{-1/2}(\hat{\mathbf{p}} - \mathbf{p}^0)$ has coordinates $R_j = \sqrt{n}(\hat{p}_j - p^0_j)/\sqrt{p^0_j}$, so $T^{\mathrm{S}}_n = \norm{R}^2$.
+Let $u = (\sqrt{p^0_1}, \ldots, \sqrt{p^0_K}) = D^{-1/2}\mathbf{p}^0$, a unit vector since $\norm{u}^2 = \sum_j p^0_j = 1$.
+Then
+\[
+u^\top R = \sqrt{n}\sum_{j=1}^K(\hat{p}_j - p^0_j) = 0
+\]
+because both $\hat{\mathbf{p}}$ and $\mathbf{p}^0$ add up to $1$.
+Let $Q$ be a $K \times K$ orthogonal matrix whose first row is $u^\top$ \toolkit{sec:math-gaussvec}, and $Q_2$ the $(K-1) \times K$ matrix of its other rows.
+Since $Q$ preserves length,
+\[
+T^{\mathrm{S}}_n = \norm{QR}^2 = (u^\top R)^2 + \norm{Q_2R}^2 = \norm{Q_2R}^2.
+\]
+Now $Q_2R = \sqrt{n}\,\bar{W}_n$, where the vectors $W_i = Q_2D^{-1/2}(Y_i - \mathbf{p}^0)$ are i.i.d.\ with mean $0$.
+By \cref{prop:gof-counts} with $n = 1$, $Y_i$ has covariance matrix $D - \mathbf{p}^0(\mathbf{p}^0)^\top$, so $W_i$ has covariance matrix
+\[
+Q_2D^{-1/2}\big(D - \mathbf{p}^0(\mathbf{p}^0)^\top\big)D^{-1/2}Q_2^\top = Q_2\big(\mathrm{Id}_K - uu^\top\big)Q_2^\top = Q_2Q_2^\top - (Q_2u)(Q_2u)^\top = \mathrm{Id}_{K-1},
+\]
+using $D^{-1/2}\mathbf{p}^0 = u$, and then $Q_2Q_2^\top = \mathrm{Id}_{K-1}$ and $Q_2u = 0$, since the rows of $Q$ are orthonormal.
+The identity matrix is positive definite, so the multivariate CLT gives $Q_2R \convd Z$, a vector of $K - 1$ independent standard Gaussians, and the continuous mapping theorem applied to $v \mapsto \norm{v}^2$ gives $T^{\mathrm{S}}_n \convd \norm{Z}^2$, which is $\chi^2_{K-1}$ by \cref{def:chisq}.
+Since the $\chi^2_{K-1}$ CDF is continuous, $\Pr(T^{\mathrm{S}}_n > q_\alpha(\chi^2_{K-1})) \to \alpha$.
+
+(2) By the Law of Large Numbers, $\hat{p}_j \convp p_j$ for each $j$, and by the continuous mapping theorem $T^{\mathrm{S}}_n/n = \sum_j(\hat{p}_j - p^0_j)^2/p^0_j \convp c = \sum_j(p_j - p^0_j)^2/p^0_j$, which is positive since $\mathbf{p} \neq \mathbf{p}^0$.
+Then $\Pr(T^{\mathrm{S}}_n > q) \geq \Pr(T^{\mathrm{S}}_n/n > c/2) \to 1$ as soon as $nc/2 > q$.
+\end{proof}
+
+\begin{intuition}[three counts, two directions of freedom]
+\Cref{fig:gofgeometry} draws the proof for $K = 3$, with $\mathbf{p}^0 = (0.5, 0.3, 0.2)$ and $2{,}000$ samples of $n = 400$.
+On the left are the first two estimated proportions of each sample; the third is whatever they leave.
+The cloud is tilted and stretched, since the two proportions are negatively correlated ($-0.66$ here): a sample with more of the first category has less room for the others.
+The curve is where $T^{\mathrm{S}}_n = 5.99$, the $95\%$ quantile of $\chi^2_2$.
+On the right are the standardized deviations $R$ of the same samples, drawn in the plane perpendicular to $u$, where they lie exactly.
+There the cloud is round, the curve becomes the circle of radius $\sqrt{5.99} = 2.45$, and $100$ of the $2{,}000$ samples fall outside it, the $5\%$ the theorem predicts.
+It is the picture of \cref{fig:gaussquad}, one dimension down from the three counts: three counts give chance only two directions in which to push.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_gof_geometry}
+\caption{Three categories, $\mathbf{p}^0 = (0.5, 0.3, 0.2)$, $2{,}000$ samples of $n = 400$. Left: the first two proportions and the curve $T^{\mathrm{S}}_n = 5.99$. Right: the standardized deviations in their plane, and the circle of radius $2.45$. Orange: samples outside.}
+\label{fig:gofgeometry}
+\end{figure}
+
+\begin{sanitycheck}[Why divide by the expected count and not by the binomial variance?]
+Under the null each $N_j$ alone is $\Bin(n, p^0_j)$, with variance $np^0_j(1 - p^0_j)$, so a standardized count would divide by that.
+Pearson's statistic divides by $np^0_j$ instead, which makes each term $1 - p^0_j$ times a squared standardized binomial count.
+The factors $1 - p^0_j$ add up to $K - 1$, which is exactly the mean of $\chi^2_{K-1}$: under the null, $\E[T^{\mathrm{S}}_n] = \sum_j(1 - p^0_j) = K - 1$ at every $n$ (\cref{ex:gof-mean}).
+For $K = 2$ the bookkeeping is exact: since $N_2 - np^0_2 = -(N_1 - np^0_1)$ and $p^0_1 + p^0_2 = 1$,
+\[
+\frac{(N_1 - np^0_1)^2}{np^0_1} + \frac{(N_2 - np^0_2)^2}{np^0_2} = (N_1 - np^0_1)^2\Big(\frac{1}{np^0_1} + \frac{1}{np^0_2}\Big) = \frac{(N_1 - np^0_1)^2}{np^0_1(1 - p^0_1)},
+\]
+the single squared standardized binomial count, which is $\chi^2_1$ in the limit.
+\end{sanitycheck}
+
+\begin{pitfall}[the counts are not independent]
+Adding up the $K$ squared deviations $(N_j - np^0_j)^2$, each divided by its own binomial variance $np^0_j(1 - p^0_j)$, and comparing the sum with $\chi^2_K$ treats the counts as independent.
+They are not (\cref{prop:gof-counts}).
+For $K = 2$ the two terms are equal, since $N_2 - np^0_2 = -(N_1 - np^0_1)$ and $p^0_2(1 - p^0_2) = p^0_1(1 - p^0_1)$, so in the limit the sum is twice a single $\chi^2_1$, and it exceeds the $\chi^2_2$ cutoff $5.99$ with probability $\Pr(\chi^2_1 > 3.00) = 8.3\%$, not $5\%$ (\cref{ex:gof-naive}).
+Pearson's denominators and the $K - 1$ degrees of freedom come as a pair, and changing only one of them is just as wrong: for $K = 2$, Pearson's statistic against the $\chi^2_2$ cutoff rejects a true null $1.4\%$ of the time, and the sum above against the $\chi^2_1$ cutoff $16.6\%$.
+\end{pitfall}
+
+\section{Pearson's test is a score test}
+\label{sec:gof-score}
+
+The categorical model is a parametric model, so the three tests of \cref{ch:wald-lrt} apply to it after one repair.
+The coordinates $p_1, \ldots, p_K$ are tied together by $p_1 + \cdots + p_K = 1$: none of them can move while the others stay fixed, so the parameter set has no interior in $\real^K$, and the covariance matrix of the counts is singular (\cref{prop:gof-counts}).
+The repair, announced at the end of \cref{sec:gof-whole}, is to drop one category, which leaves a positive definite information \toolkit{sec:math-gaussquad}.
+Parameterize by the first $K - 1$ probabilities, $\mathbf{p}_{-K} = (p_1, \ldots, p_{K-1})$, which is $\mathbf{p}$ without its last entry and ranges over the open set of vectors with positive entries that add up to less than $1$; then $p_K = 1 - p_1 - \cdots - p_{K-1}$.
+This model is regular in the sense of \cref{sec:mle-regularity}: different parameters give different distributions, every distribution in it gives each category positive probability, the parameter set is open, the log-likelihood is smooth with bounded derivatives near any point of it, and its information is invertible (part 1 below).
+
+\begin{proposition}[Three statistics for counts]
+\label{prop:gof-three}
+In the categorical model parameterized by $\mathbf{p}_{-K} = (p_1, \ldots, p_{K-1})$:
+\begin{enumerate}[nosep]
+\item the Fisher information is $I(\mathbf{p}_{-K}) = \mathrm{diag}(1/p_1, \ldots, 1/p_{K-1}) + \frac{1}{p_K}\mathbf{1}\mathbf{1}^\top$, with $\mathbf{1} = (1, \ldots, 1) \in \real^{K-1}$, and its inverse is $I(\mathbf{p}_{-K})^{-1} = \mathrm{diag}(p_1, \ldots, p_{K-1}) - \mathbf{p}_{-K}\mathbf{p}_{-K}^\top$;
+\item for $H_0: \mathbf{p} = \mathbf{p}^0$, the score statistic of \cref{def:score-test} is Pearson's statistic $T^{\mathrm{S}}_n$; the likelihood ratio statistic of \cref{def:lrt} is
+\[
+T^{\mathrm{LR}}_n = 2\sum_{j=1}^K N_j\log\frac{N_j}{np^0_j} = 2n\,\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}^0}),
+\]
+the $G^2$ statistic, with the terms where $N_j = 0$ counted as $0$; and, when every $N_j > 0$, Wald's statistic of \cref{def:wald} is \textbf{Neyman's statistic} $T^{\mathrm{W}}_n = \sum_j (N_j - np^0_j)^2/N_j$;
+\item none of the three depends on which category was dropped.
+\end{enumerate}
+\end{proposition}
+
+\optionalproof{Differentiate the log-likelihood in the $K - 1$ free coordinates. The information is a diagonal matrix plus a constant one, and its inverse is the covariance matrix of the first $K - 1$ indicators, which multiplying out confirms. The score at $\mathbf{p}^0$ turns out to be exactly $n$ times the information times the estimation error, so the score statistic is a quadratic form in that error, which adds up to Pearson's statistic; Wald's statistic is the same form with the information at the estimate.}
+\begin{proof}
+(1) For one observation, $\log p(X) = \sum_{j<K}\ind\{X = a_j\}\log p_j + \ind\{X = a_K\}\log(1 - p_1 - \cdots - p_{K-1})$, so for $j, k < K$
+\begin{align*}
+\frac{\partial}{\partial p_j}\log p(X) &= \frac{\ind\{X = a_j\}}{p_j} - \frac{\ind\{X = a_K\}}{p_K}, \\
+\frac{\partial^2}{\partial p_j\,\partial p_k}\log p(X) &= -\frac{\ind\{X = a_j\}}{p_j^2}\ind\{j = k\} - \frac{\ind\{X = a_K\}}{p_K^2}.
+\end{align*}
+Taking expectations and changing the sign (\cref{thm:fisher-curvature}) gives $I_{jk} = \ind\{j = k\}/p_j + 1/p_K$.
+Write $\mathbf{q} = \mathbf{p}_{-K}$ for short and $\mathrm{diag}(1/\mathbf{q})$ for $\mathrm{diag}(1/p_1, \ldots, 1/p_{K-1})$, so that $\mathrm{diag}(1/\mathbf{q})\,\mathbf{q} = \mathbf{1}$, and note $\mathbf{1}^\top\mathbf{q} = 1 - p_K$.
+Multiplying out,
+\[
+\Big(\mathrm{diag}(1/\mathbf{q}) + \tfrac{1}{p_K}\mathbf{1}\mathbf{1}^\top\Big)\big(\mathrm{diag}(\mathbf{q}) - \mathbf{q}\mathbf{q}^\top\big) = \mathrm{Id} - \mathbf{1}\mathbf{q}^\top + \tfrac{1}{p_K}\mathbf{1}\mathbf{q}^\top - \tfrac{1 - p_K}{p_K}\mathbf{1}\mathbf{q}^\top = \mathrm{Id}.
+\]
+
+(2) Let $\mathbf{h} = \hat{\mathbf{p}}_{-K} - \mathbf{p}^0_{-K}$ be the estimation error; since the proportions and the null probabilities both add up to $1$, $\sum_{k<K}h_k = -(\hat{p}_K - p^0_K)$.
+Summing the score of one observation over the sample, $\partial\ell_n/\partial p_j$ at $\mathbf{p}^0$ is $N_j/p^0_j - N_K/p^0_K = n(\hat{p}_j/p^0_j - \hat{p}_K/p^0_K)$ for $j < K$.
+By part (1), the $j$th entry of $I(\mathbf{p}^0_{-K})\mathbf{h}$ is the same, divided by $n$:
+\[
+\frac{\hat{p}_j - p^0_j}{p^0_j} + \frac{1}{p^0_K}\sum_{k<K}h_k = \frac{\hat{p}_j}{p^0_j} - 1 - \frac{\hat{p}_K - p^0_K}{p^0_K} = \frac{\hat{p}_j}{p^0_j} - \frac{\hat{p}_K}{p^0_K}.
+\]
+So the score is exactly linear in the estimation error, $U_n = \frac{1}{\sqrt{n}}\nabla\ell_n(\mathbf{p}^0_{-K}) = \sqrt{n}\,I(\mathbf{p}^0_{-K})\mathbf{h}$, and the score statistic is
+\begin{align*}
+U_n^\top I(\mathbf{p}^0_{-K})^{-1}U_n = n\,\mathbf{h}^\top I(\mathbf{p}^0_{-K})\mathbf{h} &= n\sum_{j<K}\frac{h_j^2}{p^0_j} + \frac{n}{p^0_K}\Big(\sum_{j<K}h_j\Big)^2 \\
+&= n\sum_{j=1}^K\frac{(\hat{p}_j - p^0_j)^2}{p^0_j} = T^{\mathrm{S}}_n.
+\end{align*}
+Wald's statistic $n\mathbf{h}^\top I(\hat{\mathbf{p}}_{-K})\mathbf{h}$ is the same quadratic form with the information at the estimate, which puts $\hat{p}_j$ in place of $p^0_j$ in the denominators: it is $n\sum_j(\hat{p}_j - p^0_j)^2/\hat{p}_j = T^{\mathrm{W}}_n$.
+The likelihood ratio statistic is $2(\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}^0)) = 2n\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}^0})$ by \cref{prop:gof-mle}, and $2n\sum_j\hat{p}_j\log(\hat{p}_j/p^0_j) = 2\sum_jN_j\log(N_j/(np^0_j))$.
+
+(3) The three final formulas treat the $K$ categories alike.
+\end{proof}
+
+\begin{corollary}[Three tests for counts]
+\label{cor:gof-three}
+Under $H_0: \mathbf{p} = \mathbf{p}^0$, with every $p^0_j > 0$, Pearson's statistic, $G^2$ and Neyman's statistic all converge in distribution to $\chi^2_{K-1}$, and their differences converge in probability to $0$. (Neyman's statistic is defined on the event that every $N_j > 0$, whose probability tends to $1$.)
+\end{corollary}
+
+\optionalproof{The model with one category dropped is regular, with $K - 1$ parameters and an information that is invertible and continuous, so \cref{thm:three-tests} applies.}
+\begin{proof}
+By \cref{prop:gof-three} the three statistics are the score, likelihood ratio and Wald statistics of a regular model with $K - 1$ parameters, $\mathbf{p}^0_{-K}$ interior, and $I$ invertible and continuous at $\mathbf{p}^0_{-K}$, and \cref{thm:three-tests} gives the common $\chi^2_{K-1}$ limit and differences that converge in probability to $0$.
+The event that some $N_j = 0$ has probability at most $\sum_j(1 - p^0_j)^n$, which tends to $0$.
+\end{proof}
+
+The corollary proves part (1) of \cref{thm:pearson} again, from \cref{thm:score}: the rotation of \cref{sec:gof-pearson} and the dropped category are two coordinate systems for the same $(K - 1)$-dimensional plane of deviations.
+The proof of the proposition also shows that the score is exactly $n$ times the information times the estimation error, so Pearson's statistic is Wald's statistic with the information at the null value instead of at the estimate; texts that define Wald's test that way call Pearson's test a Wald test.
+
+For Mendel's peas $G^2 = 0.475$ and Neyman's statistic is $0.487$, against Pearson's $0.470$, with $p$-values from $0.92$ to $0.93$: with $556$ observations the three agree, as the corollary says they should.
+In smaller samples they do not, and since the null distribution of the counts is known exactly, how far each strays from its nominal level can be computed exactly, by adding up the multinomial probabilities of all the tables of counts that the statistic rejects.
+\Cref{fig:gofsizes} does this for Mendel's null at every $n$ from $8$ to $150$.
+Pearson's test stays between $3.6\%$ and $6.1\%$ throughout, even at $n = 8$, where the wrinkled green category expects half a pea.
+The likelihood ratio test runs above $5\%$ for almost every $n$, reaching $7.9\%$ at $n = 14$ and still at $5.2\%$ at $n = 150$.
+Neyman's test, which divides by the observed counts and so is infinite whenever a category is empty, rejects a true null more than $16\%$ of the time below $n = 38$, off the top of the figure ($77\%$ at $n = 8$), $15\%$ of the time at $n = 40$ and still $8\%$ at $n = 150$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_gof_sizes}
+\caption{Mendel's null $9:3:3:1$: exact type 1 error at the $\chi^2_3$ cutoff $7.81$ against the sample size, for Pearson's (score; aqua, dash-dot), $G^2$ (likelihood ratio; blue) and Neyman's (Wald; orange, dashed) statistics. Dotted: $5\%$.}
+\label{fig:gofsizes}
+\end{figure}
+
+\textbf{Which test to use.}
+For counts, use Pearson's statistic.
+This reverses the advice of \cref{ch:wald-lrt}, where the likelihood ratio test kept its level best, and it is not a quirk of Mendel's null: exact computations for many nulls and sample sizes find the same (Larntz, \textit{Journal of the American Statistical Association}, 1978).
+Part of the reason is in the sanity check above: Pearson's statistic has exactly the mean of its limit, $K - 1$, at every $n$.
+$G^2$ remains the statistic to report when a likelihood ratio is wanted, for instance to compare nested models, and with large expected counts the two agree.
+
+\begin{bridge}[observed minus expected, squared, over expected]
+The chi-squared goodness-of-fit test of an introductory course is this chapter's test: $\sum (O - E)^2/E$ over the categories, with $O$ the observed and $E$ the expected counts, compared with the chi-squared distribution with `number of categories minus one' degrees of freedom, provided every expected count is at least $5$.
+What this chapter adds: the minus one is a lost direction, since the counts add up to $n$ (\cref{thm:pearson}); the statistic is the score statistic of a model with $K - 1$ parameters, so the $G$-test is its likelihood ratio twin (\cref{prop:gof-three}); and the rule of $5$ is a cautious guideline, which Pearson's statistic often beats (\cref{fig:gofsizes}).
+\end{bridge}
+
+\section{Testing a family of distributions}
+\label{sec:gof-family}
+
+A model is more often a family than a single distribution.
+Ladislaus von Bortkiewicz counted the soldiers killed by the kick of a horse in $14$ corps of the Prussian army over the $20$ years from 1875 to 1894 (\textit{Das Gesetz der kleinen Zahlen}, 1898).
+Leaving out four corps whose composition differed from the rest, as he did, gives $200$ corps-years: $109$ had no such death, $65$ had one, $22$ had two, $3$ had three and $1$ had four.
+A death by horse kick is a rare event with many independent chances to happen, the situation in which counts are close to Poisson, so the natural model is that the deaths in a corps-year are $\Pois(\lambda)$, with $\lambda$ unknown.
+The null hypothesis is now a family: $H_0$: $\mathbf{p} = \mathbf{p}(\lambda)$ for some $\lambda > 0$, where $p_j(\lambda)$ is the Poisson probability of category $j$.
+Nobody states $\lambda$ in advance, so it has to be estimated, and the fitted distribution is then tested against the counts it was fitted to.
+
+\begin{definition}[The chi-squared test for a family]
+\label{def:gof-family}
+Let $\{\mathbf{p}(\theta) : \theta \in \Theta\}$, with $\Theta \subset \real^d$ open, be a family of distributions on $E = \{a_1, \ldots, a_K\}$ with every $p_j(\theta) > 0$ and $d < K - 1$.
+To test $H_0$: $\mathbf{p} = \mathbf{p}(\theta)$ for some $\theta \in \Theta$, against $H_1$: $\mathbf{p}$ is not in the family, let $\hat{\theta}$ maximize $\sum_j N_j\log p_j(\theta)$, the maximum likelihood estimator of $\theta$ from the counts.
+\textbf{Pearson's statistic for the family} is
+\[
+T^{\mathrm{S}}_n = \sum_{j=1}^K\frac{\big(N_j - np_j(\hat{\theta})\big)^2}{np_j(\hat{\theta})},
+\]
+and the test of asymptotic level $\alpha$ rejects when $T^{\mathrm{S}}_n > q_\alpha(\chi^2_{K-1-d})$.
+The likelihood ratio version is $G^2 = 2\sum_j N_j\log\big(N_j/(np_j(\hat{\theta}))\big)$, with the terms where $N_j = 0$ counted as $0$, compared with the same cutoff.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} Fit the family to the counts by maximum likelihood, compute the expected counts from the fitted distribution, and compute Pearson's statistic as before; then lose one degree of freedom for each parameter fitted.
+\par\smallskip
+\textbf{For the kiss data.} With $K = 2$ categories and the Bernoulli family, $d = 1$ leaves $K - 1 - d = 0$ degrees of freedom: the fitted distribution reproduces the two counts exactly, and there is nothing left to test. A goodness-of-fit test of a family needs more free probabilities than the family has parameters, $K - 1 > d$, so at least $d + 2$ categories.
+\end{inwords}
+
+\recall{The Law of Large Numbers and the continuous mapping theorem, as before \cref{thm:pearson}: the proportions are averages of i.i.d.\ indicators, so $\hat{\mathbf{p}} \convp \mathbf{p}$, and $g(\hat{\mathbf{p}}) \convp g(\mathbf{p})$ for any $g$ continuous at $\mathbf{p}$.}
+
+\begin{theorem}[The chi-squared test for a family]
+\label{thm:gof-family}
+In \cref{def:gof-family}, suppose that $\theta \mapsto \mathbf{p}(\theta)$ is three times continuously differentiable; that its $d \times K$ matrix of partial derivatives has rank $d$ at $\theta^*$, meaning that its $d$ rows are linearly independent, so that no change of $\theta$ leaves $\mathbf{p}$ unchanged to first order; and that $\mathbf{p}(\theta)$ is close to $\mathbf{p}(\theta^*)$ only when $\theta$ is close to $\theta^*$: for every $\varepsilon > 0$ there is a $\delta > 0$ with $\norm{\mathbf{p}(\theta) - \mathbf{p}(\theta^*)} \geq \delta$ whenever $\norm{\theta - \theta^*} \geq \varepsilon$.
+If $H_0$ holds with $\mathbf{p} = \mathbf{p}(\theta^*)$, then with probability tending to $1$ the estimator $\hat{\theta}$ exists, $\hat{\theta} \convp \theta^*$, and Pearson's statistic for the family and $G^2$ both converge in distribution to $\chi^2_{K-1-d}$, with a difference that converges in probability to $0$.
+\end{theorem}
+
+\optionalproof{First, the fit settles near the truth: the KL divergence from the proportions to members of the family far from $\mathbf{p}(\theta^*)$ stays away from $0$, while to $\mathbf{p}(\theta^*)$ it vanishes. Then, in the model of \cref{sec:gof-score} with $K - 1$ free probabilities, the family near $\mathbf{p}(\theta^*)$ is a smooth surface of dimension $d$, so the null imposes $K - 1 - d$ constraints. The constrained maximum likelihood estimate is $\mathbf{p}(\hat{\theta})$; the score statistic there is Pearson's statistic for the family, by the identity of \cref{prop:gof-three}, and the likelihood ratio statistic is $G^2$. \Cref{thm:three-nuisance} does the rest.}
+\begin{proof}
+\textit{The fit settles near the truth.}
+Write $\mathbf{p}^* = \mathbf{p}(\theta^*)$.
+Since $\sum_jN_j\log p_j(\theta) = n\sum_j\hat{p}_j\log\hat{p}_j - n\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}(\theta)})$, the estimator $\hat{\theta}$ minimizes the KL divergence from the proportions to the family.
+For any two distributions $\mathbf{p}$ and $\mathbf{q}$ on the $K$ categories, with every $q_j > 0$, Jensen's inequality (\cref{thm:jensen}) for the convex function $-\log$, with the sums over the $j$ for which $p_j > 0$, gives
+\[
+\KL(\Pr_{\mathbf{p}}, \Pr_{\mathbf{q}}) = -2\sum_j p_j\log\sqrt{q_j/p_j} \geq -2\log\sum_j\sqrt{p_jq_j},
+\]
+and $1 - \sum_j\sqrt{p_jq_j} = \frac12\sum_j(\sqrt{p_j} - \sqrt{q_j})^2 \geq \frac18\norm{\mathbf{p} - \mathbf{q}}^2$, since $(\sqrt{p_j} - \sqrt{q_j})^2 = (p_j - q_j)^2/(\sqrt{p_j} + \sqrt{q_j})^2$ and the denominator is at most $4$.
+Fix $\varepsilon > 0$ small enough that the closed ball $B$ of radius $\varepsilon$ around $\theta^*$ lies in $\Theta$, and take $\delta \leq 1$ from the hypothesis.
+For $\theta \notin B$, with $\mathbf{q} = \mathbf{p}(\theta)$,
+\[
+\sum_j\sqrt{\hat{p}_jq_j} \leq \sum_j\sqrt{p^*_jq_j} + A_n \leq 1 - \frac{\delta^2}{8} + A_n, \qquad A_n = \sum_j\Big|\sqrt{\hat{p}_j} - \sqrt{p^*_j}\Big|,
+\]
+using $q_j \leq 1$, and $A_n \convp 0$ and $\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}^*}) \convp 0$ by the Law of Large Numbers and the continuous mapping theorem, every $p^*_j$ being positive.
+So with probability tending to $1$, $A_n \leq \delta^2/16$ and $\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}^*}) < \kappa = -2\log(1 - \delta^2/16)$, and then every $\theta \notin B$ has $\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}(\theta)}) \geq \kappa$: the log-likelihood is lower at $\theta$ than at $\theta^*$.
+On $B$, which is closed and bounded, the continuous log-likelihood attains a maximum \toolkit{sec:math-sup}, which is then a maximum over all of $\Theta$.
+So with probability tending to $1$, $\hat{\theta}$ exists and lies within $\varepsilon$ of $\theta^*$, for every $\varepsilon$: $\hat{\theta} \convp \theta^*$.
+
+\textit{The limit.}
+Work in the categorical model with one category dropped, which is regular (\cref{sec:gof-score}).
+Near $\mathbf{p}^*$ the members of the family are, by the last hypothesis, the $\mathbf{p}(\theta)$ with $\theta$ near $\theta^*$; they form the image of a smooth map whose derivative has rank $d$ (dropping the last column of the $d \times K$ matrix keeps the rank, since the columns add up to $0$), a $d$-dimensional surface in the $(K-1)$-dimensional parameter set, and by the implicit function theorem (taken as given, as in \cref{sec:wlr-nuisance}) it is the set where $K - 1 - d$ independent smooth constraints hold.
+With probability tending to $1$ both $\hat{\mathbf{p}}$ and $\mathbf{p}(\hat{\theta})$ lie in this neighborhood, and $\mathbf{p}(\hat{\theta})$ is the maximizer of the likelihood over the family, by the definition of $\hat{\theta}$.
+The identity in part (2) of \cref{prop:gof-three} holds at every point $\mathbf{p}^0$ with positive entries, so at $\mathbf{p}^0 = \mathbf{p}(\hat{\theta})$ it says that the score statistic of \cref{def:three-nuisance} is Pearson's statistic for the family; and the likelihood ratio statistic is $2\big(\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}(\hat{\theta}))\big) = 2n\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}(\hat{\theta})}) = G^2$ by \cref{prop:gof-mle}.
+By \cref{thm:three-nuisance} and the paragraph on implicit hypotheses in \cref{sec:wlr-nuisance}, both converge to $\chi^2_{K-1-d}$, with $K - 1 - d$ the number of constraints, and their difference converges in probability to $0$, since both statistics are unchanged by the change of parameter.
+\end{proof}
+
+\begin{intuition}[each fitted parameter uses up a direction]
+With $\mathbf{p}^0$ stated, the standardized deviations had one dead direction, $u$.
+Fitting $\theta$ moves the expected counts as close to the observed ones as the family allows, along the $d$ directions in which the family can move, so what is left of the deviations is, up to terms that vanish, perpendicular to those directions too: $K - 1 - d$ free directions remain.
+\Cref{fig:gofestimated} shows the loss for $\Pois(1)$ data grouped into the three categories $\{0\}$, $\{1\}$ and $\{2 \text{ or more}\}$, in $20{,}000$ samples of $n = 1{,}000$.
+With $\lambda$ known, Pearson's statistic follows $\chi^2_2$.
+With $\lambda$ estimated from the three counts, it follows $\chi^2_1$, and its average drops from $2.0$ to $1.0$: the fit absorbs a whole degree of freedom.
+Comparing the fitted statistic with $\chi^2_2$, as if $\lambda$ had been known, would reject a true Poisson model $1.4\%$ of the time instead of $5\%$.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_gof_estimated}
+\caption{Pearson's statistic in $20{,}000$ samples of $n = 1{,}000$ from $\Pois(1)$, cells $\{0\}$, $\{1\}$, $\{2 \text{ or more}\}$ (histograms). Left: $\lambda$ known; $\chi^2_2$ density (black). Right: $\lambda$ estimated from the counts; $\chi^2_1$ density (black), $\chi^2_2$ (gray, dashed).}
+\label{fig:gofestimated}
+\end{figure}
+
+Pearson made that last mistake himself.
+His 1900 paper used $K - 1$ degrees of freedom whether or not parameters had been estimated; Fisher showed in 1922, for tables of counts, and in 1924 in general, that each estimated parameter costs one, and Pearson disputed it in print (Stigler, \textit{Statistical Science}, 2008).
+
+\begin{worked}[deaths by horse kick]
+The $200$ corps-years had $122$ deaths in all, so $\hat{\lambda} = 122/200 = 0.61$ deaths per corps-year.
+Under $\Pois(0.61)$ the expected numbers of corps-years with $0$, $1$, $2$, $3$ and `$4$ or more' deaths are $108.67$, $66.29$, $20.22$, $4.11$ and $0.71$.
+Two expected counts below $5$, one of them below $1$, strain the chi-squared approximation (\cref{sec:gof-limits}), so pool the last two categories into `$3$ or more', with $4$ corps-years observed and $4.82$ expected.
+That leaves $K = 4$ categories and $d = 1$ parameter, so $K - 1 - d = 2$ degrees of freedom, and
+\[
+T^{\mathrm{S}} = \frac{0.33^2}{108.67} + \frac{1.29^2}{66.29} + \frac{1.78^2}{20.22} + \frac{0.82^2}{4.82} = 0.001 + 0.025 + 0.157 + 0.140 = 0.32,
+\]
+with $p$-value $\Pr(\chi^2_2 > 0.32) = 0.85$; $G^2 = 0.33$.
+Strictly, the theorem wants $\lambda$ estimated from the four counts, which gives $0.608$ rather than $0.61$, since the pooled category hides whether its corps-years had three deaths or four; the statistic is $0.32$ either way.
+One expected count in four is still just below $5$, a little more than the guideline of \cref{sec:gof-limits} allows; pooling `$2$ or more' as well, with $\lambda$ estimated again from the three counts ($0.614$), gives $T^{\mathrm{S}} = 0.056$ on $1$ degree of freedom, $p = 0.81$, the same verdict.
+Nothing here argues against the Poisson model, and the left of \cref{fig:poissonfits} shows why: the observed and expected counts agree almost category by category.
+That was Bortkiewicz's point: rare events with many chances to happen follow the Poisson distribution, the `law of small numbers' of his title.
+\end{worked}
+
+\begin{worked}[the siblings data, checked]
+\Cref{ch:models} modeled the number of siblings, self included, of $24$ students by $X - 1 \sim \Pois(\lambda)$, and left the check of that assumption to this chapter.
+The $24$ values of $X - 1$ are $0$ eight times, $1$ nine times, $2$ six times and $3$ once, with mean $\hat{\lambda} = 1.0$.
+Under $\Pois(1.0)$ the expected counts for $0$, $1$, $2$ and `$3$ or more' are $8.83$, $8.83$, $4.41$ and $1.93$.
+Two of these four are below $5$, more than the guideline of \cref{sec:gof-limits} allows, and pooling the last two leaves $K = 3$ categories, with observed counts $(8, 9, 7)$ and expected $(8.83, 8.83, 6.34)$, and $K - 1 - d = 1$ degree of freedom.
+Estimated from the three counts, as the theorem asks, $\lambda$ is $1.08$, the expected counts become $(8.12, 8.80, 7.08)$, and $T^{\mathrm{S}} = 0.007$, with $p$-value $0.93$.
+With the sample mean $1.0$ instead, $T^{\mathrm{S}} = 0.15$; the pitfall below says to compare it with both $\chi^2_1$ and $\chi^2_2$, which give $p$-values $0.70$ and $0.93$.
+Either way the data give no reason to doubt the Poisson model (\cref{fig:poissonfits}, right).
+They give little reason to trust it either: if the $24$ values came from a geometric distribution with the same mean, which puts half its probability on $0$, the test with $\lambda$ estimated from the three counts would reject only about one time in five.
+\end{worked}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_poisson_fits}
+\caption{Observed counts (bars) and the counts expected under a Poisson model with $\lambda$ estimated (black ticks). Left: deaths by horse kick in $200$ corps-years, $\Pois(0.61)$. Right: the siblings data, $24$ students, $\Pois(1.0)$.}
+\label{fig:poissonfits}
+\end{figure}
+
+\begin{pitfall}[estimate from the counts you test]
+\Cref{thm:gof-family} needs $\hat{\theta}$ to be the maximum likelihood estimator from the counts.
+In practice the parameter is often estimated from the raw data, the sample mean for a Poisson, which carries more information than counts with a pooled category.
+Then the limit is no longer $\chi^2_{K-1-d}$: Chernoff and Lehmann (\textit{Annals of Mathematical Statistics}, 1954) showed that it is $\chi^2_{K-1-d}$ plus $d$ further independent $\chi^2_1$ variables with weights between $0$ and $1$, so its tail probabilities lie between those of $\chi^2_{K-1-d}$ and $\chi^2_{K-1}$, and the test with $K - 1 - d$ degrees of freedom rejects too often.
+In the setting of \cref{fig:gofestimated} the excess is small, a type 1 error of $5.4\%$ at the $\chi^2_1$ cutoff against $5.0\%$ for the estimate from the counts; for Gaussian data grouped into four cells that are equally likely under the true distribution, with the mean and variance estimated from the raw data, it is $10.5\%$ in the limit.
+The correct $p$-value lies between the $\chi^2_{K-1-d}$ and the $\chi^2_{K-1}$ $p$-values: report both, as for the siblings data, and if they fall on opposite sides of $\alpha$, estimate from the counts instead.
+When the categories are the possible values themselves, as for the binomial family of \cref{ex:gof-binomial}, the raw data are the counts and the issue disappears.
+\end{pitfall}
+
+\section{Tables of counts}
+\label{sec:gof-tables}
+
+The aspirin trial of \cref{ch:wald-lrt} is a table of counts, with two rows, placebo and aspirin, and two columns, heart attack or not:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+ & heart attack & no heart attack & total \\
+\midrule
+placebo & $189$ & $10{,}845$ & $11{,}034$ \\
+aspirin & $104$ & $10{,}933$ & $11{,}037$ \\
+total & $293$ & $21{,}778$ & $22{,}071$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\Cref{ch:wald-lrt} asked whether the two heart-attack rates are equal.
+The same question can be asked of any table: is the row variable unrelated to the column variable?
+Tables arise from two designs.
+In the first, $n$ units are each classified by two variables, the row variable with $r$ categories and the column variable with $c$, and the $rc$ cells form one categorical model, with $p_{jk}$ the probability of cell $(j, k)$; the variables are \textbf{independent} when $p_{jk} = a_jb_k$ for every $j$ and $k$, with $(a_j)$ the distribution of the row variable and $(b_k)$ that of the column variable.
+In the second, the row totals are fixed by design, as in the aspirin trial, where $11{,}034$ physicians were assigned to placebo and $11{,}037$ to aspirin; each row is its own categorical sample, and the null of \textbf{homogeneity} is that all the rows have the same distribution over the columns.
+Both designs lead to the same test.
+
+\begin{definition}[The chi-squared test for a table]
+\label{def:gof-table}
+Let $N_{jk}$ be the counts of an $r \times c$ table, with row totals $N_{j\cdot}$, column totals $N_{\cdot k}$ and grand total $n$.
+The \textbf{expected counts} are $E_{jk} = N_{j\cdot}N_{\cdot k}/n$, and the \textbf{chi-squared test for the table} compares
+\[
+T^{\mathrm{S}}_n = \sum_{j=1}^r\sum_{k=1}^c\frac{(N_{jk} - E_{jk})^2}{E_{jk}} \qquad\text{or}\qquad G^2 = 2\sum_{j=1}^r\sum_{k=1}^c N_{jk}\log\frac{N_{jk}}{E_{jk}}
+\]
+with $q_\alpha\big(\chi^2_{(r-1)(c-1)}\big)$, the terms of $G^2$ where $N_{jk} = 0$ counted as $0$.
+\end{definition}
+
+\begin{inwords}
+\textbf{In words.} If the row and column variables have nothing to do with each other, the expected count in a cell is the row total times the column's share of all the observations, $N_{j\cdot} \times N_{\cdot k}/n$. The degrees of freedom count the cells left free once the row and column totals are known: fill in $(r - 1)(c - 1)$ cells, and the totals determine the rest.
+\par\smallskip
+\textbf{For the kiss data.} The $124$ couples were observed in public places in the United States, Germany and Turkey. Their counts by country would form a $3 \times 2$ table of country by direction of the head turn, and this test would ask whether couples in the three countries turn right equally often, with $(3 - 1)(2 - 1) = 2$ degrees of freedom.
+\end{inwords}
+
+\begin{corollary}[Degrees of freedom for a table]
+\label{cor:gof-table}
+Suppose every cell probability is positive, and either the $rc$ cells are one categorical sample of size $n$ and the null is independence, or the $r$ rows are independent categorical samples whose sizes grow in fixed proportions and the null is homogeneity.
+Under the null, both statistics of \cref{def:gof-table} converge in distribution to $\chi^2_{(r-1)(c-1)}$.
+Under independence the maximum likelihood estimates are $\hat{a}_j = N_{j\cdot}/n$ and $\hat{b}_k = N_{\cdot k}/n$; under homogeneity the fitted common distribution is $(N_{\cdot k}/n)_k$; in both cases the fitted expected counts are the $E_{jk}$.
+\end{corollary}
+
+\optionalproof{Count parameters. Independence is a family with $(r - 1) + (c - 1)$ parameters inside a model with $rc - 1$, which leaves $(r - 1)(c - 1)$ constraints; homogeneity is one distribution with $c - 1$ parameters inside $r$ separate ones with $c - 1$ each, which leaves the same number. The log-likelihood under either null splits into pieces that are each maximized by proportions.}
+\begin{proof}
+Independence: the table is a categorical model with $K = rc$ categories, and the family $p_{jk} = a_jb_k$ has $d = (r - 1) + (c - 1)$ free parameters, since each of $(a_j)$ and $(b_k)$ adds up to $1$.
+The map from $(a, b)$ to the cell probabilities is a polynomial, and it is undone by the linear map $a_j = \sum_kp_{jk}$, $b_k = \sum_jp_{jk}$, so it has rank $d$, and cell probabilities close to the true ones come only from $(a, b)$ close to the true ones: the hypotheses of \cref{thm:gof-family} hold.
+The family's log-likelihood $\sum_{j,k}N_{jk}(\log a_j + \log b_k) = \sum_jN_{j\cdot}\log a_j + \sum_kN_{\cdot k}\log b_k$ is the sum of two categorical log-likelihoods, maximized by $\hat{a}_j = N_{j\cdot}/n$ and $\hat{b}_k = N_{\cdot k}/n$ (\cref{prop:gof-mle}), so $n\hat{a}_j\hat{b}_k = E_{jk}$, and \cref{thm:gof-family} gives the limit $\chi^2$ with $rc - 1 - (r - 1) - (c - 1) = (r - 1)(c - 1)$ degrees of freedom.
+
+Homogeneity: the rows are independent categorical samples of sizes $N_{j\cdot}$, so the free model has $r(c - 1)$ parameters and the null, one common distribution $(b_k)$, has $c - 1$, which imposes $r(c - 1) - (c - 1) = (r - 1)(c - 1)$ constraints.
+Under the null the log-likelihood is $\sum_kN_{\cdot k}\log b_k$, maximized at $\hat{b}_k = N_{\cdot k}/n$, so the fitted expected count in cell $(j, k)$ is $N_{j\cdot}\hat{b}_k = E_{jk}$.
+In the free model the log-likelihood is a sum of row log-likelihoods in separate parameters, so the score is the row scores stacked and the information is block diagonal, one block per row; the score statistic at the fitted null is therefore the sum over the rows of the score statistic of each row at $\hat{b}$, which is Pearson's statistic for that row (\cref{prop:gof-three}), and the sum is $T^{\mathrm{S}}_n$.
+The likelihood ratio statistic is $G^2$ by \cref{prop:gof-mle} applied row by row, and \cref{thm:three-nuisance}, with the paragraphs on implicit hypotheses and on several independent samples in \cref{sec:wlr-nuisance}, gives the limit.
+\end{proof}
+
+\begin{worked}[aspirin and heart attacks, as a table]
+The expected number of heart attacks on placebo is $11{,}034 \times 293/22{,}071 = 146.48$, and on aspirin $146.52$; the observed numbers are $189$ and $104$.
+The expected counts without a heart attack are $10{,}887.52$ and $10{,}890.48$.
+All four deviations are $\pm 42.52$, which is the one degree of freedom made visible: in a $2 \times 2$ table with fixed totals, one cell determines the other three.
+So
+\[
+T^{\mathrm{S}} = \frac{42.52^2}{146.48} + \frac{42.52^2}{146.52} + \frac{42.52^2}{10{,}887.52} + \frac{42.52^2}{10{,}890.48} = 12.34 + 12.34 + 0.17 + 0.17 = 25.01,
+\]
+with $(2 - 1)(2 - 1) = 1$ degree of freedom, and $G^2 = 25.37$.
+These are the score and likelihood ratio statistics of \cref{ch:wald-lrt}, which also showed that $T^{\mathrm{S}}$ is the square of the pooled two-proportion statistic.
+The $p$-value is below one in a million: if aspirin made no difference, a statistic this large would appear in fewer than one of a million trials like this one.
+\end{worked}
+
+\section{What a goodness-of-fit test can and cannot tell you}
+\label{sec:gof-limits}
+
+\textbf{Small expected counts.}
+The chi-squared limit needs every expected count to be large.
+A widely used guideline, usually credited to Cochran (\textit{Biometrics}, 1954), asks that no expected count be below $1$ and at most a fifth of them below $5$.
+\Cref{fig:gofsizes} shows that the guideline is cautious for Pearson's statistic, which held its level for Mendel's null at $n = 8$ with an expected count of one half, less cautious for $G^2$, and not enough for Neyman's statistic.
+When the guideline fails there are two remedies.
+Pool neighboring categories, as for the horse kicks, at the price of a coarser question.
+Or, for a stated null, compute the $p$-value by simulation: the null distribution of the counts is $\Mult(n, \mathbf{p}^0)$, known exactly, so draw many tables from it, compute the statistic for each, and report the fraction at least as large as the observed one (\cref{ex:gof-die}).
+
+\textbf{Failing to reject is not confirming.}
+Mendel's $p$-value of $0.93$ says that his counts are consistent with $9:3:3:1$; it does not say that the ratio is $9:3:3:1$.
+In a simulation of $100{,}000$ repetitions of his experiment, in a world where wrinkled green peas are about a quarter rarer than the theory says (the ratio $9:3:3:0.75$), Pearson's test rejects the theory in only $18\%$ of them, and if wrinkled green peas were about half as common as the theory says ($9:3:3:0.5$), in $75\%$.
+With $2{,}000$ peas the two figures become $64\%$ and essentially $100\%$.
+\Cref{ex:gof-power} computes how the statistic grows with $n$ under the first of these alternatives.
+
+\textbf{Large samples find every departure.}
+By part (2) of \cref{thm:pearson}, $T^{\mathrm{S}}_n$ grows like $n\sum_j(p_j - p^0_j)^2/p^0_j$ for any $\mathbf{p} \neq \mathbf{p}^0$, however close.
+Real data are never exactly Poisson or exactly $9:3:3:1$, so with enough of them the test rejects, and whether the departure it finds matters is a separate question, answered by the size of the deviations, as in \cref{fig:mendel,fig:poissonfits}, rather than by the $p$-value.
+
+\begin{sanitycheck}[Can a fit be too good?]
+Fisher (\textit{Annals of Science}, 1936) went through all of Mendel's experiments and added up their chi-squared statistics: $41.6$ on $84$ degrees of freedom.
+Independent chi-squared variables add (\cref{prop:chisq-props}), so if Mendel's theories were right and the experiments independent, the total would be approximately $\chi^2_{84}$, with mean $84$ and standard deviation $\sqrt{168} = 13.0$.
+A total of $41.6$ is $3.3$ standard deviations below the mean, and the probability of a fit at least this good is about $3$ in $100{,}000$ (Fisher, with the tables of his day, put it at $7$ in $100{,}000$).
+The upper tail of Pearson's statistic measures misfit; across many experiments, its lower tail measures a fit too close for chance.
+Fisher concluded that the data had been adjusted toward the theory, perhaps by an assistant who knew what Mendel expected, and the case has been argued many times since (for example, Pires and Branco, \textit{Statistical Science}, 2010).
+\end{sanitycheck}
+
+\section{What comes next}
+\label{sec:gof-next}
+
+\Cref{ch:ks} turns to continuous data.
+Grouping a continuous sample into categories and running Pearson's test works, but it discards where in its category each observation fell, and the answer depends on the categories chosen.
+The empirical CDF uses every observation as it is, and its largest distance from a stated CDF is the Kolmogorov--Smirnov statistic.
+Estimating parameters changes that statistic's null distribution, as estimating from the raw data did in this chapter, and the Lilliefors test is the repair; QQ plots make the same comparison as a picture.
+
+\section{Summary}
+\label{sec:gof-summary}
+
+\begin{itemize}[nosep]
+\item A goodness-of-fit test tests a whole distribution. For $K$ categories, `any other distribution' is the categorical model, parametric with $K - 1$ free probabilities; the maximum likelihood estimator is the vector of proportions, and $\ell_n(\hat{\mathbf{p}}) - \ell_n(\mathbf{p}) = n\KL(\Pr_{\hat{\mathbf{p}}}, \Pr_{\mathbf{p}})$.
+\item The counts are multinomial and negatively correlated, $\mathrm{Cov}(N_j, N_k) = -np_jp_k$, and their covariance matrix is not invertible.
+\item Pearson's $T^{\mathrm{S}}_n = \sum_j(N_j - np^0_j)^2/(np^0_j) \convd \chi^2_{K-1}$: the standardized deviations are perpendicular to $(\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$, and in the other $K - 1$ directions they are independent standard Gaussians in the limit. Mendel: $0.47$, $p = 0.93$. Kiss data: $10.45$.
+\item Pearson's statistic is the score statistic of the model with one category dropped, and also Wald's statistic with the information at the null; $G^2 = 2\sum_jN_j\log(N_j/(np^0_j))$ is the likelihood ratio statistic, and Neyman's $\sum_j(N_j - np^0_j)^2/N_j$ is Wald's statistic in the coordinates $p_1, \ldots, p_{K-1}$. For counts, Pearson's keeps its level best.
+\item A family with $d$ parameters estimated from the counts: $\chi^2_{K-1-d}$. Horse kicks: $0.32$ on $2$ degrees of freedom; siblings: no evidence against the Poisson model. Estimating from the raw data puts the limit between $\chi^2_{K-1-d}$ and $\chi^2_{K-1}$ ($10.5\%$ instead of $5\%$ for a Gaussian in four cells).
+\item Tables: expected counts (row total)(column total)$/n$ and $(r - 1)(c - 1)$ degrees of freedom, for independence and for homogeneity. Aspirin: $25.01$ and $25.37$ on $1$ degree of freedom.
+\item Expected counts below $1$, or many below $5$: pool, or simulate the $p$-value. Not rejecting is not confirming, large samples reject every departure, and a fit can be too good (Fisher on Mendel: $41.6$ on $84$ degrees of freedom).
+\end{itemize}
+
+\section{Exercises}
+\label{sec:gof-exercises}
+
+\begin{exercise}
+\label{ex:gof-mean}
+(a) Show that under $H_0: \mathbf{p} = \mathbf{p}^0$, $\E[T^{\mathrm{S}}_n] = K - 1$ exactly, for every $n$. (b) Show that, by contrast, the mean of Neyman's statistic is infinite at every $n$ if the statistic is given the value $+\infty$ when a count is $0$, and explain why that does not contradict \cref{cor:gof-three}.
+\end{exercise}
+\begin{solution}
+(a) $\E[(N_j - np^0_j)^2] = \var(N_j) = np^0_j(1 - p^0_j)$ (\cref{prop:gof-counts}), so $\E[(N_j - np^0_j)^2/(np^0_j)] = 1 - p^0_j$, and $\E[T^{\mathrm{S}}_n] = \sum_j(1 - p^0_j) = K - (p^0_1 + \cdots + p^0_K) = K - 1$. (b) $\Pr(N_j = 0) = (1 - p^0_j)^n > 0$, and on that event $T^{\mathrm{W}}_n = +\infty$, so its mean is $+\infty$. Convergence in distribution is a statement about probabilities, not means: the event has probability tending to $0$, so it does not affect the limit of $\Pr(T^{\mathrm{W}}_n \leq t)$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-kiss}
+For the kiss data and $\mathbf{p}^0 = (\frac12, \frac12)$: (a) compute Pearson's statistic, $G^2$ and Neyman's statistic, and compare them with the three statistics of \cref{ch:wald-lrt}. (b) Show that for $K = 2$ Neyman's statistic equals $n(\hat{p} - p_0)^2/(\hat{p}(1 - \hat{p}))$, the square of Wald's statistic for a proportion.
+\end{exercise}
+\begin{solution}
+(a) $T^{\mathrm{S}} = 2 \times 18^2/62 = 10.45$; $G^2 = 2(80\log\frac{80}{62} + 44\log\frac{44}{62}) = 10.60$; $T^{\mathrm{W}} = 18^2/80 + 18^2/44 = 4.05 + 7.36 = 11.41$. These are the score, likelihood ratio and Wald statistics of \cref{ch:wald-lrt}, as \cref{prop:gof-three} says they must be. (b) With $N_2 - np^0_2 = -(N_1 - np^0_1)$, $T^{\mathrm{W}}_n = (N_1 - np^0_1)^2(1/N_1 + 1/N_2) = (N_1 - np^0_1)^2\,n/(N_1N_2)$, and with $N_1 = n\hat{p}$, $N_2 = n(1 - \hat{p})$ and $p_0 = p^0_1$ this is $n^2(\hat{p} - p_0)^2\,n/(n^2\hat{p}(1 - \hat{p})) = n(\hat{p} - p_0)^2/(\hat{p}(1 - \hat{p}))$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-seed}
+In his first experiment Mendel classified $7{,}324$ seeds from hybrid plants by shape: $5{,}474$ round and $1{,}850$ wrinkled. His theory predicts the ratio $3:1$. Compute the expected counts, Pearson's statistic and its $p$-value, and $G^2$.
+\end{exercise}
+\begin{solution}
+Expected: $7{,}324 \times \frac34 = 5{,}493$ round and $1{,}831$ wrinkled; the deviations are $-19$ and $+19$. $T^{\mathrm{S}} = 19^2/5{,}493 + 19^2/1{,}831 = 0.066 + 0.197 = 0.263$, with $K - 1 = 1$ degree of freedom and $p$-value $\Pr(\chi^2_1 > 0.263) = 0.61$; $G^2 = 0.262$. The observed ratio is $2.96:1$, and the test finds nothing against $3:1$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-die}
+A die is rolled $15$ times, and the faces $1$ to $6$ come up $3$, $1$, $1$, $2$, $2$ and $6$ times. (a) Compute Pearson's statistic for $H_0$: the die is fair, and the chi-squared $p$-value. (b) Suppose $60$ rolls had given four times these counts. Recompute. (c) Why is the chi-squared approximation doubtful in (a), and how would you compute the $p$-value by simulation? (The exact $p$-value, obtained by adding up the null probabilities of all the tables of $15$ rolls whose statistic is at least $7.0$, is $0.256$.)
+\end{exercise}
+\begin{solution}
+(a) Each face expects $2.5$: $T^{\mathrm{S}} = (0.5^2 + 1.5^2 + 1.5^2 + 0.5^2 + 0.5^2 + 3.5^2)/2.5 = 17.5/2.5 = 7.0$, below $q_{0.05}(\chi^2_5) = 11.07$, with $p$-value $\Pr(\chi^2_5 > 7.0) = 0.22$: no evidence that the die is unfair, despite six $6$s in $15$ rolls. (b) Every deviation and every expected count is four times larger, so $T^{\mathrm{S}} = 4 \times 7.0 = 28.0$, with $p$-value $0.00004$: reject. The same proportions are strong evidence in $60$ rolls and weak evidence in $15$. (c) All six expected counts are $2.5$, below $5$. Draw, say, $100{,}000$ tables of $15$ rolls of a fair die, that is, from $\Mult(15, (\frac16, \ldots, \frac16))$, compute $T^{\mathrm{S}}$ for each, and report the fraction that are at least $7.0$; it estimates the exact $0.256$, a little larger than the chi-squared $0.22$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-zodiac}
+Fortune magazine recorded the zodiac signs of $256$ heads of large companies. From Aries to Pisces the counts were $23$, $20$, $18$, $23$, $20$, $19$, $18$, $21$, $19$, $22$, $24$ and $29$. (a) Test whether the twelve signs are equally likely: give Pearson's statistic, its degrees of freedom and its $p$-value. (b) Pisces has $29$, more than a third above its expected share. Taken on its own, as if Pisces had been named before the data were seen, how surprising is that? (c) Why is (b) the wrong question once Pisces has been picked out because its count is the largest? (When all twelve signs are equally likely, the largest of the twelve counts is $29$ or more in $56\%$ of samples of $256$.)
+\end{exercise}
+\begin{solution}
+(a) Each sign expects $256/12 = 21.33$. Since $\sum_j(N_j - E)^2/E = \sum_jN_j^2/E - n$, $T^{\mathrm{S}} = 5{,}570 \times 12/256 - 256 = 5.09$, with $K - 1 = 11$ degrees of freedom and $p$-value $\Pr(\chi^2_{11} > 5.09) = 0.93$: no evidence that the signs are unequally represented. Pisces contributes $(29 - 21.33)^2/21.33 = 2.76$, more than half of the total. (b) On its own, the Pisces count is $\Bin(256, \frac{1}{12})$, with standard deviation $\sqrt{256 \times \frac{1}{12} \times \frac{11}{12}} = 4.42$, so $29$ is $1.73$ standard deviations above its mean, a two-sided $p$-value of about $0.08$ by the Gaussian approximation. (c) Pisces was singled out after the data were seen because its count was the largest. The relevant chance is that the largest of twelve counts is at least $29$, which is $56\%$: when all the signs are equally likely, some sign reaches $29$ more often than not. Testing the most extreme of many categories as if it had been named in advance is the multiple-testing error of \cref{sec:t-multiple}; Pearson's statistic, which looks at all twelve signs at once, does not make it.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-jurors}
+A random sample of $275$ jurors from a small county had $205$ White, $26$ Black, $25$ Hispanic and $19$ jurors of other groups. Among the county's registered voters, the people eligible for jury duty, the four groups make up $72\%$, $7\%$, $12\%$ and $9\%$ (Diez, Barr and \c{C}etinkaya-Rundel, \textit{OpenIntro Statistics}). (a) Compute the expected counts, Pearson's statistic and its $p$-value. Is there evidence that the jurors are not representative of the voters? (b) If the jurors' proportions stayed the same, from about how many jurors on would the test reject at the $5\%$ level?
+\end{exercise}
+\begin{solution}
+(a) The expected counts are $275 \times 0.72 = 198$, $19.25$, $33$ and $24.75$. $T^{\mathrm{S}} = 7^2/198 + 6.75^2/19.25 + 8^2/33 + 5.75^2/24.75 = 0.247 + 2.367 + 1.939 + 1.336 = 5.89$, with $3$ degrees of freedom and $p$-value $\Pr(\chi^2_3 > 5.89) = 0.12$: not significant at $5\%$. Black jurors are $9.5\%$ of the sample against $7\%$ of the voters, Hispanic jurors $9.1\%$ against $12\%$. (b) With the proportions fixed, $T^{\mathrm{S}} = n\sum_j(\hat{p}_j - p^0_j)^2/p^0_j = 0.0214\,n$, which exceeds the cutoff $7.81$ from about $n = 365$ (\cref{sec:gof-limits}).
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-taylor}
+(a) Expand $f(x) = x\log(x/m)$ around $x = m$, for a constant $m > 0$, and deduce that $G^2 = T^{\mathrm{S}}_n + (\text{higher-order terms})$, using that the observed and expected counts have the same total. (b) In the kiss data $G^2 = 10.60$ and $T^{\mathrm{S}} = 10.45$. Which terms of the expansion account for the difference?
+\end{exercise}
+\begin{solution}
+(a) $f(m) = 0$; $f'(x) = \log(x/m) + 1$, so $f'(m) = 1$; $f''(x) = 1/x$, so $f''(m) = 1/m$. Then $f(x) = (x - m) + (x - m)^2/(2m) + \text{(terms of order three and higher)}$ \toolkit{sec:math-mvt}. Summing over the categories with $x = N_j$ and $m = np^0_j$, the first-order terms add up to $\sum_j(N_j - np^0_j) = 0$, so $G^2 = 2\sum_jf(N_j) = \sum_j(N_j - np^0_j)^2/(np^0_j) + \cdots = T^{\mathrm{S}}_n + \cdots$: Pearson's statistic is the parabola approximation of $G^2$, as in \cref{ch:distances}. (b) $f'''(x) = -1/x^2$ and $f''''(x) = 2/x^3$, so the next terms are $-(x - m)^3/(6m^2)$ and $(x - m)^4/(12m^3)$. With deviations $+18$ and $-18$ from the same expected count $62$, the cubic terms cancel, and the quartic terms add $2 \times 2 \times 18^4/(12 \times 62^3) = 0.147$ to $G^2$, nearly all of the difference $0.152$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-binomial}
+A sample of $1{,}000$ observations on $\{0, 1, 2, 3\}$ has counts $339$, $455$, $180$ and $26$. Test whether it comes from the family $\Bin(3, \theta)$: find the maximum likelihood estimate of $\theta$ from the counts, the expected counts, Pearson's statistic, its degrees of freedom and its $p$-value.
+\end{exercise}
+\begin{solution}
+The log-likelihood is $\sum_jN_j\log\big(\binom{3}{j}\theta^j(1 - \theta)^{3 - j}\big) = S\log\theta + (3n - S)\log(1 - \theta) + \text{const}$, with $S = \sum_j jN_j = 455 + 360 + 78 = 893$, so $\hat{\theta} = S/(3n) = 893/3{,}000 = 0.2977$. Expected counts: $1{,}000(1 - \hat{\theta})^3 = 346.44$, $3{,}000\hat{\theta}(1 - \hat{\theta})^2 = 440.49$, $3{,}000\hat{\theta}^2(1 - \hat{\theta}) = 186.69$ and $1{,}000\hat{\theta}^3 = 26.37$. $T^{\mathrm{S}} = 7.44^2/346.44 + 14.51^2/440.49 + 6.69^2/186.69 + 0.37^2/26.37 = 0.160 + 0.478 + 0.240 + 0.005 = 0.88$, with $K - 1 - d = 4 - 1 - 1 = 2$ degrees of freedom and $p$-value $\Pr(\chi^2_2 > 0.88) = 0.64$: nothing against the binomial family.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-titanic}
+The British Board of Trade's inquiry into the sinking of the \textit{Titanic} in 1912 reported, by class (first, second, third, crew), these numbers of survivors and deaths: $203$ and $122$; $118$ and $167$; $178$ and $528$; $212$ and $673$ (Dawson, \textit{Journal of Statistics Education}, 1995). (a) Compute the expected counts under independence of class and survival. (b) Compute Pearson's statistic and its degrees of freedom. (c) Which cell contributes the most, and what does it say?
+\end{exercise}
+\begin{solution}
+(a) $n = 2{,}201$, with $711$ survivors and $1{,}490$ deaths, and class totals $325$, $285$, $706$ and $885$. The expected numbers of survivors are $325 \times 711/2{,}201 = 104.99$, then $92.06$, $228.06$ and $285.89$; of deaths, $220.01$, $192.94$, $477.94$ and $599.11$. (b) The eight terms are $91.50$ and $43.66$ (first class, survivors and deaths), $7.31$ and $3.49$ (second), $10.99$ and $5.24$ (third) and $19.10$ and $9.11$ (crew), so $T^{\mathrm{S}} = 190.4$, with $(4 - 1)(2 - 1) = 3$ degrees of freedom; the $p$-value is about $10^{-40}$. (c) First-class survivors: $(203 - 104.99)^2/104.99 = 91.5$, almost half the total. Nearly twice as many first-class passengers survived as independence predicts: $62\%$ of the first class survived, against $32\%$ of everyone aboard.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-table-df}
+For an $r \times c$ table with expected counts $E_{jk} = N_{j\cdot}N_{\cdot k}/n$: (a) show that the expected counts have the same row and column totals as the observed ones; (b) deduce that the deviations $N_{jk} - E_{jk}$ add up to $0$ along every row and every column, so that the $(r - 1)(c - 1)$ deviations in the first $r - 1$ rows and $c - 1$ columns determine all of them; (c) for $r = c = 2$, show that the four deviations have the same absolute value.
+\end{exercise}
+\begin{solution}
+(a) $\sum_kE_{jk} = N_{j\cdot}\sum_kN_{\cdot k}/n = N_{j\cdot}$, and likewise $\sum_jE_{jk} = N_{\cdot k}$. (b) Subtracting, $\sum_k(N_{jk} - E_{jk}) = 0$ for every $j$ and $\sum_j(N_{jk} - E_{jk}) = 0$ for every $k$. Given the deviations in the first $r - 1$ rows and $c - 1$ columns, the last entry of each of those rows is minus the sum of the others, and then each entry of the last row is minus the sum of the rest of its column. (c) With $\delta$ the deviation in cell $(1, 1)$, the row condition gives $-\delta$ in $(1, 2)$, the column conditions give $-\delta$ in $(2, 1)$, and then $+\delta$ in $(2, 2)$; the aspirin table has $\delta = 42.52$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-naive}
+For $K = 2$, let $V_n = \sum_{j=1}^2(N_j - np^0_j)^2/(np^0_j(1 - p^0_j))$, the sum of the two squared standardized binomial counts. (a) Show that $V_n = 2T^{\mathrm{S}}_n$. (b) Find the limit of $V_n$ under the null, and the probability that it exceeds $q_{0.05}(\chi^2_2) = 5.99$ in the limit.
+\end{exercise}
+\begin{solution}
+(a) $p^0_1(1 - p^0_1) = p^0_2(1 - p^0_2)$ and $(N_2 - np^0_2)^2 = (N_1 - np^0_1)^2$, so the two terms of $V_n$ are equal, each equal to $(N_1 - np^0_1)^2/(np^0_1(1 - p^0_1))$, which is $T^{\mathrm{S}}_n$ by the sanity check of \cref{sec:gof-pearson}. (b) Under the null $T^{\mathrm{S}}_n \convd \chi^2_1$, so $V_n \convd 2\chi^2_1$ by the continuous mapping theorem (\cref{thm:cmt}: if $T_n \convd T$ and $g$ is continuous, $g(T_n) \convd g(T)$; here $g(t) = 2t$), and $\Pr(2\chi^2_1 > 5.99) = \Pr(\chi^2_1 > 3.00) = 0.083$: a nominal $5\%$ test with type 1 error $8.3\%$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:gof-power}
+Take Mendel's null $\mathbf{p}^0 = (9, 3, 3, 1)/16$ and the alternative $\mathbf{p} = (9, 3, 3, 0.75)/15.75$, in which wrinkled green peas are about a quarter rarer. (a) Compute $c = \sum_j(p_j - p^0_j)^2/p^0_j$. (b) Show that under $\mathbf{p}$, $\E[T^{\mathrm{S}}_n] = nc + \sum_jp_j(1 - p_j)/p^0_j$. (c) Evaluate this mean at $n = 556$ and at $n = 2{,}000$, and compare it with the cutoff $7.81$ and with the simulated rejection rates of \cref{sec:gof-limits}.
+\end{exercise}
+\begin{solution}
+(a) In decimals the alternative is $(0.5714, 0.1905, 0.1905, 0.0476)$ and the null is $(0.5625, 0.1875, 0.1875, 0.0625)$, so $c = 0.0089^2/0.5625 + 2 \times 0.0030^2/0.1875 + 0.0149^2/0.0625 = 0.00378$, most of it from the last category. (b) $\E[(N_j - np^0_j)^2] = \var(N_j) + (\E[N_j] - np^0_j)^2 = np_j(1 - p_j) + n^2(p_j - p^0_j)^2$; divide by $np^0_j$ and add over $j$. (c) The second term is $2.806$, close to $K - 1 = 3$. At $n = 556$ the mean is $2.101 + 2.806 = 4.91$, below the cutoff $7.81$, and the test rejects only $18\%$ of the time; at $n = 2{,}000$ it is $7.559 + 2.806 = 10.36$, above the cutoff, and the test rejects $64\%$ of the time. The mean crosses the cutoff $q_{0.05}(\chi^2_3) = 7.815$ at about $n = (7.815 - 2.806)/0.00378 = 1{,}325$.
+\end{solution}

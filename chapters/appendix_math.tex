@@ -47,7 +47,7 @@ When a maximum exists it equals the supremum; the supremum exists more often, wh
 The \textbf{infimum}, $\inf$, is the greatest lower bound, and the same remarks apply with `minimum'.
 \Cref{fig:tk-sup} shows both cases.
 On the left, the set $\{1 - 1/n\}$ has no largest element, but $1$ is its least upper bound.
-On the right, $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its infimum at $x = 0$, so there $\sup = \max$ and $\inf = \min$; a continuous function on a closed, bounded interval always attains both.
+On the right, $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its infimum at $x = 0$, so there $\sup = \max$ and $\inf = \min$; a continuous function on a closed, bounded interval always attains both. The same holds on any closed, bounded set in $\real^d$, such as a closed ball (the extreme value theorem).
 
 \begin{figure}[htbp]
 \centering
@@ -56,7 +56,7 @@ On the right, $x e^{-x}$ on $[0, 4]$ attains its supremum at $x = 1$ and its inf
 \label{fig:tk-sup}
 \end{figure}
 
-\textbf{Where the book uses it.} The conservative confidence interval of \cref{sec:ci-three-solutions} replaces $\sqrt{p(1-p)}$ by its supremum over $p \in (0,1)$, which is $\frac12$ and is attained; the subway version has $\sup_\lambda \lambda = \infty$, which is why no conservative interval exists there. \Cref{ch:estimators} mentions that a statistic may be defined through a $\sup$ or $\inf$; the maximum of a sample, $\max_i X_i$, is a maximum of finitely many numbers and causes no trouble.
+\textbf{Where the book uses it.} The conservative confidence interval of \cref{sec:ci-three-solutions} replaces $\sqrt{p(1-p)}$ by its supremum over $p \in (0,1)$, which is $\frac12$ and is attained; the subway version has $\sup_\lambda \lambda = \infty$, which is why no conservative interval exists there. \Cref{ch:estimators} mentions that a statistic may be defined through a $\sup$ or $\inf$; the maximum of a sample, $\max_i X_i$, is a maximum of finitely many numbers and causes no trouble. The proofs of consistency in \cref{thm:mle-consistent,thm:gof-family} use the extreme value theorem on a closed, bounded set of parameters.
 
 \section{Sets, maps and one-to-one}
 \label{sec:math-maps}
@@ -211,6 +211,7 @@ Adding the next term, $\frac12 g''(\theta)(x - \theta)^2$, gives the second-orde
 g(b) = g(a) + g'(a)(b - a) + \tfrac12 g''(c)(b - a)^2 \quad \text{for some } c \text{ between } a \text{ and } b.
 \]
 At a maximum, where $g'(a) = 0$, it says that the drop from the top to $b$ is exactly half a squared distance times a curvature taken somewhere in between, which is the step behind the likelihood ratio test.
+The pattern continues: for a $g$ with $k + 1$ derivatives, $g(x) = \sum_{i=0}^{k} \frac{1}{i!}g^{(i)}(\theta)(x - \theta)^i + (\text{an error of order } (x - \theta)^{k+1})$, where $g^{(i)}$ is the $i$th derivative and $g^{(0)} = g$.
 
 \begin{figure}[htbp]
 \centering
@@ -219,7 +220,7 @@ At a maximum, where $g'(a) = 0$, it says that the drop from the top to $b$ is ex
 \label{fig:tk-mvt}
 \end{figure}
 
-\textbf{Where the book uses it.} The delta method (\cref{thm:delta}) is the mean value theorem followed by Slutsky's theorem; its intuition box is the tangent-line picture. The second-order expansion is behind the remark on $g'(\theta) = 0$ in \cref{sec:delta-method}, and Taylor's theorem with the Lagrange remainder proves Wilks' theorem in \cref{ch:wald-lrt}.
+\textbf{Where the book uses it.} The delta method (\cref{thm:delta}) is the mean value theorem followed by Slutsky's theorem; its intuition box is the tangent-line picture. The second-order expansion is behind the remark on $g'(\theta) = 0$ in \cref{sec:delta-method}, and Taylor's theorem with the Lagrange remainder proves Wilks' theorem in \cref{ch:wald-lrt}. \Cref{ex:gof-taylor} uses the terms of order three and four to compare $G^2$ with Pearson's statistic.
 
 \section{Exponentials and logarithms}
 \label{sec:math-explog}
@@ -340,7 +341,7 @@ The density of $Y$ is the same product, so $Y_1, \ldots, Y_n$ are again i.i.d.\ 
 In words: rotate a round Gaussian cloud and you get the same round Gaussian cloud, with the new coordinates as independent as the old ones.
 \Cref{ex:t-cochran-two} does the computation by hand for $n = 2$ and the $45^\circ$ rotation.
 
-\textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
+\textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{thm:pearson} rotates the standardized deviations of the counts with an orthogonal matrix whose first row is $(\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$, the direction in which those deviations cannot move; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
 
 \section{Gaussian vectors with a covariance matrix}
 \label{sec:math-gaussquad}
@@ -392,7 +393,7 @@ So $BZ$ has the distribution of $Bm + LW'$, with $L$ invertible and $LL^\top = L
 \textbf{The quadratic form.}
 If $Z \sim \Gauss_d(m, \Sigma)$, then $(Z - m)^\top\Sigma^{-1}(Z - m)$ has the distribution of $W^\top A^\top(AA^\top)^{-1}AW = W^\top W$, which is $\chi^2_d$ (\cref{lem:gauss-quadform}): the squared distance from the center in units of the noise, which \cref{fig:gaussquad} draws.
 
-\textbf{Where the book uses it.} The multivariate CLT and the asymptotic normality of estimators with several coordinates (\cref{ch:limit-tools,ch:mle-properties,ch:mom-mestimation}) have $\Gauss_d$ limits when their covariance matrices are positive definite. The quadratic form gives the chi-squared limits of Wald's, the likelihood ratio and the score tests (\cref{ch:wald-lrt}), and the linear-map rule gives the common limit of all three with nuisance parameters (\cref{thm:three-nuisance}). The vector of counts in \cref{ch:gof}, whose coordinates add up to $n$, has a covariance matrix that is not positive definite; that chapter drops one category, which leaves one that is.
+\textbf{Where the book uses it.} The multivariate CLT and the asymptotic normality of estimators with several coordinates (\cref{ch:limit-tools,ch:mle-properties,ch:mom-mestimation}) have $\Gauss_d$ limits when their covariance matrices are positive definite. The quadratic form gives the chi-squared limits of Wald's, the likelihood ratio and the score tests (\cref{ch:wald-lrt}), and the linear-map rule gives the common limit of all three with nuisance parameters (\cref{thm:three-nuisance}). The vector of counts in \cref{ch:gof}, whose coordinates add up to $n$, has a covariance matrix that is not positive definite; that chapter rotates the standardized deviations of the counts so that the direction in which they cannot move is one coordinate and sets it aside (\cref{thm:pearson}), and for the three tests drops one category (\cref{sec:gof-score}); either way the covariance matrix that remains is positive definite.
 
 \section{To be added with later chapters}
 \label{sec:math-later}
