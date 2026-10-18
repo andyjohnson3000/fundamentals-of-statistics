@@ -365,7 +365,7 @@ As $\delta \to 0$ the variance tends to $1$ (Huber becomes the median) and as $\
 An introductory course may have mentioned the trimmed mean, the average after discarding the top and bottom $10\%$, as a compromise between mean and median.
 Huber's estimator is the principled version: instead of discarding the extremes it caps their influence, and it comes with a standard error, $\sqrt{K/(nJ^2)}$ with $J$ and $K$ estimated from the data.
 The sandwich formula also underlies the `robust' or `heteroskedasticity-consistent' standard errors of regression software: least squares is an M-estimator with the squared loss, and when the errors are not identically distributed $K$ is no longer a multiple of $J$, so the usual standard error ($\sigma^2$ times the inverse of $\E[XX^\top]$) is wrong and the sandwich $J^{-1}KJ^{-1}$ is right.
-\Cref{ch:regression-multi} returns to this.
+\Cref{ch:regression-uni} gives the version for one predictor, and \cref{ch:regression-multi} returns to the general one.
 \end{bridge}
 
 \section{What comes next}

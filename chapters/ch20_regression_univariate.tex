@@ -1,4 +1,676 @@
 \chapter{Univariate Linear Regression}
 \label{ch:regression-uni}
 
-% Not yet written. Source material: notes ch. Univariate Linear Regression; unit 7 slides
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item Predicting one variable from another: the regression function $x \mapsto \E[Y \mid X = x]$, and why it is the best prediction in mean squared error. The example is the Old Faithful geyser, whose next wait can be predicted from the length of the eruption just ended.
+\item The best line: the theoretical regression line, with slope $\cov(X, Y)/\var(X)$, and the noise around it, which has mean zero and is uncorrelated with $X$ whether or not the regression function is a line.
+\item Least squares as the best line of the data; Gauss's reason for it (maximum likelihood with Gaussian errors); its Bayesian reading, with ridge as the posterior mode under a Gaussian prior on the slope.
+\item How accurate the estimates are: unbiasedness, the variance $\sigma^2/S_{xx}$, the sum of squared residuals divided by $n - 2$, and the exact $t$ distribution when the errors are Gaussian. Tests and intervals for the slope, confidence and prediction bands, and what survives without Gaussian errors.
+\item Correlation, $R^2$ and regression toward the mean.
+\end{itemize}
+\Cref{ch:likelihood} observed that maximizing a Gaussian likelihood is minimizing a sum of squares; \cref{sec:reg-gauss} takes that observation up with a second variable in the picture. The chapter returns from the Bayesian chapters to the frequentist methods of the earlier parts.
+\end{chaptergoals}
+
+\section{Predicting one variable from another}
+\label{sec:reg-predict}
+
+Old Faithful, the geyser in Yellowstone National Park whose waits \cref{ch:likelihood} fit with a mixture of two Gaussians, does not erupt on a timetable: in the $272$ eruptions of that chapter the wait before the next eruption ranged from $43$ to $96$ minutes.
+But the wait is not unpredictable.
+The data record, for each eruption, how long it lasted and how long the geyser then waited before erupting again, and the left of \cref{fig:regfaithful} shows that short eruptions are followed by short waits and long eruptions by long ones.
+The usual physical explanation: a short eruption expels less water, and the geyser's plumbing refills and reheats sooner (O'Hara and Esawi, \textit{GSA Today}, 2013).
+So someone who times the eruption just ended can predict the next one better than someone who knows only that the average wait is $70.9$ minutes.
+
+This is the regression problem: from pairs of a variable that is easy to measure and one that is hard to measure or not yet available, learn to predict the second from the first.
+The data are pairs $(X_1, Y_1), \ldots, (X_n, Y_n)$, modeled as i.i.d.\ copies of a random pair $(X, Y)$ with an unknown joint distribution; here $X$ is the duration of an eruption and $Y$ the wait that follows it, both in minutes.
+Everything there is to know about how $Y$ depends on $X$ is in the conditional distribution of $Y$ given $X = x$, which has density $h(y \mid x) = h(x, y)/h(x)$ when the pair has a joint density $h(x, y)$ with marginal density $h(x) = \int h(x, y)\,\mathrm{d}y$ \toolkit{sec:math-condexp}.
+The right of \cref{fig:regfaithful} estimates a few of these distributions by grouping the eruptions in half-minute bins of duration: each box spans the middle half of its bin's waits, with the median marked, and the whiskers reach the shortest and longest wait.
+The distribution moves up with $x$, fastest between about $2.5$ and $3.5$ minutes, where only $12$ eruptions fall.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_reg_faithful}
+\caption{Old Faithful, $272$ eruptions. Left: the wait until the next eruption against the eruption's duration. Right: the waits in half-minute bins of duration (the last from $4.5$ to $5.5$), one box per bin, with the bin's mean wait in orange.}
+\label{fig:regfaithful}
+\end{figure}
+
+A whole conditional distribution for every $x$ is more than most questions need, and more than $272$ pairs can estimate well.
+The usual summary is its mean.
+
+\begin{definition}[Regression function]
+\label{def:regfunction}
+For a random pair $(X, Y)$ with $\E\abs{Y} < \infty$, the \textbf{regression function} of $Y$ on $X$ is
+\[
+f(x) = \E[Y \mid X = x],
+\]
+the mean of the conditional distribution of $Y$ given $X = x$.
+$X$ is called the \textbf{explanatory variable} (or covariate, or predictor) and $Y$ the \textbf{response}.
+\end{definition}
+
+\begin{inwords}
+The regression function answers the question `among the cases with $X = x$, how large is $Y$ on average?', one answer for each value of the explanatory variable. Other summaries of the same conditional distributions, such as the conditional median or quartiles, answer other questions; this chapter and the next are about the mean.
+
+\textbf{For the kiss data.} The study recorded only the direction $R$ of each couple's turn, so there is no explanatory variable. For any variable $X$ recorded independently of how couples turn, the day of the week for instance, the conditional distribution of $R$ given $X = x$ is $\Bern(p)$ whatever $x$ is, and $f(x) = p$: a flat regression function, which is what independence looks like.
+\end{inwords}
+
+The orange dots in the right of \cref{fig:regfaithful} are the bins' mean waits, estimates of $f$ at each bin's average duration: $52.9$ minutes for the $51$ eruptions shorter than $2$ minutes, rising to $81.6$ for the $65$ that lasted $4.5$ minutes or more.
+The mean is the summary of choice because of what it does for prediction.
+
+\begin{theorem}[The regression function is the best predictor]
+\label{thm:best-predictor}
+Let $\E[Y^2] < \infty$ and $f(x) = \E[Y \mid X = x]$.
+For every function $g$ with $\E[g(X)^2] < \infty$,
+\[
+\E\big[(Y - g(X))^2\big] = \E\big[(Y - f(X))^2\big] + \E\big[(f(X) - g(X))^2\big].
+\]
+So $f(X)$ has the smallest mean squared prediction error among all predictions computed from $X$, and a function $g$ that does as well equals $f$ with probability one.
+\end{theorem}
+\coreproof{Write $Y - g(X)$ as $(Y - f(X)) + (f(X) - g(X))$ and expand the square. The cross term vanishes: given $X$, the first factor has mean zero and the second is a fixed number.}
+\begin{proof}
+Expanding the square,
+\[
+(Y - g(X))^2 = (Y - f(X))^2 + 2(Y - f(X))(f(X) - g(X)) + (f(X) - g(X))^2.
+\]
+All three terms have finite expectations: $\E[f(X)^2] \leq \E[Y^2]$ \toolkit{sec:math-condexp}, so the first and last are finite, and the middle one is bounded by their sum, since $\abs{2uv} \leq u^2 + v^2$.
+For the middle term, condition on $X$: by taking out what is known and then the tower property \toolkit{sec:math-condexp},
+\begin{align*}
+\E\big[(Y - f(X))(f(X) - g(X))\big] &= \E\big[(f(X) - g(X))\,\E[Y - f(X) \mid X]\big] \\
+&= \E\big[(f(X) - g(X))(f(X) - f(X))\big] = 0.
+\end{align*}
+Taking expectations in the expansion gives the identity.
+Its last term is non-negative, and zero only if $g(X) = f(X)$ with probability one.
+\end{proof}
+
+The identity says more than that $f$ wins.
+The error of any prediction rule splits into a part that no rule computed from $X$ can remove, $\E[(Y - f(X))^2]$, which is the average spread of the waits inside each box of \cref{fig:regfaithful}, and the rule's distance from $f$.
+
+\section{The best line}
+\label{sec:reg-line}
+
+The regression function can be any function, and estimating an arbitrary function means borrowing information only from nearby points: the bin means of \cref{fig:regfaithful} rest on as few as $5$ eruptions.
+The oldest and most useful restriction borrows from all the points at once: predict with a line.
+
+\begin{definition}[Theoretical regression line]
+\label{def:reg-line}
+Let $X$ and $Y$ have finite second moments, with $\var(X) > 0$.
+The \textbf{theoretical regression line} of $Y$ on $X$ is the line $x \mapsto a^* + b^*x$ whose coefficients minimize the mean squared error of a linear prediction,
+\[
+(a^*, b^*) = \operatorname*{argmin}_{(a, b) \in \real^2} \E\big[(Y - a - bX)^2\big].
+\]
+Its slope is $b^*$, and its intercept $a^*$ is its height at $x = 0$.
+The \textbf{noise} is $\epsilon = Y - a^* - b^*X$, so that $Y = a^* + b^*X + \epsilon$.
+\end{definition}
+
+\begin{inwords}
+Among all lines, the theoretical regression line is the one whose predictions miss $Y$ by the least, on average and in squared distance, over the joint distribution of $(X, Y)$. It is a property of the distribution, with no data in sight, and it is what least squares will estimate. The noise is the part of $Y$ the line does not predict.
+
+\textbf{For the kiss data.} For $R$ and any $X$ recorded independently of it, $\cov(X, R) = 0$, so by the theorem below the best line is flat at height $p$: $b^* = 0$ and $a^* = p$. The noise $\epsilon = R - p$ is $1 - p$ for a right turn and $-p$ for a left turn, with mean $0$ and variance $p(1 - p)$.
+\end{inwords}
+
+\begin{theorem}[The theoretical regression line]
+\label{thm:reg-line}
+Under the conditions of \cref{def:reg-line} the minimizer is unique, with
+\[
+b^* = \frac{\cov(X, Y)}{\var(X)}, \qquad a^* = \E[Y] - b^*\E[X],
+\]
+and the noise satisfies $\E[\epsilon] = 0$ and $\cov(X, \epsilon) = 0$.
+\end{theorem}
+\coreproof{Fix $b$ and choose $a$: the best constant prediction of $Y - bX$ is its mean. What remains is $\var(Y - bX)$, a parabola in $b$, and its lowest point is the slope.}
+\begin{proof}
+For any random variable $W$ with finite variance and any number $a$, $\E[(W - a)^2] = \var(W) + (\E[W] - a)^2$; this is \cref{thm:bias-variance} with $W$ in the role of the estimator.
+With $W = Y - bX$, for each fixed $b$ the mean squared error $\E[(Y - a - bX)^2]$ is smallest at $a = \E[Y] - b\E[X]$, where it equals
+\[
+\var(Y - bX) = \var(Y) - 2b\cov(X, Y) + b^2\var(X).
+\]
+Since $\var(X) > 0$, this is a parabola in $b$ that opens upward, and its only minimum is at $b = \cov(X, Y)/\var(X)$.
+So the minimizer is $(a^*, b^*)$ as stated, and it is unique.
+For the noise, $\E[\epsilon] = \E[Y] - a^* - b^*\E[X] = 0$ by the formula for $a^*$, and $\cov(X, \epsilon) = \cov(X, Y) - b^*\var(X) = 0$ by the formula for $b^*$.
+\end{proof}
+
+The covariance in the numerator gives the slope its sign; the variance in the denominator gives it its units.
+Measure $X$ in units three times smaller, so that every value of $X$ is multiplied by $3$: the covariance is multiplied by $3$ and the variance by $9$, and the slope is divided by $3$, as a rate per unit of $X$ must be.
+
+The two properties of the noise are all that the theoretical line guarantees, and they are weaker than they look.
+
+\begin{pitfall}[the best line need not be the regression function]
+$\cov(X, \epsilon) = 0$ says that the noise is uncorrelated with $X$, not that it averages to zero at each $x$. When the regression function $f$ is a line, the best line is $f$ itself: by \cref{thm:best-predictor} no prediction beats $f$, so no line does. When $f$ is not a line, take $g(x) = a + bx$ in \cref{thm:best-predictor}:
+\[
+\E\big[(Y - a - bX)^2\big] = \E\big[(Y - f(X))^2\big] + \E\big[(f(X) - a - bX)^2\big],
+\]
+so $(a^*, b^*)$ is the line closest to $f$ in mean square, with the values of $x$ weighted by the distribution of $X$. In \cref{fig:regbestline}, $X \sim \Unif(0, 1)$ and $f(x) = x^2$: the best line is $-\frac16 + x$ (\cref{ex:reg-quadratic}), and the noise has conditional mean $x^2 - x + \frac16$, positive at both ends and negative in the middle, although its overall mean is $0$ and it is uncorrelated with $X$.
+\end{pitfall}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_reg_best_line}
+\caption{$300$ draws of $X \sim \Unif(0, 1)$ and $Y = X^2$ plus independent $\Gauss(0, 0.05^2)$ noise. Left: the regression function $x^2$ (blue) and the best line $-\frac16 + x$ (orange, dashed). Right: the noise around the best line, with its conditional mean (blue).}
+\label{fig:regbestline}
+\end{figure}
+
+Least squares estimates $(a^*, b^*)$ in either case.
+Whether the line is also the regression function is a separate question, and the residual plot of the next section is the first way to ask it.
+
+\section{Least squares}
+\label{sec:reg-lse}
+
+The joint distribution is unknown, so $(a^*, b^*)$ must be estimated from the pairs.
+The recipe of the earlier chapters applies: replace the expectation by an average.
+
+\begin{definition}[Least squares, fitted values, residuals]
+\label{def:lse}
+Given pairs $(X_1, Y_1), \ldots, (X_n, Y_n)$, the \textbf{least squares estimator} $(\hat{a}, \hat{b})$ minimizes the sum of squared errors
+\[
+\sum_{i=1}^n (Y_i - a - bX_i)^2
+\]
+over $(a, b) \in \real^2$.
+The \textbf{fitted values} are $\hat{Y}_i = \hat{a} + \hat{b}X_i$ and the \textbf{residuals} are $e_i = Y_i - \hat{Y}_i$.
+\end{definition}
+
+\begin{inwords}
+Least squares draws the line that makes the sum of the squared vertical distances from the points to the line as small as possible. The residuals are those vertical distances, with a sign: positive for a point above the line.
+
+\textbf{For the kiss data.} With no explanatory variable, the line has only a height $a$, and $\sum_i (R_i - a)^2$ is smallest at $a = \bar{R}_n = \hat{p} = 0.645$ (the squared loss of \cref{ch:mom-mestimation}): the sample proportion is the least squares fit of a constant. The residuals are $0.355$ for each of the $80$ right turns and $-0.645$ for each of the $44$ left turns. A slope would need an explanatory variable that varies: if every $X_i$ had the same value $c$, every slope $b$ would fit equally well with $a = \bar{R}_n - bc$, which is why the theorem below asks for the $X_i$ not to be all equal.
+\end{inwords}
+
+Write $\bar{X}$ and $\bar{Y}$ for the sample means, and
+\[
+S_{xx} = \sum_{i=1}^n (X_i - \bar{X})^2, \qquad S_{xy} = \sum_{i=1}^n (X_i - \bar{X})(Y_i - \bar{Y}), \qquad S_{yy} = \sum_{i=1}^n (Y_i - \bar{Y})^2.
+\]
+
+\begin{theorem}[The least squares line]
+\label{thm:lse}
+If the $X_i$ are not all equal, the least squares estimator is unique, with
+\[
+\hat{b} = \frac{S_{xy}}{S_{xx}}, \qquad \hat{a} = \bar{Y} - \hat{b}\bar{X},
+\]
+and the residuals satisfy $\sum_i e_i = 0$ and $\sum_i X_i e_i = 0$.
+\end{theorem}
+\optionalproof{The least squares line is the theoretical regression line of the data's empirical distribution, which puts probability $1/n$ on each observed pair. Apply \cref{thm:reg-line} to it.}
+\begin{proof}
+Let $(X', Y')$ be a random pair equal to $(X_i, Y_i)$ with probability $1/n$ for each $i$.
+Then $\E[(Y' - a - bX')^2] = \frac1n\sum_i (Y_i - a - bX_i)^2$, so the least squares estimator is the theoretical regression line of $(X', Y')$.
+For this pair $\E[X'] = \bar{X}$, $\E[Y'] = \bar{Y}$, $\var(X') = S_{xx}/n$, which is positive when the $X_i$ are not all equal, and $\cov(X', Y') = S_{xy}/n$, so \cref{thm:reg-line} gives the formulas and the uniqueness.
+Its two properties of the noise, for this pair, read $\frac1n\sum_i e_i = 0$ and $\frac1n\sum_i (X_i - \bar{X})e_i = 0$, and the second together with the first gives $\sum_i X_i e_i = 0$.
+\end{proof}
+
+The two equations for the residuals are called the \textbf{normal equations}.
+They say of the sample what \cref{thm:reg-line} says of the population: the residuals average to zero and are uncorrelated with the explanatory variable.
+They hold for every data set, so they cannot be used to check the line.
+
+\begin{worked}[predicting Old Faithful]
+For the $272$ eruptions, $\bar{X} = 3.488$ minutes, $\bar{Y} = 70.90$ minutes, $S_{xx} = 353.0$ and $S_{xy} = 3{,}788.0$, so
+\[
+\hat{b} = \frac{3{,}788.0}{353.0} = 10.73, \qquad \hat{a} = 70.90 - 10.73 \times 3.488 = 33.47.
+\]
+Each extra minute of eruption adds about $10.7$ minutes to the predicted wait. After a $2$-minute eruption the line predicts $33.47 + 10.73 \times 2 = 54.9$ minutes; after a $4.5$-minute eruption, $81.8$ minutes. The height $33.47$ at a duration of $0$ is outside the data and is only where the line happens to cross the axis: no eruption lasts $0$ minutes.
+\end{worked}
+
+The left of \cref{fig:reglsfit} draws the line with each point's residual as a vertical segment.
+The line passes through $(\bar{X}, \bar{Y}) = (3.49, 70.9)$, the black dot, as the formula $\hat{a} = \bar{Y} - \hat{b}\bar{X}$ forces, although few eruptions lasted about $3.5$ minutes: the line borrows from both clusters at once.
+The right of the figure plots the residuals against the duration, with their means over the half-minute bins in orange.
+If the line were the regression function, these means would hover near $0$; they are $-0.3$ and $-1.0$ in the two bins below $2.5$ minutes, dip to $-4.8$ in the sparse bin near $2.8$ minutes, reach $+3.9$ near $3.8$ minutes and fall to $-2.2$ in the last bin.
+The bins near $2.8$ and $3.3$ minutes hold only $5$ and $7$ eruptions, but the drop at the right rests on $65$: for the longest eruptions the waits rise more slowly than the line.
+The line is still the estimate of the best line, and \cref{thm:lse-asymptotic} below says that $\hat{b}$ converges to $b^*$ whether or not $f$ is a line; it is not an estimate of $f(x)$ at each $x$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_reg_lsfit}
+\caption{Old Faithful. Left: the eruptions (blue), the least squares line $33.47 + 10.73x$ (orange), each residual as a gray segment, and the point $(\bar{X}, \bar{Y})$ (black). Right: the residuals against the duration, with their half-minute bin means (orange).}
+\label{fig:reglsfit}
+\end{figure}
+
+\begin{sanitycheck}[Would two group averages give the same slope?]
+Split the eruptions at $3$ minutes. The $97$ short ones average $2.04$ minutes and are followed by waits averaging $54.5$ minutes; the $175$ long ones average $4.29$ minutes, with waits averaging $80.0$. The slope between the two groups' centers is $(80.0 - 54.5)/(4.29 - 2.04) = 11.3$ minutes per minute, close to $10.7$: with two clusters, least squares is mostly a line through their centers, adjusted for the tilt inside each.
+\end{sanitycheck}
+
+The units check too: $S_{xy}$ is in minutes of wait times minutes of eruption and $S_{xx}$ in squared minutes of eruption, so $\hat{b}$ is in minutes of wait per minute of eruption.
+The formula may look different from the one you learned first.
+
+\begin{bridge}[the regression line you already know]
+An introductory course writes the least squares line as $\hat{y} = b_0 + b_1x$, with $b_1 = r\,s_y/s_x$ and $b_0 = \bar{y} - b_1\bar{x}$, where $s_x, s_y$ are the sample standard deviations and $r$ the correlation of \cref{sec:reg-correlation}. Since $r = S_{xy}/\sqrt{S_{xx}S_{yy}}$ and $s_y/s_x = \sqrt{S_{yy}/S_{xx}}$, $r\,s_y/s_x = S_{xy}/S_{xx}$: it is the same line. What this chapter adds is what the line estimates, the theoretical line of a distribution, and how good the estimate is, which is the subject of the next three sections.
+\end{bridge}
+
+\section{Gauss's reason: least squares as maximum likelihood}
+\label{sec:reg-gauss}
+
+Least squares was first published by Adrien-Marie Legendre in 1805, in a book on the orbits of comets, as a convenient rule for reconciling more observations than unknowns.
+Carl Friedrich Gauss published it in 1809, in a book on the orbits of planets and comets, said he had used it since 1795, and gave it a probabilistic reason.
+He asked for the law of errors under which the arithmetic mean of repeated measurements is the most probable value of the quantity measured, found that the error density must be proportional to $e^{-h^2\Delta^2}$ for an error $\Delta$, and showed that under this law the most probable values of the unknowns are the least squares values (Stigler, \textit{The History of Statistics}, 1986). His most probable values are what \cref{ch:bayes-intro} calls the posterior mode under a flat prior, which is the maximum likelihood estimate: with Gaussian errors, least squares is maximum likelihood.
+
+To state it, the explanatory values are treated as fixed numbers $x_1, \ldots, x_n$, as they are when an experimenter sets them, and the randomness is in the errors; \cref{sec:reg-model} explains when the same statements hold for observational data like Old Faithful's.
+
+\begin{proposition}[Least squares is maximum likelihood]
+\label{prop:lse-mle}
+Let $n \geq 3$ and $Y_i = a + bx_i + \epsilon_i$ for $i = 1, \ldots, n$, with $x_1, \ldots, x_n$ fixed numbers not all equal and $\epsilon_1, \ldots, \epsilon_n \iid \Gauss(0, \sigma^2)$.
+For every $\sigma^2 > 0$ the likelihood is maximized over $(a, b)$ at the least squares estimator, and the maximum likelihood estimator of $\sigma^2$ is $\frac1n\sum_i e_i^2$.
+\end{proposition}
+\optionalproof{The log-likelihood is a constant minus the sum of squares over $2\sigma^2$; then maximize over $\sigma^2$ as for the Gaussian variance in \cref{ch:likelihood}.}
+\begin{proof}
+The $Y_i$ are independent with $Y_i \sim \Gauss(a + bx_i, \sigma^2)$, so the log-likelihood is
+\[
+\ell(a, b, \sigma^2) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (Y_i - a - bx_i)^2.
+\]
+For each $\sigma^2$ it is largest where the sum of squares is smallest, at $(\hat{a}, \hat{b})$.
+There it equals $-\frac{n}{2}\log(2\pi\sigma^2) - \mathrm{RSS}/(2\sigma^2)$, with $\mathrm{RSS} = \sum_i e_i^2$, whose derivative in $\sigma^2$, $-n/(2\sigma^2) + \mathrm{RSS}/(2\sigma^4)$, is positive for $\sigma^2 < \mathrm{RSS}/n$ and negative above, so the maximum is at $\sigma^2 = \mathrm{RSS}/n$ ($\mathrm{RSS} > 0$ with probability one, since $n \geq 3$ points with Gaussian errors lie on one line with probability zero).
+\end{proof}
+
+For Old Faithful the residual sum of squares is $\mathrm{RSS} = 9{,}443$ squared minutes, and the maximum likelihood estimate of the errors' standard deviation is $\sqrt{9{,}443/272} = 5.89$ minutes.
+\Cref{sec:reg-model} divides by $n - 2$ instead.
+
+The Bayesian reading of \cref{ch:bayes-intro} carries over.
+With $\sigma^2$ known, a flat prior on $(a, b)$ makes the posterior density proportional to the likelihood, so the posterior mode is the least squares line.
+A prior that doubts steep slopes changes the answer.
+Write the line as $\alpha + b(x - \bar{x})$, so that $\alpha = a + b\bar{x}$ is its height at the mean of the $x_i$, keep a flat prior on $\alpha$, and give the slope the prior $\Gauss(0, \tau^2)$.
+Up to a constant, the log posterior density is
+\[
+-\frac{1}{2\sigma^2}\sum_{i=1}^n \big(Y_i - \alpha - b(x_i - \bar{x})\big)^2 - \frac{b^2}{2\tau^2}.
+\]
+Since $\sum_i (x_i - \bar{x}) = 0$, its derivative in $\alpha$ is zero at $\alpha = \bar{Y}$ whatever $b$ is, and its derivative in $b$ is $(S_{xy} - bS_{xx})/\sigma^2 - b/\tau^2$, zero at
+\[
+\tilde{b} = \frac{S_{xy}}{S_{xx} + \lambda} = \hat{b}\,\frac{S_{xx}}{S_{xx} + \lambda}, \qquad \lambda = \frac{\sigma^2}{\tau^2}.
+\]
+This is the \textbf{ridge} estimate: it also minimizes the sum of squares plus the penalty $\lambda b^2$, the quadratic penalty of the MAP discussion in \cref{ch:bayes-intro}.
+It shrinks the least squares slope toward $0$ by a factor that approaches $1$ as $S_{xx}$ grows.
+For Old Faithful with $\sigma = 5.91$, a skeptical prior with $\tau = 1$, which puts the slope within $\pm 1.96$ minutes per minute with probability $0.95$, gives $\lambda = 35.0$ and the factor $353.0/388.0 = 0.91$, so $\tilde{b} = 9.76$ against $\hat{b} = 10.73$; with $\tau = 5$, $\lambda = 1.40$ and $\tilde{b} = 10.69$.
+\Cref{ex:reg-ridge} shows that the shrunken slope can have a smaller risk than $\hat{b}$, the trade between bias and variance of \cref{ch:estimators}.
+
+\section{The linear model and the accuracy of least squares}
+\label{sec:reg-model}
+
+To say how far $\hat{b}$ falls from the slope it estimates, you need a model for how the $Y_i$ scatter around the line.
+The standard one treats the $x_i$ as fixed.
+In an experiment that sets the doses or temperatures, they are; in observational data like Old Faithful's, where the durations are random too, the statements below are about the distribution of the estimates given the observed $x_1, \ldots, x_n$.
+They apply when, given the durations, the waits follow the model; for i.i.d.\ pairs that means $\E[Y \mid X = x] = a + bx$ with scatter of the same size at every $x$ (and, for the exact results, Gaussian). Then a statement that holds for every set of $x$'s holds without the conditioning as well: an interval that covers with probability $0.95$ given every possible set of durations covers with probability $0.95$ overall, by the tower property \toolkit{sec:math-condexp}. Old Faithful meets neither condition exactly: its waits bend away from the line (\cref{fig:reglsfit}) and consecutive eruptions are dependent; \cref{sec:reg-inference} says what survives.
+
+\begin{definition}[Linear regression model]
+\label{def:linmodel}
+Let $x_1, \ldots, x_n$ be fixed numbers, not all equal.
+The \textbf{linear regression model} says
+\[
+Y_i = a + bx_i + \epsilon_i, \qquad i = 1, \ldots, n,
+\]
+where the errors have mean $0$, a common variance and no correlation: $\E[\epsilon_i] = 0$, $\var(\epsilon_i) = \sigma^2$, and $\cov(\epsilon_i, \epsilon_j) = 0$ for $i \neq j$.
+Its parameter is $(a, b, \sigma^2) \in \real^2 \times (0, \infty)$.
+The \textbf{Gaussian linear model} assumes moreover that $\epsilon_1, \ldots, \epsilon_n \iid \Gauss(0, \sigma^2)$.
+\end{definition}
+
+\begin{inwords}
+The model says three things: the mean of $Y$ at $x$ lies on a line (the regression function is the line $a + bx$, so $a = a^*$ and $b = b^*$); the scatter around the line has the same size at every $x$; and one observation's error says nothing linear about another's. The Gaussian model adds the shape of the scatter. These are the L, E, I and N of the regression conditions an introductory course checks (\cref{ch:models}); without N the model is semiparametric.
+
+\textbf{For the kiss data.} With no explanatory variable the model is $R_i = a + \epsilon_i$, and it holds with $a = p$ and errors $R_i - p$ of mean $0$ and variance $\sigma^2 = p(1 - p)$, uncorrelated since the couples are independent. The Gaussian version does not hold: each error takes only the two values $1 - p$ and $-p$.
+\end{inwords}
+
+\begin{proposition}[Mean and variance of the least squares estimates]
+\label{prop:lse-moments}
+In the linear regression model,
+\[
+\E[\hat{b}] = b, \quad \E[\hat{a}] = a, \quad \var(\hat{b}) = \frac{\sigma^2}{S_{xx}}, \quad \var(\hat{a}) = \sigma^2\Big(\frac1n + \frac{\bar{x}^2}{S_{xx}}\Big), \quad \cov(\hat{a}, \hat{b}) = -\frac{\sigma^2\bar{x}}{S_{xx}}.
+\]
+\end{proposition}
+\coreproof{The slope estimate is a weighted sum of the $Y_i$ with weights that sum to zero; the true line passes through the weights unchanged, and what remains is a weighted sum of the errors.}
+\begin{proof}
+Since $\sum_i (x_i - \bar{x}) = 0$, $S_{xy} = \sum_i (x_i - \bar{x})Y_i$, so $\hat{b} = \sum_i w_iY_i$ with $w_i = (x_i - \bar{x})/S_{xx}$.
+The weights satisfy $\sum_i w_i = 0$, $\sum_i w_ix_i = \sum_i w_i(x_i - \bar{x}) = S_{xx}/S_{xx} = 1$ and $\sum_i w_i^2 = 1/S_{xx}$.
+Substituting $Y_i = a + bx_i + \epsilon_i$,
+\[
+\hat{b} = a\sum_i w_i + b\sum_i w_ix_i + \sum_i w_i\epsilon_i = b + \sum_i w_i\epsilon_i.
+\]
+So $\E[\hat{b}] = b$, and since the errors are uncorrelated with variance $\sigma^2$, $\var(\hat{b}) = \sigma^2\sum_i w_i^2 = \sigma^2/S_{xx}$.
+Next, $\bar{Y} = a + b\bar{x} + \bar{\epsilon}$, so $\hat{a} = \bar{Y} - \hat{b}\bar{x} = a + \bar{\epsilon} - (\hat{b} - b)\bar{x}$, and $\E[\hat{a}] = a$.
+The covariance of $\bar{\epsilon} = \frac1n\sum_i \epsilon_i$ and $\hat{b} - b = \sum_i w_i\epsilon_i$ is $\frac{\sigma^2}{n}\sum_i w_i = 0$, so $\var(\hat{a}) = \sigma^2/n + \bar{x}^2\sigma^2/S_{xx}$ and $\cov(\hat{a}, \hat{b}) = \cov(\bar{\epsilon} - (\hat{b} - b)\bar{x}, \hat{b} - b) = -\bar{x}\sigma^2/S_{xx}$.
+\end{proof}
+
+Unbiasedness used only $\E[\epsilon_i] = 0$ at every $x_i$, that is, that the regression function is the line; the errors can have any distribution.
+
+\begin{intuition}[spread in $x$ buys precision]
+Write $S_{xx} = (n - 1)s_x^2$, with $s_x$ the sample standard deviation of the $x_i$: then $\var(\hat{b}) = \sigma^2/((n - 1)s_x^2)$. The slope is learned from how $Y$ changes across the $x$'s, and the farther apart the $x$'s are, the less a given amount of noise can tilt the line. \Cref{fig:regdesign} fits lines to $30$ simulated samples of $20$ points, all with the same true line and noise standard deviation $\sigma = 6$. With $x$ spread evenly over $[3, 4]$ the slope's standard deviation $\sigma/\sqrt{S_{xx}}$ is $4.42$; over $[1.5, 5]$ it is $1.26$. Spreading the design $3.5$ times as wide does what $12$ times as many observations would. An experimenter who can choose the $x$'s should spread them, although putting all of them at the two ends of the range leaves no way to see whether the regression function is a line.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_reg_design}
+\caption{Least squares lines (blue) from $30$ simulated samples of $20$ points equally spaced over the shaded range, $[3, 4]$ (left) or $[1.5, 5]$ (right), with $Y = 33.5 + 10.7x$ plus $\Gauss(0, 6^2)$ errors; dashed: the true line.}
+\label{fig:regdesign}
+\end{figure}
+
+The slope estimate is not only unbiased; among a natural class of estimators it has the smallest variance.
+
+\begin{proposition}[Gauss--Markov for the slope]
+\label{prop:gauss-markov}
+In the linear regression model, among estimators of $b$ of the form $\sum_i c_iY_i$, with numbers $c_i$, that are unbiased for every $(a, b)$, the least squares slope $\hat{b}$ has the smallest variance.
+\end{proposition}
+\optionalproof{Unbiasedness for every line imposes two linear conditions on the weights. Any weights that meet them are the least squares weights plus a vector perpendicular to them, and the extra part only adds variance.}
+\begin{proof}
+$\E[\sum_i c_iY_i] = a\sum_i c_i + b\sum_i c_ix_i$ equals $b$ for every $(a, b)$ exactly when $\sum_i c_i = 0$ and $\sum_i c_ix_i = 1$.
+The least squares weights $w_i$ meet both, so $d_i = c_i - w_i$ satisfies $\sum_i d_i = 0$ and $\sum_i d_ix_i = 0$, and hence $\sum_i w_id_i = \sum_i (x_i - \bar{x})d_i/S_{xx} = 0$.
+Then
+\[
+\var\Big(\sum_i c_iY_i\Big) = \sigma^2\sum_i c_i^2 = \sigma^2\Big(\sum_i w_i^2 + 2\sum_i w_id_i + \sum_i d_i^2\Big) = \frac{\sigma^2}{S_{xx}} + \sigma^2\sum_i d_i^2 \geq \var(\hat{b}),
+\]
+with equality only when every $d_i = 0$.
+\end{proof}
+
+The variance formulas contain $\sigma^2$, which must be estimated.
+The residuals stand in for the errors, but their sum of squares is divided by $n - 2$, not $n$.
+
+\begin{theorem}[The residual variance, and exact distributions with Gaussian errors]
+\label{thm:reg-exact}
+In the linear regression model with $n \geq 3$, $\hat{\sigma}^2 = \frac{1}{n - 2}\sum_{i=1}^n e_i^2$ is an unbiased estimator of $\sigma^2$.
+In the Gaussian linear model, moreover:
+\begin{enumerate}[nosep]
+\item $\hat{b} \sim \Gauss(b, \sigma^2/S_{xx})$ and $\hat{a} \sim \Gauss\big(a, \sigma^2(\frac1n + \bar{x}^2/S_{xx})\big)$;
+\item $(n - 2)\hat{\sigma}^2/\sigma^2 \sim \chi^2_{n-2}$;
+\item $(\hat{a}, \hat{b})$ and $\hat{\sigma}^2$ are independent;
+\item $\dfrac{\hat{b} - b}{\hat{\sigma}/\sqrt{S_{xx}}} \sim t_{n-2}$, and likewise $\dfrac{\hat{a} - a}{\hat{\sigma}\sqrt{1/n + \bar{x}^2/S_{xx}}} \sim t_{n-2}$.
+\end{enumerate}
+\end{theorem}
+\coreproof{Rotate the errors as in Cochran's theorem, with the first two axes along $(1, \ldots, 1)$ and along the centered $x$'s. The fit uses up those two coordinates, and the residuals are the other $n - 2$, each with mean $0$ and variance $\sigma^2$; with Gaussian errors they are independent Gaussians unconnected to the fit.}
+\recall{The chi-squared distribution (\cref{def:chisq}): a sum of $k$ squared independent standard Gaussians is $\chi^2_k$. Student's distribution (\cref{def:student}): if $Z \sim \Gauss(0, 1)$ and $V \sim \chi^2_k$ are independent, $Z/\sqrt{V/k} \sim t_k$.}
+\begin{proof}
+Let $u_1 = (1, \ldots, 1)/\sqrt{n}$ and $u_2 = (x_1 - \bar{x}, \ldots, x_n - \bar{x})/\sqrt{S_{xx}}$.
+Both are unit vectors, and they are perpendicular since $\sum_i (x_i - \bar{x}) = 0$.
+Extend them to an orthonormal basis $u_1, \ldots, u_n$ of $\real^n$ by Gram--Schmidt \toolkit{sec:math-gaussvec}, let $Q$ be the orthogonal matrix with rows $u_1^\top, \ldots, u_n^\top$, and set $Z = Q\epsilon$ for the error vector $\epsilon = (\epsilon_1, \ldots, \epsilon_n)$, so that $Z_k = u_k^\top\epsilon$ and $\epsilon = \sum_k Z_ku_k$.
+Each $Z_k$ has mean $0$, and since the errors are uncorrelated with variance $\sigma^2$, $\E[Z_jZ_k] = \sigma^2\sum_i u_{ji}u_{ki}$, which is $\sigma^2$ for $j = k$ and $0$ otherwise: the $Z_k$ are uncorrelated with variance $\sigma^2$.
+
+Now locate the fit in these coordinates.
+From the proof of \cref{prop:lse-moments}, $\hat{b} - b = \sum_i w_i\epsilon_i = Z_2/\sqrt{S_{xx}}$ and $\hat{a} - a + (\hat{b} - b)\bar{x} = \bar{\epsilon} = Z_1/\sqrt{n}$.
+The residuals are
+\[
+e_i = Y_i - \hat{a} - \hat{b}x_i = \epsilon_i - (\hat{a} - a) - (\hat{b} - b)x_i = \epsilon_i - \bar{\epsilon} - (\hat{b} - b)(x_i - \bar{x}),
+\]
+so the residual vector is $e = \epsilon - Z_1u_1 - Z_2u_2 = \sum_{k=3}^n Z_ku_k$.
+Since the $u_k$ are orthonormal, $\sum_i e_i^2 = \norm{e}^2 = Z_3^2 + \cdots + Z_n^2$, whose mean is $(n - 2)\sigma^2$: this is the unbiasedness of $\hat{\sigma}^2$.
+
+With Gaussian errors, $Z/\sigma = Q(\epsilon/\sigma)$ has i.i.d.\ $\Gauss(0, 1)$ coordinates by rotation invariance \toolkit{sec:math-gaussvec}.
+Then $\hat{b} = b + Z_2/\sqrt{S_{xx}}$, and $\hat{a} = a + Z_1/\sqrt{n} - \bar{x}Z_2/\sqrt{S_{xx}}$ is a linear combination of independent Gaussians, hence Gaussian (\cref{ch:gaussian}), with the variance of \cref{prop:lse-moments}: this is (1).
+Next, $(n - 2)\hat{\sigma}^2/\sigma^2 = (Z_3/\sigma)^2 + \cdots + (Z_n/\sigma)^2$ is a sum of $n - 2$ squared independent standard Gaussians, which is (2).
+The pair $(\hat{a}, \hat{b})$ is a function of $(Z_1, Z_2)$ and $\hat{\sigma}^2$ a function of $(Z_3, \ldots, Z_n)$, and these are independent, which is (3).
+Finally,
+\[
+\frac{\hat{b} - b}{\hat{\sigma}/\sqrt{S_{xx}}} = \frac{(\hat{b} - b)\sqrt{S_{xx}}/\sigma}{\sqrt{\hat{\sigma}^2/\sigma^2}}
+\]
+is a standard Gaussian divided by the square root of an independent $\chi^2_{n-2}$ variable over its degrees of freedom, which is $t_{n-2}$; the same argument applies to $\hat{a}$.
+\end{proof}
+
+For Old Faithful, $\hat{\sigma} = \sqrt{9{,}443/270} = 5.91$ minutes, so the estimated standard errors are $\hat{\sigma}/\sqrt{S_{xx}} = 5.91/\sqrt{353.0} = 0.315$ for the slope and $\hat{\sigma}\sqrt{1/272 + 3.488^2/353.0} = 1.15$ for the intercept.
+
+\begin{bridge}[the residual standard error and its $n - 2$]
+Regression output reports $\hat{\sigma}$ as the residual standard error `on $n - 2$ degrees of freedom', and the ANOVA table of a regression reports $\hat{\sigma}^2$ as its MSE (\cref{ch:estimators}). The proof gives $n - 2$ the reading that the sample variance's $n - 1$ had in \cref{ch:t-test}: of the $n$ directions the errors can point in, the fit absorbs two, one for the height of the line and one for its slope, and the residuals live in the remaining $n - 2$. Dividing by $n$, as maximum likelihood does, underestimates $\sigma^2$ on average by the factor $(n - 2)/n$. A fit with a constant and no slope absorbs one direction, and its divisor is $n - 1$: that is the sample variance, $0.231$ for the kiss data (\cref{ex:reg-kiss}).
+\end{bridge}
+
+\section{Tests and intervals}
+\label{sec:reg-inference}
+
+With \cref{thm:reg-exact}, the $t$ methods of \cref{ch:t-test} carry over with $n - 2$ in place of $n - 1$.
+In the Gaussian linear model, the test of $H_0: b = b_0$ against $H_1: b \neq b_0$ that rejects when
+\[
+\abs{T} > q_{\alpha/2}(t_{n-2}), \qquad T = \frac{\hat{b} - b_0}{\hat{\sigma}/\sqrt{S_{xx}}},
+\]
+has level exactly $\alpha$, and $\hat{b} \pm q_{\alpha/2}(t_{n-2})\,\hat{\sigma}/\sqrt{S_{xx}}$ is a confidence interval of level exactly $1 - \alpha$, by the argument of \cref{prop:ttest-level}.
+The most common null hypothesis is $b_0 = 0$: $x$ is of no use in predicting $Y$ with a line.
+
+\begin{worked}[the Old Faithful slope]
+$T = 10.73/0.315 = 34.1$ for $H_0: b = 0$, against the threshold $q_{0.025}(t_{270}) = 1.969$, with $p$-value about $10^{-99}$. The $95\%$ confidence interval for the slope is $10.73 \pm 1.969 \times 0.315 = [10.11, 11.35]$ minutes of wait per minute of eruption. At $n = 272$ the $t$ and Gaussian quantiles differ in the third digit, $1.969$ against $1.960$.
+\end{worked}
+
+Are Old Faithful's errors Gaussian?
+Hardly: the waits are whole minutes, and the residuals of \cref{fig:reglsfit} do not even average zero at every duration.
+What survives without Gaussian errors, and without the line being the regression function, is the large-sample theory for i.i.d.\ pairs. Old Faithful's pairs are not: the eruptions are consecutive, and a short eruption is almost always followed by a long one (only $6$ of the $97$ short eruptions were followed by another short one, where independence would give about $35$). Methods for dependent data, which this book does not develop, put the slope's standard error between $0.33$ and $0.36$ instead of $0.315$, so $T$ is between $30$ and $33$ instead of $34.1$.
+
+\begin{theorem}[Least squares without Gaussian errors]
+\label{thm:lse-asymptotic}
+Let $(X_1, Y_1), (X_2, Y_2), \ldots$ be i.i.d.\ copies of $(X, Y)$ with $\E[X^4]$ and $\E[Y^4]$ finite and $\var(X) > 0$, let $a^*, b^*$ and $\epsilon$ be the theoretical regression line and its noise, and suppose $v = \E[(X - \E[X])^2\epsilon^2] > 0$.
+Then $\hat{a} \convp a^*$, $\hat{b} \convp b^*$, and
+\[
+\sqrt{n}(\hat{b} - b^*) \convd \Gauss\Big(0, \frac{v}{\var(X)^2}\Big).
+\]
+If moreover $\E[\epsilon^2 \mid X] = \sigma^2$ does not depend on $X$, then $v/\var(X)^2 = \sigma^2/\var(X)$, $\hat{\sigma}^2 \convp \sigma^2$, and $T = (\hat{b} - b^*)/(\hat{\sigma}/\sqrt{S_{xx}}) \convd \Gauss(0, 1)$.
+\end{theorem}
+\optionalproof{$\hat{b} - b^*$ is an average of $(X_i - \bar{X})\epsilon_i$ divided by an average of $(X_i - \bar{X})^2$: the Central Limit Theorem for the first, the Law of Large Numbers for the second, Slutsky's theorem for the ratio.}
+\recall{The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ random variables with mean $\mu$ and finite variance, $\bar{X}_n \convp \mu$. The Central Limit Theorem (\cref{thm:clt}): if the variance $\sigma^2$ is also positive, $\sqrt{n}(\bar{X}_n - \mu) \convd \Gauss(0, \sigma^2)$. The continuous mapping theorem (\cref{thm:cmt}): if $X_n \convp X$ and $g$ is continuous, $g(X_n) \convp g(X)$. Slutsky's theorem (\cref{thm:slutsky}): if $X_n \convd X$ and $Y_n \convp y$, a constant, then $X_n + Y_n \convd X + y$, $X_nY_n \convd yX$, and $X_n/Y_n \convd X/y$ if $y \neq 0$. And a limit in distribution that is a constant is a limit in probability (\cref{prop:convd-constant}).}
+\begin{proof}
+Write $\mu = \E[X]$ and $\epsilon_i = Y_i - a^* - b^*X_i$.
+Then $Y_i - \bar{Y} = b^*(X_i - \bar{X}) + \epsilon_i - \bar{\epsilon}$, so $S_{xy} = b^*S_{xx} + \sum_i (X_i - \bar{X})\epsilon_i$ (the $\bar{\epsilon}$ term drops out since $\sum_i (X_i - \bar{X}) = 0$), and
+\[
+\hat{b} - b^* = \frac{\frac1n\sum_i (X_i - \bar{X})\epsilon_i}{S_{xx}/n}.
+\]
+The denominator is $S_{xx}/n = \frac1n\sum_i X_i^2 - \bar{X}^2 \convp \E[X^2] - \mu^2 = \var(X)$, by the Law of Large Numbers for the $X_i^2$ and the $X_i$ (both have finite variance since $\E[X^4] < \infty$) and the continuous mapping theorem.
+The numerator is $\frac1n\sum_i W_i - (\bar{X} - \mu)\bar{\epsilon}$, with $W_i = (X_i - \mu)\epsilon_i$.
+The $W_i$ are i.i.d.\ with mean $\E[(X - \mu)\epsilon] = \cov(X, \epsilon) = 0$ (\cref{thm:reg-line}) and variance $v$, which is finite: $\epsilon$, a linear combination of $1$, $X$ and $Y$, has a finite fourth moment, and $2st \leq s^2 + t^2$ bounds $(X - \mu)^2\epsilon^2$ by $\frac12((X - \mu)^4 + \epsilon^4)$.
+By the Law of Large Numbers the numerator converges in probability to $0 - 0 \cdot 0 = 0$, so $\hat{b} \convp b^*$; and $\hat{a} = \bar{Y} - \hat{b}\bar{X} \convp \E[Y] - b^*\mu = a^*$.
+
+For the limit distribution, $\sqrt{n}\,\frac1n\sum_i W_i \convd \Gauss(0, v)$ by the Central Limit Theorem, while $\sqrt{n}(\bar{X} - \mu)\bar{\epsilon} \convd 0$ by Slutsky's theorem, since $\sqrt{n}(\bar{X} - \mu)$ converges in distribution and $\bar{\epsilon} \convp 0$; so this term converges to $0$ in probability, and $\sqrt{n}$ times the numerator converges in distribution to $\Gauss(0, v)$ by Slutsky's theorem.
+Dividing by $S_{xx}/n \convp \var(X)$ gives $\sqrt{n}(\hat{b} - b^*) \convd \Gauss(0, v/\var(X)^2)$, by Slutsky's theorem once more.
+
+If $\E[\epsilon^2 \mid X] = \sigma^2$, taking out what is known and the tower property give $v = \E\big[(X - \mu)^2\E[\epsilon^2 \mid X]\big] = \sigma^2\var(X)$ \toolkit{sec:math-condexp}.
+For $\hat{\sigma}^2$, write $e_i = \epsilon_i - \bar{\epsilon} - (\hat{b} - b^*)(X_i - \bar{X})$, as in the proof of \cref{thm:reg-exact}; since $\sum_i (\epsilon_i - \bar{\epsilon})(X_i - \bar{X}) = (\hat{b} - b^*)S_{xx}$, expanding the square gives
+\[
+\frac1n\sum_i e_i^2 = \frac1n\sum_i (\epsilon_i - \bar{\epsilon})^2 - (\hat{b} - b^*)^2\frac{S_{xx}}{n} \convp \E[\epsilon^2] - 0 = \sigma^2,
+\]
+and $\hat{\sigma}^2$ differs from this by the factor $n/(n - 2) \to 1$.
+Finally $T = \sqrt{n}(\hat{b} - b^*)\big/\big(\hat{\sigma}/\sqrt{S_{xx}/n}\big)$, where the numerator converges in distribution to $\Gauss(0, \sigma^2/\var(X))$ and the denominator in probability to $\sigma/\sqrt{\var(X)}$, so $T \convd \Gauss(0, 1)$ by Slutsky's theorem.
+\end{proof}
+
+Three things follow.
+First, when the scatter around the best line, $\E[\epsilon^2 \mid X = x]$, has the same size at every $x$, the $t$-test and $t$-interval for the slope have asymptotic level $\alpha$ and coverage $1 - \alpha$ whatever the errors' distribution. When the regression function bends, that scatter includes the squared distance from $f(x)$ to the line, so it changes with $x$ even when the spread of $Y$ around $f(x)$ does not; the robust standard error below checks whether that matters.
+Second, when the scatter changes with $x$, $\hat{\sigma}/\sqrt{S_{xx}}$ estimates the wrong variance; plugging the residuals into $v$ gives the robust, or sandwich, standard error $\sqrt{\sum_i (X_i - \bar{X})^2e_i^2}\,/S_{xx}$, the sandwich of \cref{ch:mom-mestimation} for the squared loss. Under the hypotheses of \cref{thm:lse-asymptotic}, $\frac1n\sum_i (X_i - \bar{X})^2e_i^2 \convp v$, so $n$ times the squared robust standard error converges in probability to $v/\var(X)^2$; this follows from the Law of Large Numbers in the form that needs only a finite mean (\cref{thm:slln}) with the bookkeeping of the proof above, and the details are not given here. For Old Faithful the robust standard error is $0.300$ against $0.315$: the scatter is nearly constant, with residual standard deviations of $5.7$ minutes after eruptions shorter than $3$ minutes and $6.0$ after longer ones.
+Third, the theorem never assumed that the regression function is a line: $\hat{b}$ estimates $b^*$, the slope of the best line, which is the sense in which the slope $10.73$ means something despite the bend in \cref{fig:reglsfit}.
+
+The other question every regression is asked is how good its predictions are, and at a given $x_0$ it is two questions.
+Where is the line at $x_0$, the mean wait after all $4.5$-minute eruptions?
+And where will the next $Y$ at $x_0$ fall, the wait after the next $4.5$-minute eruption?
+
+\begin{proposition}[Confidence and prediction intervals]
+\label{prop:reg-predict}
+In the Gaussian linear model, let $\hat{y}_0 = \hat{a} + \hat{b}x_0$, and let $Y_0 = a + bx_0 + \epsilon_0$ be a new observation at $x_0$, with $\epsilon_0 \sim \Gauss(0, \sigma^2)$ independent of $\epsilon_1, \ldots, \epsilon_n$.
+With $q = q_{\alpha/2}(t_{n-2})$, the interval
+\[
+\hat{y}_0 \pm q\,\hat{\sigma}\sqrt{\frac1n + \frac{(x_0 - \bar{x})^2}{S_{xx}}}
+\]
+contains $a + bx_0$ with probability $1 - \alpha$, and the interval
+\[
+\hat{y}_0 \pm q\,\hat{\sigma}\sqrt{1 + \frac1n + \frac{(x_0 - \bar{x})^2}{S_{xx}}}
+\]
+contains $Y_0$ with probability $1 - \alpha$.
+\end{proposition}
+\optionalproof{$\hat{y}_0 = \bar{Y} + \hat{b}(x_0 - \bar{x})$ is Gaussian with variance $\sigma^2(1/n + (x_0 - \bar{x})^2/S_{xx})$, and the new error adds $\sigma^2$. Standardizing by $\hat{\sigma}$, which is independent of both, gives $t_{n-2}$ as in \cref{thm:reg-exact}.}
+\begin{proof}
+In the coordinates of the proof of \cref{thm:reg-exact}, $\hat{y}_0 - (a + bx_0) = (\hat{a} - a) + (\hat{b} - b)x_0 = Z_1/\sqrt{n} + (x_0 - \bar{x})Z_2/\sqrt{S_{xx}}$, a Gaussian with mean $0$ and variance $\sigma^2(1/n + (x_0 - \bar{x})^2/S_{xx})$, independent of $\hat{\sigma}^2$.
+Dividing it by $\hat{\sigma}\sqrt{1/n + (x_0 - \bar{x})^2/S_{xx}}$ gives a standard Gaussian divided by the square root of an independent $\chi^2_{n-2}$ over $n - 2$, which is $t_{n-2}$; this is the first interval.
+For the second, $Y_0 - \hat{y}_0 = \epsilon_0 - (\hat{y}_0 - a - bx_0)$, and $\epsilon_0$ is independent of $Z_1, \ldots, Z_n$, so $Y_0 - \hat{y}_0$ is Gaussian with mean $0$ and variance $\sigma^2(1 + 1/n + (x_0 - \bar{x})^2/S_{xx})$, and is independent of $\hat{\sigma}^2$; the same standardization gives $t_{n-2}$.
+\end{proof}
+
+After a $4.5$-minute eruption the line predicts $81.8$ minutes.
+The $95\%$ confidence interval for the mean wait after such eruptions is $81.8 \pm 0.9 = [80.8, 82.7]$; the $95\%$ prediction interval for the next wait after one is $81.8 \pm 11.7 = [70.1, 93.4]$.
+In natural frequencies: of $100$ eruptions lasting $4.5$ minutes, the model says about $95$ are followed by a wait between $70$ and $93$ minutes.
+\Cref{fig:regbands} draws both intervals for every duration.
+The confidence band is narrowest at $\bar{x} = 3.49$, where $(x_0 - \bar{x})^2 = 0$, and widens toward the ends, since an error in the slope moves the line more the farther you are from the point it pivots on; the prediction band is nearly parallel, since its $1$ dominates.
+In the data, $260$ of the $272$ waits, $95.6\%$, fall inside the prediction band.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_reg_bands}
+\caption{Old Faithful's $272$ eruptions (gray), the least squares line (blue), the $95\%$ confidence band for the regression line (shaded) and the $95\%$ prediction band for a new wait (orange, dashed).}
+\label{fig:regbands}
+\end{figure}
+
+\begin{pitfall}[a prediction interval does not shrink with $n$]
+The confidence band's width is of order $1/\sqrt{n}$ and vanishes as the data accumulate. The prediction band's width tends to $2q\sigma$, the spread of a single new wait, which no amount of data removes. And the prediction interval is about one new error $\epsilon_0$, so no limit theorem rescues it: \cref{thm:lse-asymptotic} makes $\hat{a}$, $\hat{b}$ and $\hat{\sigma}$ accurate, but the probability that $\epsilon_0$ lands within $\pm q\sigma$ depends on the errors' distribution at every $n$. Neither interval says anything about durations outside the data's range, $1.6$ to $5.1$ minutes, where nothing shows that the line still holds.
+\end{pitfall}
+
+\section{Correlation, \texorpdfstring{$R^2$}{R squared} and regression toward the mean}
+\label{sec:reg-correlation}
+
+The slope depends on the units of both variables.
+A measure of linear association that does not is the correlation.
+
+\begin{definition}[Correlation]
+\label{def:correlation}
+The \textbf{correlation} of random variables $X$ and $Y$ with positive finite variances is
+\[
+\rho = \frac{\cov(X, Y)}{\sqrt{\var(X)\var(Y)}}.
+\]
+The \textbf{sample correlation} of pairs $(X_i, Y_i)$ is $r = S_{xy}/\sqrt{S_{xx}S_{yy}}$.
+\end{definition}
+
+\begin{inwords}
+The correlation is the slope of the best line when both variables are measured in standard deviations: by \cref{thm:reg-line}, $b^* = \rho\sqrt{\var(Y)/\var(X)}$, so an increase of one standard deviation in $X$ predicts a change of $\rho$ standard deviations in $Y$. It lies between $-1$ and $1$, and is $\pm 1$ exactly when $Y$ is a linear function of $X$ (\cref{prop:r2} below). The sample correlation is the same quantity for the empirical distribution of the pairs.
+
+\textbf{For the kiss data.} A correlation needs two variables, and the kiss data have one. The correlation of $R$ with itself is $1$, a perfect line; with any variable recorded independently of the turns it is $0$, and the best line is flat.
+\end{inwords}
+
+\begin{proposition}[What the line explains]
+\label{prop:r2}
+For the least squares fit,
+\[
+\sum_{i=1}^n (Y_i - \bar{Y})^2 = \sum_{i=1}^n (\hat{Y}_i - \bar{Y})^2 + \sum_{i=1}^n e_i^2,
+\]
+and the \textbf{coefficient of determination} $R^2 = 1 - \sum_i e_i^2/S_{yy}$ equals $r^2$.
+In the population, $\var(Y) = b^{*2}\var(X) + \var(\epsilon)$ and $\var(\epsilon) = (1 - \rho^2)\var(Y)$, so $\abs{\rho} \leq 1$, with equality exactly when $\epsilon = 0$ with probability one.
+\end{proposition}
+\optionalproof{$\hat{Y}_i - \bar{Y} = \hat{b}(X_i - \bar{X})$, and the residuals are uncorrelated with the $X_i$, so the cross term in the square of $(\hat{Y}_i - \bar{Y}) + e_i$ vanishes. The population version is the same computation with the noise.}
+\begin{proof}
+$Y_i - \bar{Y} = (\hat{Y}_i - \bar{Y}) + e_i$, with $\hat{Y}_i - \bar{Y} = \hat{b}(X_i - \bar{X})$ since $\hat{a} = \bar{Y} - \hat{b}\bar{X}$.
+The cross term $2\hat{b}\sum_i (X_i - \bar{X})e_i$ is $0$ by the normal equations of \cref{thm:lse}, which gives the decomposition.
+Its first term is $\hat{b}^2S_{xx} = S_{xy}^2/S_{xx} = r^2S_{yy}$, so $R^2 = r^2$.
+In the population, $Y = a^* + b^*X + \epsilon$ with $\cov(X, \epsilon) = 0$, so $\var(Y) = b^{*2}\var(X) + \var(\epsilon)$, and $b^{*2}\var(X) = \cov(X, Y)^2/\var(X) = \rho^2\var(Y)$.
+Since $\var(\epsilon) \geq 0$, $\rho^2 \leq 1$, with equality exactly when $\var(\epsilon) = 0$, that is, when $\epsilon$ equals its mean $0$ with probability one.
+\end{proof}
+
+For Old Faithful, $r = 0.901$ and $R^2 = 0.811$: the line accounts for $81\%$ of the variance of the waits.
+In standard deviations, the waits vary by $13.6$ minutes around their mean and by $5.9$ around the line.
+
+Written as $\hat{b} = r\,s_y/s_x$, the least squares line has a consequence that gave regression its name.
+In standard deviations, the predicted $y$ is $r$ times the value of $x$, so whenever $\abs{r} < 1$ the prediction is closer to the mean than the explanatory value is.
+Francis Galton found this in the heights of $928$ adult children and their parents: `the height-deviate of the offspring is, on the average, two-thirds of the height-deviate of its mid-parentage', where the mid-parent's height is the average of the father's and of $1.08$ times the mother's (Galton, \textit{Journal of the Anthropological Institute}, 1886).
+His two-thirds is a slope, inches of child per inch of mid-parent, not a correlation: a mid-parent's height, an average of two heights, varies less than a child's (standard deviations of $1.8$ and $2.5$ inches in his table), so the correlation, about $0.46$, is smaller than the slope, about $0.65$.
+He called the pull toward the mean regression towards mediocrity.
+It is not a force of heredity: it holds for any two variables that are less than perfectly correlated, and it runs both ways, since tall children have parents who are, on average, less tall than they are.
+\Cref{fig:regtowardmean} draws a bivariate Gaussian with correlation $0.5$ in standard units.
+The ellipses of equal density are tilted along the line $y = x$, but the conditional means of $y$, the blue dots, lie on the line $y = 0.5x$, which passes through the points where the ellipses have vertical tangents; the best line for predicting $x$ from $y$ is $x = 0.5y$, the orange line, which is steeper than $y = x$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.48\textwidth]{fig_reg_toward_mean}
+\caption{A bivariate Gaussian with standard marginals and correlation $0.5$: ellipses holding $50\%$, $90\%$ and $99\%$ of the probability (gray), the line $y = x$ (dotted), the regression of $y$ on $x$ (blue, with dots at $x = -2, \ldots, 2$) and of $x$ on $y$ (orange, dashed).}
+\label{fig:regtowardmean}
+\end{figure}
+
+\begin{sanitycheck}[Is the line for predicting $x$ from $y$ the same line?]
+No. Regressing the duration on the wait gives the slope $S_{xy}/S_{yy} = 3{,}788/50{,}087 = 0.0756$ minutes of eruption per minute of wait; turned around, that is $13.2$ minutes of wait per minute of eruption, not $10.7$. The product of the two slopes is $S_{xy}^2/(S_{xx}S_{yy}) = r^2 = 0.811$, so the two lines coincide only when $r = \pm 1$. Least squares measures misses vertically, in the variable being predicted, and the two predictions answer different questions (\cref{ex:reg-reverse}).
+\end{sanitycheck}
+
+Regression toward the mean is a frequent source of false conclusions.
+
+\begin{pitfall}[regression toward the mean is not an effect]
+Patients chosen for an extreme blood pressure reading, students chosen for a low test score, a team after its best season: measured again, they are on average less extreme, with no treatment and no cause, whenever the two measurements are less than perfectly correlated. An improvement measured only in a group selected for being extreme is not evidence that anything worked; a comparison group selected the same way is. More generally, a slope says how $Y$ and $x$ move together in the data, not what changing $x$ would do to $Y$: the Old Faithful slope has a physical explanation (\cref{sec:reg-predict}), but the line alone would not show that.
+\end{pitfall}
+
+\section{What comes next}
+\label{sec:reg-next}
+
+Most responses depend on more than one variable: the next wait might depend on the eruption just ended and on the wait before it.
+\Cref{ch:regression-multi} lets $x$ be a vector, writes the $n$ equations as one with a design matrix, and finds that least squares projects the response vector onto the subspace spanned by the design's columns, which is the rotation in the proof of \cref{thm:reg-exact} with more axes absorbed by the fit.
+The $t$-test of this chapter tests one coefficient at a time and the $F$-test tests groups of them, exactly with Gaussian errors and approximately without; full rank of the design is the identifiability of \cref{ch:models}; ridge returns in matrix form.
+Responses that are proportions or counts, such as the kiss data's $0$s and $1$s, call for a different link between the mean and the line, the generalized linear models of \cref{ch:exp-families,ch:glm-links}.
+
+\section{Summary}
+\label{sec:reg-summary}
+
+\begin{itemize}[nosep]
+\item The regression function $f(x) = \E[Y \mid X = x]$ is the best predictor of $Y$ from $X$ in mean squared error: $\E[(Y - g(X))^2] = \E[(Y - f(X))^2] + \E[(f(X) - g(X))^2]$.
+\item The theoretical regression line minimizes $\E[(Y - a - bX)^2]$: $b^* = \cov(X, Y)/\var(X)$, $a^* = \E[Y] - b^*\E[X]$. The noise $\epsilon = Y - a^* - b^*X$ has mean $0$ and is uncorrelated with $X$; it has conditional mean $0$ at every $x$ only when $f$ is a line, and otherwise the best line is the line closest to $f$.
+\item Least squares: $\hat{b} = S_{xy}/S_{xx}$, $\hat{a} = \bar{Y} - \hat{b}\bar{X}$, the theoretical line of the empirical distribution; the residuals sum to $0$ and are uncorrelated with the $X_i$. Old Faithful: wait $= 33.47 + 10.73 \times$ duration.
+\item With Gaussian errors least squares is maximum likelihood (Gauss), with $\hat{\sigma}^2_{\mathrm{MLE}} = \mathrm{RSS}/n$, and the posterior mode under a flat prior. A $\Gauss(0, \tau^2)$ prior on the slope gives ridge, $S_{xy}/(S_{xx} + \sigma^2/\tau^2)$: $9.76$ for Old Faithful with $\tau = 1$.
+\item In the linear model (fixed $x$'s; uncorrelated errors with mean $0$ and variance $\sigma^2$): $\hat{a}$ and $\hat{b}$ are unbiased, $\var(\hat{b}) = \sigma^2/S_{xx} = \sigma^2/((n - 1)s_x^2)$, smallest among linear unbiased estimators (Gauss--Markov), and $\hat{\sigma}^2 = \mathrm{RSS}/(n - 2)$ is unbiased. With Gaussian errors, $(n - 2)\hat{\sigma}^2/\sigma^2 \sim \chi^2_{n-2}$, independent of $(\hat{a}, \hat{b})$, and $(\hat{b} - b)/(\hat{\sigma}/\sqrt{S_{xx}}) \sim t_{n-2}$ exactly.
+\item Old Faithful: $\hat{\sigma} = 5.91$, standard error $0.315$, $T = 34.1$, $95\%$ interval $[10.11, 11.35]$. Without Gaussian errors, for i.i.d.\ pairs, $\hat{b} \convp b^*$ and $\sqrt{n}(\hat{b} - b^*)$ is asymptotically Gaussian with variance $\E[(X - \E X)^2\epsilon^2]/\var(X)^2$, which is $\sigma^2/\var(X)$ when the scatter is constant; the robust standard error is $0.300$, and $0.33$ to $0.36$ allowing for the dependence between consecutive eruptions.
+\item At $x_0$: the confidence interval for $a + bx_0$ is $\hat{y}_0 \pm q\hat{\sigma}\sqrt{1/n + (x_0 - \bar{x})^2/S_{xx}}$, and the prediction interval for a new $Y_0$ adds $1$ under the root; it does not shrink with $n$ and depends on the errors' distribution. After a $4.5$-minute eruption: $[80.8, 82.7]$ and $[70.1, 93.4]$.
+\item $r = S_{xy}/\sqrt{S_{xx}S_{yy}}$, $\hat{b} = r\,s_y/s_x$, $R^2 = r^2$ ($0.811$ for Old Faithful). In standard deviations a prediction is $r$ times the explanatory value: regression toward the mean (Galton's two-thirds). Predicting $x$ from $y$ is a different line.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:reg-exercises}
+
+\begin{exercise}
+\label{ex:reg-discrete}
+A pair $(X, Y)$ takes the values $(0, 0)$, $(0, 1)$, $(1, 0)$, $(1, 1)$, $(2, 1)$, $(2, 2)$ with probabilities $0.2$, $0.1$, $0.1$, $0.2$, $0.1$, $0.3$. (a) Find the regression function at $x = 0, 1, 2$. (b) Find the theoretical regression line. (c) Is the regression function a line? Check that the noise has mean $0$ and is uncorrelated with $X$.
+\end{exercise}
+\begin{solution}
+(a) $\Pr(X = 0) = 0.3$ and $f(0) = (0 \times 0.2 + 1 \times 0.1)/0.3 = \frac13$; $\Pr(X = 1) = 0.3$ and $f(1) = 0.2/0.3 = \frac23$; $\Pr(X = 2) = 0.4$ and $f(2) = (0.1 + 2 \times 0.3)/0.4 = 1.75$. (b) $\E[X] = 1.1$, $\E[X^2] = 1.9$, $\var(X) = 0.69$, $\E[Y] = 1$ and $\E[XY] = 0.2 + 0.2 + 1.2 = 1.6$, so $\cov(X, Y) = 0.5$, $b^* = 0.5/0.69 = 50/69 = 0.725$ and $a^* = 1 - 1.1 \times 50/69 = 14/69 = 0.203$. (c) The line gives $0.203$, $0.928$, $1.652$ at $x = 0, 1, 2$ against $f = 0.333, 0.667, 1.75$: $f$ rises by $\frac13$ and then by $\frac{13}{12}$, so it is not a line. The noise's conditional means are $f(x) - a^* - b^*x = 9/69$, $-18/69$, $27/276$, so $\E[\epsilon] = 0.3 \cdot \frac{9}{69} - 0.3 \cdot \frac{18}{69} + 0.4 \cdot \frac{27}{276} = \frac{10.8 - 21.6 + 10.8}{276} = 0$ and $\E[X\epsilon] = -0.3 \cdot \frac{18}{69} + 0.8 \cdot \frac{27}{276} = \frac{-21.6 + 21.6}{276} = 0$, so $\cov(X, \epsilon) = 0$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-quadratic}
+Let $Y = X^2 + \eta$, with $\eta$ independent of $X$, of mean $0$ and finite variance. (a) For $X \sim \Unif(0, 1)$, show that the theoretical regression line is $-\frac16 + x$, and find the conditional mean of the noise. (b) For $X \sim \Unif(-1, 1)$, show that the best line is flat, although $Y$ is nearly a function of $X$ when $\eta$ is small. What is the correlation of $X$ and $Y$?
+\end{exercise}
+\begin{solution}
+(a) $\E[X] = \frac12$, $\E[X^2] = \frac13$, $\E[X^3] = \frac14$, so $\cov(X, Y) = \cov(X, X^2) = \frac14 - \frac16 = \frac1{12} = \var(X)$: $b^* = 1$ and $a^* = \E[Y] - \E[X] = \frac13 - \frac12 = -\frac16$. The noise has conditional mean $f(x) - a^* - b^*x = x^2 - x + \frac16$. (b) $\E[X] = 0$ and $\E[X^3] = 0$, so $\cov(X, Y) = \cov(X, X^2) = 0$: $b^* = 0$, $a^* = \E[X^2] = \frac13$, and the correlation is $0$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-units}
+Express Old Faithful's durations in seconds and its waits in hours. What happens to $\hat{b}$, $\hat{a}$, $r$, $R^2$ and the $t$ statistic for $b = 0$?
+\end{exercise}
+\begin{solution}
+With $x' = 60x$ and $y' = y/60$: $S_{x'y'} = S_{xy}$ and $S_{x'x'} = 3{,}600\,S_{xx}$, so $\hat{b}' = \hat{b}/3{,}600 = 0.00298$ hours per second, and $\hat{a}' = \bar{Y}' - \hat{b}'\bar{X}' = (\bar{Y} - \hat{b}\bar{X})/60 = 0.558$ hours. The correlation and $R^2$ do not change, since rescaling a variable rescales its standard deviation by the same factor. $\hat{\sigma}' = \hat{\sigma}/60$ and $\sqrt{S_{x'x'}} = 60\sqrt{S_{xx}}$, so the standard error is divided by $3{,}600$, as $\hat{b}$ is: $T = 34.1$ as before.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-origin}
+Regression through the origin. In the model $Y_i = bx_i + \epsilon_i$, with errors as in \cref{def:linmodel} and not all $x_i$ zero, (a) find the least squares estimator of $b$; (b) show that it is unbiased with variance $\sigma^2/\sum_i x_i^2$; (c) find its bias if in fact $Y_i = a + bx_i + \epsilon_i$ with $a \neq 0$.
+\end{exercise}
+\begin{solution}
+(a) The derivative of $\sum_i (Y_i - bx_i)^2$ in $b$ is $-2\sum_i x_i(Y_i - bx_i)$, zero at $\tilde{b} = \sum_i x_iY_i/\sum_i x_i^2$, a minimum since the sum is a parabola in $b$ that opens upward. (b) $\tilde{b} = b + \sum_i x_i\epsilon_i/\sum_i x_i^2$, with mean $b$ and variance $\sigma^2\sum_i x_i^2/(\sum_i x_i^2)^2 = \sigma^2/\sum_i x_i^2$. Since $\sum_i x_i^2 = S_{xx} + n\bar{x}^2 \geq S_{xx}$, it is more precise than $\hat{b}$ when the model holds. (c) $\E[\tilde{b}] = (a\sum_i x_i + b\sum_i x_i^2)/\sum_i x_i^2$, so the bias is $a\sum_i x_i/\sum_i x_i^2$, zero only when the $x_i$ average $0$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-kiss}
+(a) Fit the constant model $R_i = a + \epsilon_i$ to the kiss data by least squares, and compute the residual sum of squares and $\hat{\sigma}^2$ with divisor $n - 1$. (b) Show that the $t$ statistic for $H_0: a = \frac12$ is the one-sample $t$ statistic of \cref{ch:t-test}, and compute it.
+\end{exercise}
+\begin{solution}
+(a) $\hat{a} = \bar{R}_n = 0.645$. The residuals are $44/124 = 0.355$ for the $80$ right turns and $-80/124 = -0.645$ for the $44$ left turns, so $\mathrm{RSS} = 80 \times 0.355^2 + 44 \times 0.645^2 = 28.39$ and $\hat{\sigma}^2 = 28.39/123 = 0.231$, the sample variance $S_n^2$ of \cref{ch:t-test}: one coefficient fitted, one direction absorbed, divisor $n - 1$. (b) $\var(\hat{a}) = \sigma^2/n$, so $T = (\hat{a} - \frac12)/(\hat{\sigma}/\sqrt{n}) = \sqrt{124}\,(0.645 - 0.5)/0.480 = 3.36$, the $t$ statistic of \cref{sec:t-test}.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-aspirin}
+A $0/1$ explanatory variable. (a) Show that if each $x_i$ is $0$ or $1$, with $n_0$ zeros and $n_1$ ones, then $S_{xx} = n_0n_1/n$, $\hat{a} = \bar{Y}_0$ and $\hat{b} = \bar{Y}_1 - \bar{Y}_0$, where $\bar{Y}_0, \bar{Y}_1$ are the means of the two groups. (b) In the Physicians' Health Study of \cref{ch:wald-lrt}, let $x_i = 1$ for aspirin and $Y_i = 1$ for a heart attack: $189$ of $11{,}034$ on placebo and $104$ of $11{,}037$ on aspirin. Compute $\hat{b}$, $\hat{\sigma}^2$ and the $t$ statistic for $b = 0$, and compare its square with the Wald statistic $25.04$ of that chapter. (c) Which assumptions of the Gaussian linear model fail here, and which result supports the test anyway?
+\end{exercise}
+\begin{solution}
+(a) $\bar{x} = n_1/n$ and $S_{xx} = \sum_i x_i^2 - n\bar{x}^2 = n_1 - n_1^2/n = n_0n_1/n$. $S_{xy} = \sum_i x_iY_i - n\bar{x}\bar{Y} = n_1\bar{Y}_1 - \frac{n_1}{n}(n_0\bar{Y}_0 + n_1\bar{Y}_1) = \frac{n_0n_1}{n}(\bar{Y}_1 - \bar{Y}_0)$, so $\hat{b} = \bar{Y}_1 - \bar{Y}_0$ and $\hat{a} = \bar{Y} - \hat{b}\bar{x} = \bar{Y}_0$. (b) $\bar{Y}_0 = 0.01713$ and $\bar{Y}_1 = 0.00942$, so $\hat{b} = -0.00771$: $7.7$ fewer heart attacks per $1{,}000$ physicians. The residual sum of squares is the sum of squared deviations within the groups, $189 \times (1 - 0.01713) + 104 \times (1 - 0.00942) = 288.8$, so $\hat{\sigma}^2 = 288.8/22{,}069 = 0.01309$; $S_{xx} = 5{,}517.8$, the standard error is $\sqrt{0.01309/5{,}517.8} = 0.00154$, and $T = -5.00$, with $T^2 = 25.04$, the Wald statistic to two decimals (with groups of almost equal size, $\hat{\sigma}^2(1/n_0 + 1/n_1)$ is almost the unpooled variance $\hat{p}_0(1 - \hat{p}_0)/n_0 + \hat{p}_1(1 - \hat{p}_1)/n_1$). (c) The errors take two values in each group, so they are not Gaussian, and their variance $p(1 - p)$ differs between the groups. If the physicians are modeled as i.i.d.\ draws, each assigned to aspirin by a fair coin, the pairs are i.i.d.\ and \cref{thm:lse-asymptotic} applies without its constant-scatter condition: the robust standard error, which here is the unpooled one, makes the test asymptotically valid, and with $22{,}071$ physicians in two groups of nearly equal size the two standard errors agree.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-predict}
+For Old Faithful, compute the $95\%$ confidence interval for the mean wait after $2$-minute eruptions and the $95\%$ prediction interval for the next wait after one, using $\hat{a} = 33.47$, $\hat{b} = 10.73$, $\bar{x} = 3.488$, $S_{xx} = 353.0$, $\hat{\sigma} = 5.914$, $n = 272$ and $q_{0.025}(t_{270}) = 1.969$. Why is the confidence interval wider than at $4.5$ minutes, while the prediction intervals have almost the same width?
+\end{exercise}
+\begin{solution}
+$\hat{y}_0 = 33.47 + 10.73 \times 2 = 54.93$. The standard error for the mean is
+\[
+5.914\sqrt{\frac{1}{272} + \frac{(2 - 3.488)^2}{353.0}} = 5.914 \times 0.0997 = 0.590,
+\]
+so the confidence interval is $54.93 \pm 1.16 = [53.8, 56.1]$. For a new wait it is $5.914\sqrt{1 + 0.00995} = 5.943$, so the prediction interval is $54.93 \pm 11.70 = [43.2, 66.6]$. Two minutes is farther from $\bar{x}$ than $4.5$ minutes is ($1.49$ against $1.01$), and the error in the slope moves the line more the farther you are from $\bar{x}$; in the prediction interval the $1$ for the new wait dominates both.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-reverse}
+(a) Show that the least squares line for predicting $X$ from $Y$ has slope $S_{xy}/S_{yy}$ and passes through $(\bar{X}, \bar{Y})$, and that the product of its slope and $\hat{b}$ is $r^2$. (b) For Old Faithful, with $S_{yy} = 50{,}087$, predict the duration of an eruption followed by a $90$-minute wait, and compare it with the duration at which the line for predicting the wait reaches $90$.
+\end{exercise}
+\begin{solution}
+(a) Exchange the roles of the variables in \cref{thm:lse}: the slope is $S_{xy}/S_{yy}$ and the line is $\hat{x} = \bar{X} + (S_{xy}/S_{yy})(y - \bar{Y})$, which passes through $(\bar{X}, \bar{Y})$. The product of the slopes is $S_{xy}^2/(S_{xx}S_{yy}) = r^2$. (b) The slope is $3{,}788/50{,}087 = 0.0756$, and $\hat{x} = 3.488 + 0.0756 \times (90 - 70.90) = 4.93$ minutes. The line for the wait reaches $90$ at $(90 - 33.47)/10.73 = 5.27$ minutes. The two answers differ because they answer different questions: the first is the best line's prediction of the duration from the wait, pulled back toward the average duration, $3.49$ minutes, since $90$ minutes is a long wait; the second, $5.27$ minutes, lies beyond the longest eruption in the data, $5.1$ minutes. Neither is the mean duration after a $90$-minute wait: the $17$ eruptions followed by waits of $88$ to $92$ minutes lasted $4.5$ minutes on average, since the durations level off at long waits as the waits do at long durations (\cref{fig:reglsfit}).
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-ridge}
+Ridge's risk. In the linear model, the ridge slope of \cref{sec:reg-gauss} is $\tilde{b}_\lambda = S_{xy}/(S_{xx} + \lambda)$. (a) Find its mean and variance. (b) Show that its mean squared error is $(\sigma^2S_{xx} + \lambda^2b^2)/(S_{xx} + \lambda)^2$, and that it is smaller than $\var(\hat{b}) = \sigma^2/S_{xx}$ for every small enough $\lambda > 0$, whatever $b$ is. (c) Which $\lambda$ minimizes it, and why can't that value be used directly?
+\end{exercise}
+\begin{solution}
+(a) $S_{xy} = \sum_i (x_i - \bar{x})Y_i = bS_{xx} + \sum_i (x_i - \bar{x})\epsilon_i$, so $\E[\tilde{b}_\lambda] = bS_{xx}/(S_{xx} + \lambda)$, a bias of $-\lambda b/(S_{xx} + \lambda)$, and $\var(\tilde{b}_\lambda) = \sigma^2S_{xx}/(S_{xx} + \lambda)^2$. (b) Variance plus squared bias gives the formula, which equals $\sigma^2/S_{xx}$ at $\lambda = 0$. Its derivative in $\lambda$ is $2S_{xx}(\lambda b^2 - \sigma^2)/(S_{xx} + \lambda)^3$, negative for $0 \leq \lambda < \sigma^2/b^2$ (for every $\lambda$ if $b = 0$), so the mean squared error decreases from $\sigma^2/S_{xx}$ as $\lambda$ increases from $0$. (c) The derivative is zero at $\lambda = \sigma^2/b^2$, the minimum, which depends on the unknown $b$: the same trade-off as the shrinkage estimators of \cref{ch:estimators}. In the Bayesian reading, $\lambda = \sigma^2/\tau^2$ with $\tau^2$ a prior guess at the size of $b^2$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:reg-endpoints}
+A two-point slope. In the linear model with $x_i = i$ for $i = 1, \ldots, 20$, compare $\tilde{b} = (Y_{20} - Y_1)/19$ with $\hat{b}$. (a) Show that $\tilde{b}$ is linear and unbiased, with variance $2\sigma^2/361$. (b) Compute $S_{xx}$ and the ratio $\var(\tilde{b})/\var(\hat{b})$. Which result says that the ratio cannot be below $1$?
+\end{exercise}
+\begin{solution}
+(a) $\E[\tilde{b}] = (a + 20b - a - b)/19 = b$ and $\var(\tilde{b}) = 2\sigma^2/19^2 = 2\sigma^2/361$. (b) $S_{xx} = \sum_{i=1}^{20}(i - 10.5)^2 = 665$, so the ratio is $(2/361)/(1/665) = 3.68$: the two-point slope needs about $3.7$ times as much data to be as precise. \Cref{prop:gauss-markov} says the ratio is at least $1$ for every linear unbiased estimator.
+\end{solution}

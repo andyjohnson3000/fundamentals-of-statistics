@@ -139,6 +139,8 @@ is the model.
   in-words block.
 - No mention of R, Python or any software package by name.
 - The words "intercept" and "panel" do not appear in the book's prose as
-  trade terms. Say what happened.
+  trade terms (a shopper intercept, a consumer panel). Say what happened.
+  The intercept of a regression line, its height at x = 0, is a
+  mathematical term and is used from Chapter 20.
 - No closing sentence that restates a point as a lesson or a warning. If a
   sentence carries no fact, instruction or number, cut it.

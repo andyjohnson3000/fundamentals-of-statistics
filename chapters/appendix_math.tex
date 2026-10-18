@@ -319,7 +319,7 @@ The density depends on $z$ only through its length $\norm{z}$, so it is the same
 An $n \times n$ matrix $Q$ is \textbf{orthogonal} if $Q^\top Q = I$, which says that its columns are unit vectors perpendicular to each other: an orthonormal basis of $\real^n$ written as a matrix. Since $Q$ is square, $Q^\top Q = I$ makes $Q^\top$ the inverse of $Q$, so $QQ^\top = I$ as well: the rows are orthonormal too, and $Q^\top$ is itself orthogonal.
 Multiplying by $Q$ rotates (and possibly reflects) the axes.
 Two consequences: $Q$ preserves lengths, $\norm{Qz}^2 = (Qz)^\top(Qz) = z^\top Q^\top Q z = \norm{z}^2$, and $\det Q = \pm 1$, since $\det(Q^\top Q) = (\det Q)^2 = 1$.
-Any unit vector $u_1$ can be made the first row of an orthogonal matrix: extend it to a basis of $\real^n$ and run the Gram--Schmidt process, which subtracts from each new vector its components along the previous ones and normalizes, producing an orthonormal basis $u_1, \ldots, u_n$ that keeps $u_1$ as it is.
+Any unit vector $u_1$ can be made the first row of an orthogonal matrix: extend it to a basis of $\real^n$ and run the Gram--Schmidt process, which subtracts from each new vector its components along the previous ones and normalizes, producing an orthonormal basis $u_1, \ldots, u_n$ that keeps $u_1$ as it is; the same process keeps any orthonormal $u_1, \ldots, u_k$ as the first $k$ rows.
 The proof of \cref{thm:cochran} uses $u_1 = (1, \ldots, 1)/\sqrt{n}$.
 
 \textbf{Change of variables for a linear map.}
@@ -341,7 +341,7 @@ The density of $Y$ is the same product, so $Y_1, \ldots, Y_n$ are again i.i.d.\ 
 In words: rotate a round Gaussian cloud and you get the same round Gaussian cloud, with the new coordinates as independent as the old ones.
 \Cref{ex:t-cochran-two} does the computation by hand for $n = 2$ and the $45^\circ$ rotation.
 
-\textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{thm:pearson} rotates the standardized deviations of the counts with an orthogonal matrix whose first row is $(\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$, the direction in which those deviations cannot move; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
+\textbf{Where the book uses it.} \Cref{thm:cochran} rotates the standardized data so that one coordinate is $\sqrt{n}\bar{Z}_n$ and the others carry the deviations; \cref{thm:pearson} rotates the standardized deviations of the counts with an orthogonal matrix whose first row is $(\sqrt{p^0_1}, \ldots, \sqrt{p^0_K})$, the direction in which those deviations cannot move; \cref{thm:reg-exact} rotates the errors of a regression with the first two axes along $(1, \ldots, 1)$ and along the centered explanatory values; \cref{ch:regression-multi} uses the same rotation with the regressors' subspace in place of the line through $(1, \ldots, 1)$.
 
 \section{Gaussian vectors with a covariance matrix}
 \label{sec:math-gaussquad}
@@ -394,6 +394,34 @@ So $BZ$ has the distribution of $Bm + LW'$, with $L$ invertible and $LL^\top = L
 If $Z \sim \Gauss_d(m, \Sigma)$, then $(Z - m)^\top\Sigma^{-1}(Z - m)$ has the distribution of $W^\top A^\top(AA^\top)^{-1}AW = W^\top W$, which is $\chi^2_d$ (\cref{lem:gauss-quadform}): the squared distance from the center in units of the noise, which \cref{fig:gaussquad} draws.
 
 \textbf{Where the book uses it.} The multivariate CLT and the asymptotic normality of estimators with several coordinates (\cref{ch:limit-tools,ch:mle-properties,ch:mom-mestimation}) have $\Gauss_d$ limits when their covariance matrices are positive definite. The quadratic form gives the chi-squared limits of Wald's, the likelihood ratio and the score tests (\cref{ch:wald-lrt}), and the linear-map rule gives the common limit of all three with nuisance parameters (\cref{thm:three-nuisance}). The vector of counts in \cref{ch:gof}, whose coordinates add up to $n$, has a covariance matrix that is not positive definite; that chapter rotates the standardized deviations of the counts so that the direction in which they cannot move is one coordinate and sets it aside (\cref{thm:pearson}), and for the three tests drops one category (\cref{sec:gof-score}); either way the covariance matrix that remains is positive definite.
+
+\section{Conditional distributions and conditional expectation}
+\label{sec:math-condexp}
+
+For a pair $(X, Y)$ with a joint density $h(x, y)$, the \textbf{marginal density} of $X$ is $h(x) = \int h(x, y)\,\mathrm{d}y$, and wherever $h(x) > 0$ the \textbf{conditional density} of $Y$ given $X = x$ is
+\[
+h(y \mid x) = \frac{h(x, y)}{h(x)}:
+\]
+the slice of the joint density along the vertical line at $x$, rescaled so that it integrates to $1$.
+For discrete pairs, PMFs replace densities and sums replace integrals: $\Pr(Y = y \mid X = x) = \Pr(X = x, Y = y)/\Pr(X = x)$.
+The \textbf{conditional expectation} $\E[Y \mid X = x] = \int y\,h(y \mid x)\,\mathrm{d}y$ is the mean of that slice, one number for each $x$.
+\Cref{fig:tk-condexp} draws the simplest case: two dice, $X$ the first and $Y$ the sum. Given $X = x$, the sum is $x + d$ with $d = 1, \ldots, 6$ equally likely, so $\E[Y \mid X = x] = x + 3.5$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{fig_tk_condexp}
+\caption{Two dice: the $36$ equally likely outcomes as points (first die, sum), and the conditional means of the sum given the first die (orange); the shaded column holds the six outcomes with first die $4$.}
+\label{fig:tk-condexp}
+\end{figure}
+
+Writing $f(x) = \E[Y \mid X = x]$, the random variable $f(X)$, the conditional mean evaluated at the observed $X$, is written $\E[Y \mid X]$. Three facts handle it.
+\begin{itemize}[nosep]
+\item \textbf{The tower property}: $\E\big[\E[Y \mid X]\big] = \E[Y]$. For densities, $\E[f(X)] = \int f(x)h(x)\,\mathrm{d}x = \iint y\,h(y \mid x)h(x)\,\mathrm{d}y\,\mathrm{d}x = \iint y\,h(x, y)\,\mathrm{d}y\,\mathrm{d}x = \E[Y]$. For the dice, the average of $x + 3.5$ over $x = 1, \ldots, 6$ is $7$, the mean of the sum.
+\item \textbf{Taking out what is known}: $\E[g(X)Y \mid X] = g(X)\E[Y \mid X]$ for any function $g$ with $\E\abs{g(X)Y} < \infty$: once $X = x$ is fixed, $g(x)$ is a constant and comes out of the mean of the slice. With the tower property, $\E[g(X)Y] = \E\big[g(X)\E[Y \mid X]\big]$.
+\item \textbf{Conditional variance}: $\var(Y \mid X = x) = \E[Y^2 \mid X = x] - \big(\E[Y \mid X = x]\big)^2$ is the variance of the slice, so it is non-negative; hence $\E[Y \mid X]^2 \leq \E[Y^2 \mid X]$, and by the tower property $\E\big[\E[Y \mid X]^2\big] \leq \E[Y^2]$.
+\end{itemize}
+
+\textbf{Where the book uses it.} The posterior of \cref{ch:bayes-intro} is a conditional density of the parameter given the data; the regression function of \cref{ch:regression-uni} is a conditional expectation, and the proof that it is the best predictor (\cref{thm:best-predictor}) uses all three facts.
 
 \section{To be added with later chapters}
 \label{sec:math-later}
