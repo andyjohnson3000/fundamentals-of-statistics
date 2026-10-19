@@ -423,7 +423,45 @@ Writing $f(x) = \E[Y \mid X = x]$, the random variable $f(X)$, the conditional m
 
 \textbf{Where the book uses it.} The posterior of \cref{ch:bayes-intro} is a conditional density of the parameter given the data; the regression function of \cref{ch:regression-uni} is a conditional expectation, and the proof that it is the best predictor (\cref{thm:best-predictor}) uses all three facts.
 
+\section{Matrices, rank and projections}
+\label{sec:math-matrices}
+
+\Cref{ch:regression-multi} writes $n$ regression equations as one, $Y = X\beta + \epsilon$, and solves them by geometry.
+This entry collects the linear algebra that takes.
+
+\textbf{Vectors and matrices.}
+A vector $v \in \real^n$ is a column of $n$ numbers; $v^\top$ is the same numbers as a row, so $u^\top v = \sum_i u_iv_i$ is a number, the inner product, and $\norm{v}^2 = v^\top v$ is the squared length.
+Two vectors are \textbf{perpendicular} (orthogonal) when $u^\top v = 0$, and then $\norm{u + v}^2 = \norm{u}^2 + \norm{v}^2$ (Pythagoras: the cross term $2u^\top v$ vanishes).
+An $n \times p$ matrix $X$ sends $\beta \in \real^p$ to $X\beta \in \real^n$, which is the combination $\beta_1x_{(1)} + \cdots + \beta_px_{(p)}$ of the columns of $X$ with the entries of $\beta$ as weights.
+The transpose rule $(AB)^\top = B^\top A^\top$ and the inverse rule $(AB)^{-1} = B^{-1}A^{-1}$ hold whenever the products and inverses exist; the \textbf{trace} $\mathrm{tr}(A)$ of a square matrix is the sum of its diagonal entries, $\mathrm{tr}(AB) = \mathrm{tr}(BA)$ whenever both products are square, and $\mathrm{tr}$ is linear, so it passes through expectations.
+
+\textbf{Column space and rank.}
+The \textbf{column space} of $X$ is the set of all vectors $X\beta$, a subspace of $\real^n$ (closed under sums and multiples).
+The columns are \textbf{linearly independent} when $X\beta = 0$ only for $\beta = 0$, that is, when no column is a combination of the others; then every vector in the column space is $X\beta$ for exactly one $\beta$, and the column space has dimension $p$.
+The \textbf{rank} of $X$ is the dimension of its column space, so `rank $p$' with $p \leq n$ means the columns are independent.
+Independent columns make $X^\top X$ invertible: $X^\top Xa = 0$ gives $a^\top X^\top Xa = \norm{Xa}^2 = 0$, so $Xa = 0$ and $a = 0$.
+
+\textbf{Orthogonal projection.}
+Let $S$ be a subspace of $\real^n$ of dimension $d$. The Gram--Schmidt process of \cref{sec:math-gaussvec}, fed a basis of $S$ and then vectors completing it to a basis of $\real^n$, gives an orthonormal basis $u_1, \ldots, u_n$ of $\real^n$ whose first $d$ vectors span $S$; fed a basis of a smaller subspace $S_0 \subset S$ first, it gives one adapted to the chain $S_0 \subset S \subset \real^n$.
+Every $y$ then splits as $y = s + r$ with $s = \sum_{k \leq d}(u_k^\top y)u_k \in S$ and $r = \sum_{k > d}(u_k^\top y)u_k$ perpendicular to every vector of $S$, and uniquely, since two such splits would differ by a vector of $S$ perpendicular to $S$, which is $0$; $s$ is the \textbf{orthogonal projection} of $y$ onto $S$, and it is the point of $S$ closest to $y$, since for any $s' \in S$, $\norm{y - s'}^2 = \norm{r}^2 + \norm{s - s'}^2 \geq \norm{r}^2$ by Pythagoras.
+\Cref{fig:tk-projection} draws the case of a line.
+The map $y \mapsto s$ is linear, so it is a matrix $P$, with $P^2 = P$ (projecting twice changes nothing) and $P^\top = P$; for $S$ the column space of a rank-$p$ matrix $X$, the condition that $y - Py$ be perpendicular to every column reads $X^\top(y - Xb) = 0$, whose solution $b = (X^\top X)^{-1}X^\top y$ gives
+\[
+P = X(X^\top X)^{-1}X^\top, \qquad \mathrm{tr}(P) = \mathrm{tr}\big((X^\top X)^{-1}X^\top X\big) = p.
+\]
+$I - P$ is the projection onto the \textbf{orthogonal complement} of $S$, the vectors perpendicular to $S$, a subspace of dimension $n - p$.
+In the adapted basis, $P = \sum_{k \leq d}u_ku_k^\top$, so if $S_0 \subset S$ are nested subspaces of dimensions $d_0 \leq d$ with projections $P_0 = \sum_{k \leq d_0}u_ku_k^\top$ and $P$, then $PP_0 = P_0$, and $P - P_0 = \sum_{d_0 < k \leq d}u_ku_k^\top$ is the projection onto the span of $u_{d_0+1}, \ldots, u_d$, the part of $S$ perpendicular to $S_0$, of dimension $d - d_0$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.5\textwidth]{fig_tk_projection}
+\caption{Orthogonal projection onto a line: the vector $y$ (black), the line spanned by $x$ (gray), the projection $Py$ (blue) and the residual $y - Py$ (orange, dashed), perpendicular to the line.}
+\label{fig:tk-projection}
+\end{figure}
+
+\textbf{Where the book uses it.} Least squares is the projection of the response onto the column space of the design matrix (\cref{thm:mreg-lse}); the residual sum of squares has $n - p$ degrees of freedom because $I - P$ projects onto an $(n - p)$-dimensional space (\cref{thm:mreg-exact}); the $F$-test splits the column space into nested pieces (\cref{thm:mreg-ftest}); and full rank is the identifiability of the regression model (\cref{ch:models}).
+
 \section{To be added with later chapters}
 \label{sec:math-later}
 
-Vectors and matrices more generally, rank beyond the one-line description used in the previous entry, and projections (for \cref{ch:regression-multi}); eigenvalues and eigenvectors (for \cref{ch:pca}).
+Eigenvalues and eigenvectors (for \cref{ch:pca}).
