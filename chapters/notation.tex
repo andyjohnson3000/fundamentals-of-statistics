@@ -52,6 +52,8 @@ $\E[Y \mid X = x]$, $f(x)$ & conditional expectation; the regression function of
 $S_{xx}$, $S_{xy}$, $S_{yy}$, $r$, $R^2$ & $\sum_i (X_i - \bar{X})^2$, $\sum_i (X_i - \bar{X})(Y_i - \bar{Y})$, $\sum_i (Y_i - \bar{Y})^2$, the sample correlation and the coefficient of determination; $\hat{a}$, $\hat{b}$ the least squares line, $e_i$ its residuals (\cref{ch:regression-uni}) \\[2pt]
 $X$, $P$, $\gamma_j$ & the $n \times p$ design matrix, the projection $X(X^\top X)^{-1}X^\top$ onto its column space, the $j$th diagonal entry of $(X^\top X)^{-1}$ (\cref{ch:regression-multi}) \\[2pt]
 $F_{k,l}$ & the $F$ distribution with $(k, l)$ degrees of freedom, the ratio of two independent chi-squared variables over their degrees of freedom (\cref{ch:t-test,ch:regression-multi}) \\[2pt]
+$\eta(\theta)$, $T(y)$, $B(\theta)$, $h(y)$ & natural parameters, sufficient statistics, normalizer and base weight of an exponential family $h(y)\exp(\eta(\theta)^\top T(y) - B(\theta))$ (\cref{ch:exp-families}) \\[2pt]
+$b(\theta)$, $\phi$, $V(\mu)$, $g_c$ & in the canonical form $\exp((y\theta - b(\theta))/\phi + c(y, \phi))$: the function with $b' = \E[Y]$ and $\phi b'' = \var(Y)$, the dispersion, the variance function $\var(Y) = \phi V(\mu)$, and the canonical link $(b')^{-1}$ (\cref{ch:exp-families}) \\[2pt]
 r.v., CDF, PDF, PMF & random variable; cumulative distribution function $F(x) = \Pr(X \leq x)$; density; probability mass function \\[2pt]
 CLT, LLN, CMT & Central Limit Theorem, Law of Large Numbers, continuous mapping theorem \\[2pt]
 (toolkit A.$k$) & a pointer to entry $k$ of the Mathematical Toolkit, \cref{app:math}, which explains the piece of mathematics being used \\

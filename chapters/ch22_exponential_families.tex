@@ -1,4 +1,464 @@
 \chapter{Exponential Families}
 \label{ch:exp-families}
 
-% Not yet written. Source material: notes ch. Generalized Linear Models (exponential family, canonical form); unit 8 slides
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item One form that the Bernoulli, Poisson, exponential, Gaussian and Gamma families all take, $h(y)\exp(\eta(\theta)^\top T(y) - B(\theta))$, and what it means: a base weight tilted by an exponential. Which families do not take it.
+\item The canonical one-parameter form, $\exp\big((y\theta - b(\theta))/\phi + c(y, \phi)\big)$, whose one function $b$ carries the mean, the variance and the Fisher information: $\E[Y] = b'(\theta)$ and $\var(Y) = \phi\,b''(\theta)$.
+\item Why the maximum likelihood estimator of the mean is the sample mean in every one of these families, why the log-likelihood is concave, and why the method of moments agreed with maximum likelihood so often.
+\item Sufficiency, promised in \cref{ch:estimators}: the factorization theorem, and the sum $\sum_i T(Y_i)$ that an exponential family makes visible. Why the conjugate priors of \cref{ch:bayes-intro} exist.
+\end{itemize}
+\Cref{ch:regression-multi} ended with a response that is a count or a proportion, whose mean cannot be a line and whose variance moves with its mean. This chapter describes the distributions for which the regression of \cref{ch:glm-links} will work, and finds that they are the book's old families seen from one angle.
+\end{chaptergoals}
+
+\section{One form for many families}
+\label{sec:ef-form}
+
+\Cref{ch:mom-mestimation} noticed that for the Bernoulli, Poisson, exponential and Gaussian families the method of moments and maximum likelihood give the same estimator, and promised a reason.
+\Cref{ch:likelihood} found that for the first three the likelihood depends on the data only through their sum, and \cref{ch:estimators} that the sum is sufficient for the kiss data.
+\Cref{ch:bayes-intro} found a conjugate prior for each.
+These are one fact seen four times.
+Write the four PMFs and densities with every piece that depends on the parameter moved into an exponent:
+\begin{align*}
+\Bern(p): \quad & p^y(1-p)^{1-y} = \exp\Big(y\log\frac{p}{1-p} + \log(1 - p)\Big), && y \in \{0, 1\}; \\
+\Pois(\lambda): \quad & \frac{\lambda^y e^{-\lambda}}{y!} = \frac{1}{y!}\exp\big(y\log\lambda - \lambda\big), && y = 0, 1, 2, \ldots; \\
+\Expo(\lambda): \quad & \lambda e^{-\lambda y} = \exp\big(-\lambda y + \log\lambda\big), && y > 0; \\
+\Gauss(\mu, \sigma^2): \quad & \frac{e^{-(y - \mu)^2/(2\sigma^2)}}{\sigma\sqrt{2\pi}} = \frac{1}{\sqrt{2\pi}}\exp\Big(\frac{\mu}{\sigma^2}y - \frac{1}{2\sigma^2}y^2 - \frac{\mu^2}{2\sigma^2} - \log\sigma\Big), && y \in \real.
+\end{align*}
+In each, the exponent is a sum of products of a function of the parameter and a function of $y$, minus a function of the parameter alone, and what is left outside depends on $y$ alone.
+
+\begin{definition}[Exponential family]
+\label{def:expfam}
+A family of distributions $(\Pr_\theta)_{\theta \in \Theta}$ on $E \subset \real^q$, with $\Theta \subset \real^k$, is a \textbf{$k$-parameter exponential family} if its PMFs or densities can be written as
+\[
+f_\theta(y) = h(y)\exp\Big(\sum_{j=1}^k \eta_j(\theta)T_j(y) - B(\theta)\Big) = h(y)\exp\big(\eta(\theta)^\top T(y) - B(\theta)\big)
+\]
+for some functions $\eta_1, \ldots, \eta_k$ and $B$ of $\theta$ and $T_1, \ldots, T_k$ and $h \geq 0$ of $y$.
+The $\eta_j(\theta)$ are the \textbf{natural parameters} and the $T_j(y)$ the \textbf{sufficient statistics} of the family (the name is justified in \cref{sec:ef-sufficiency}).
+\end{definition}
+
+\begin{inwords}
+Every member of the family is the same base weight $h(y)$ multiplied by an exponential of a linear function of $T(y)$, and $B(\theta)$ is whatever makes the result integrate or sum to $1$: $e^{B(\theta)} = \int h(y)e^{\eta(\theta)^\top T(y)}\,\mathrm{d}y$. The parameter and the data meet only in the products $\eta_j(\theta)T_j(y)$, which is the property everything in this chapter rests on. The support, where $f_\theta > 0$, is where $h > 0$, the same for every $\theta$.
+
+\textbf{For the kiss data.} The Bernoulli family is a one-parameter exponential family on $\{0, 1\}$ with $h(y) = 1$, $T(y) = y$, $\eta(p) = \log\big(p/(1-p)\big)$, the log-odds of \cref{ch:jeffreys}, and $B(p) = -\log(1 - p) = \log(1 + e^{\eta})$. For $124$ couples the natural parameter multiplies $\sum_i R_i = 80$.
+\end{inwords}
+
+Reading the four displays against the definition: the Poisson has $h(y) = 1/y!$, $T(y) = y$, $\eta = \log\lambda$, $B = \lambda = e^\eta$; the exponential has $h = 1$, $T(y) = y$, $\eta = -\lambda$, $B = -\log\lambda = -\log(-\eta)$; the Gaussian is a two-parameter family with $T(y) = (y, y^2)$, $\eta = (\mu/\sigma^2, -1/(2\sigma^2))$, $B = \mu^2/(2\sigma^2) + \log\sigma$ and $h = 1/\sqrt{2\pi}$, and with $\sigma^2$ known it is a one-parameter family in $\mu$ with $h(y) = e^{-y^2/(2\sigma^2)}/(\sigma\sqrt{2\pi})$.
+The Gamma family $\Gammad(\alpha, \beta)$ of \cref{ch:bayes-intro}, with density $\beta^\alpha y^{\alpha - 1}e^{-\beta y}/\Gamma(\alpha)$, is a two-parameter family with $T(y) = (y, \log y)$ and $\eta = (-\beta, \alpha - 1)$; the Beta family is another (\cref{ex:ef-beta}); the binomial with a known number of trials, the geometric and the negative binomial with known size are one-parameter families (\cref{ex:ef-geometric}).
+
+The form is more restrictive than it looks, and the restriction is where the parameter can go.
+
+\begin{pitfall}[families that are not exponential families]
+$\Unif([0, \theta])$ is not: its density is $\frac1\theta\ind(0 \leq y \leq \theta)$, and the indicator cannot be written as $h(y)e^{\eta(\theta)T(y)}$ because the support moves with $\theta$, while in an exponential family it is fixed by $h$. The Laplace family with unknown center, density $\frac12e^{-\abs{y - \mu}}$, is not: $\abs{y - \mu}$ is not a sum of products of a function of $\mu$ and a function of $y$ (\cref{ex:ef-laplace} proves this for one product; the same kind of argument handles more, and is not given here). The Student $t$ and Cauchy families are not either. The regular models of \cref{ch:mle-properties} are a wider class than the exponential families, and the uniform, which failed the regularity conditions, fails here for the same reason, its moving support.
+\end{pitfall}
+
+There is a picture behind the definition.
+
+\begin{intuition}[one base weight, tilted]
+Start from the base weight $h(y)$ and multiply it by $e^{\theta y}$, for a one-parameter family with $T(y) = y$ and natural parameter $\theta$: this \textbf{tilts} the weight, pushing mass toward large $y$ when $\theta > 0$ and toward small $y$ when $\theta < 0$, and dividing by $e^{B}$ renormalizes it.
+\Cref{fig:eftilting} draws two cases.
+On the left the base is the standard Gaussian density, and tilting by $e^{\theta y}$ moves the bell to the center $\theta$ without changing its shape: that is the $\Gauss(\mu, 1)$ family, with $\theta = \mu$.
+On the right the base is the weight $1/y!$ on $0, 1, 2, \ldots$, and tilting by $e^{\theta y}$ gives the Poisson PMF with mean $e^\theta$.
+An exponential family is the set of all exponential tilts of one base weight, and the parameter says how hard to tilt.
+\end{intuition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_ef_tilting}
+\caption{Exponential tilting. Left: the standard Gaussian density multiplied by $e^{\theta y}$ and renormalized, for $\theta = -1.5$ (orange, dashed), $0$ (blue) and $1.5$ (aqua, dash-dot). Right: the weights $1/y!$ tilted and renormalized, for $\theta = 0$ (blue, mean $1$) and $\theta = \log 4$ (orange, mean $4$).}
+\label{fig:eftilting}
+\end{figure}
+
+\section{The canonical form}
+\label{sec:ef-canonical}
+
+In the Bernoulli display of \cref{sec:ef-form} the parameter entered through one product, $y\log\big(p/(1-p)\big)$; write $\theta$ for that log-odds and the PMF is $\exp\big(y\theta - \log(1 + e^\theta)\big)$, one function of $\theta$ multiplying $y$ and one function of $\theta$ alone.
+For one parameter and $T(y) = y$, the natural parameter itself is the best coordinate to work in, and the standard way to write the family separates out a scale.
+
+\needspace{7\baselineskip}
+\begin{definition}[Canonical exponential family]
+\label{def:canonical}
+A one-parameter family on $E \subset \real$ is in \textbf{canonical form} if its PMFs or densities are
+\[
+f_\theta(y) = \exp\Big(\frac{y\theta - b(\theta)}{\phi} + c(y, \phi)\Big), \qquad \theta \in \Theta,
+\]
+for known functions $b$ and $c$ and a known number $\phi > 0$, the \textbf{dispersion parameter}, with $\Theta$ an open interval on which $b$ is twice differentiable.
+$\theta$ is the \textbf{canonical parameter}.
+\end{definition}
+
+\begin{inwords}
+This is \cref{def:expfam} with $k = 1$, $T(y) = y$, $\eta(\theta) = \theta/\phi$, $B(\theta) = b(\theta)/\phi$ and $h(y) = e^{c(y, \phi)}$: the parameter enters only through the product $y\theta$, and one function $b$ does the normalizing. The dispersion $\phi$ is a known scale, $1$ for counts and $0/1$ data and $\sigma^2$ for a Gaussian with known variance; the family is a one-parameter family in $\theta$ with $\phi$ fixed.
+
+\textbf{For the kiss data.} $\Bern(p)$ is canonical with $\theta = \log\big(p/(1-p)\big)$, $b(\theta) = \log(1 + e^\theta)$, $\phi = 1$ and $c = 0$: the PMF is $\exp(y\theta - \log(1 + e^\theta))$, which at $y = 1$ is $e^\theta/(1 + e^\theta) = p$. The kiss data's canonical parameter is the log-odds of turning right, estimated by $\log(80/44) = 0.598$.
+\end{inwords}
+
+The table gives the canonical forms of the book's families; each is checked by writing the PMF or density with $y\theta$ separated out, as in \cref{sec:ef-form}.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+family & $\theta$ & $b(\theta)$ & $\phi$ & $c(y, \phi)$ \\
+\midrule
+$\Bern(p)$ & $\log\dfrac{p}{1-p}$ & $\log(1 + e^\theta)$ & $1$ & $0$ \\[6pt]
+$\Pois(\lambda)$ & $\log\lambda$ & $e^\theta$ & $1$ & $-\log y!$ \\[4pt]
+$\Expo(\lambda)$ & $-\lambda$ & $-\log(-\theta)$ & $1$ & $0$ \\[4pt]
+$\Gauss(\mu, \sigma^2)$, $\sigma^2$ known & $\mu$ & $\theta^2/2$ & $\sigma^2$ & $-\dfrac12\Big(\dfrac{y^2}{\phi} + \log(2\pi\phi)\Big)$ \\[6pt]
+$\Gammad(\alpha, \beta)$, $\alpha$ known & $-\beta/\alpha$ & $-\log(-\theta)$ & $1/\alpha$ & $\alpha\log(\alpha y) - \log y - \log\Gamma(\alpha)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For the Gaussian, $\frac{1}{\sigma\sqrt{2\pi}}e^{-(y - \mu)^2/(2\sigma^2)} = \exp\big(\frac{y\mu - \mu^2/2}{\sigma^2} - \frac{y^2}{2\sigma^2} - \frac12\log(2\pi\sigma^2)\big)$, which is the table's row with $\theta = \mu$; the Gamma row is \cref{ex:ef-gamma}.
+The canonical parameters are the scales on which this book has already found the families easiest to work with: the log-odds for a proportion, the log of a Poisson mean, the mean of a Gaussian, and, for a rate, $-\lambda$ or a multiple of it.
+
+The payoff of the form is that one function determines the moments.
+
+\begin{theorem}[Mean and variance from $b$]
+\label{thm:ef-moments}
+In a canonical exponential family,
+\[
+\E_\theta[Y] = b'(\theta), \qquad \var_\theta(Y) = \phi\,b''(\theta).
+\]
+So $b$ is convex, strictly convex wherever $\var_\theta(Y) > 0$, and $b'$ is then strictly increasing: the mean $\mu = b'(\theta)$ and the canonical parameter determine each other.
+\end{theorem}
+\coreproof{The density integrates to $1$ for every $\theta$. Differentiate that identity in $\theta$ once and the mean of $Y - b'(\theta)$ comes out as $0$; differentiate it twice and the variance comes out as $\phi b''(\theta)$. The same two differentiations are the score identities of \cref{ch:mle-properties}.}
+\recall{The score of one observation has mean zero (\cref{prop:score-mean}), and the Fisher information is both the variance of the score and minus the expected second derivative of the log-likelihood (\cref{def:fisher}, \cref{thm:fisher-curvature}), under the regularity conditions of \cref{sec:mle-regularity}, which \cref{prop:ef-regular} below verifies for canonical families.}
+\begin{proof}
+Write the identity $\int \exp\big((y\theta - b(\theta))/\phi + c(y, \phi)\big)\,\mathrm{d}y = 1$ (a sum for a PMF) and differentiate in $\theta$ under the integral sign, which is allowed on the open interval $\Theta$: the integrand is a smooth function of $\theta$ and its derivatives are integrable on a neighborhood of each point (\cref{prop:ef-regular}).
+The derivative of the integrand is $\frac{y - b'(\theta)}{\phi}f_\theta(y)$, so
+\[
+0 = \int \frac{y - b'(\theta)}{\phi}f_\theta(y)\,\mathrm{d}y = \frac{\E_\theta[Y] - b'(\theta)}{\phi},
+\]
+which is the mean.
+Differentiating once more,
+\[
+0 = \int \Big(\frac{(y - b'(\theta))^2}{\phi^2} - \frac{b''(\theta)}{\phi}\Big)f_\theta(y)\,\mathrm{d}y = \frac{\var_\theta(Y)}{\phi^2} - \frac{b''(\theta)}{\phi},
+\]
+since $y - b'(\theta) = y - \E_\theta[Y]$, which is the variance.
+A variance is non-negative, so $b'' \geq 0$ and $b$ is convex; where the variance is positive $b'' > 0$, and $b'$ is strictly increasing there.
+In the language of \cref{ch:mle-properties}: the log-likelihood of one observation is $\ell(\theta) = (Y\theta - b(\theta))/\phi + c(Y, \phi)$, with score $\ell'(\theta) = (Y - b'(\theta))/\phi$ and $\ell''(\theta) = -b''(\theta)/\phi$, so the first identity is $\E_\theta[\ell'(\theta)] = 0$ and the second is $\var_\theta(\ell'(\theta)) = -\E_\theta[\ell''(\theta)]$.
+\end{proof}
+
+\Cref{fig:efb} draws $b$ for the Bernoulli family.
+Its slope at $\theta$ is the mean $p = e^\theta/(1 + e^\theta)$, which rises from $0$ to $1$ as $\theta$ runs over the real line, and its curvature is the variance $p(1 - p)$, largest at $\theta = 0$ and vanishing at both ends: a straight line far out, a bend in the middle.
+At the kiss data's $\hat{\theta} = 0.598$ the slope is $0.645$ and the curvature $0.229$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.66\textwidth]{fig_ef_b}
+\caption{The Bernoulli family's $b(\theta) = \log(1 + e^\theta)$ (blue), with tangent lines at $\theta = -2, 0, 2$ (orange, dashed) whose slopes are the means $0.12$, $0.50$ and $0.88$; the dot marks the kiss data's $\hat{\theta} = 0.598$.}
+\label{fig:efb}
+\end{figure}
+
+The theorem says how the variance follows the mean in each family, which is the fact the regression of \cref{ch:glm-links} is built around.
+
+\begin{definition}[Variance function]
+\label{def:variance-function}
+For a canonical family with means $\mu = b'(\theta)$ ranging over an interval $M$, the \textbf{variance function} is $V(\mu) = b''\big((b')^{-1}(\mu)\big)$, so that $\var(Y) = \phi\,V(\mu)$ when $\E[Y] = \mu$.
+\end{definition}
+
+\begin{inwords}
+Fix the mean and the family fixes the variance, up to the dispersion. The variance function says which it is: constant for a Gaussian, equal to the mean for a Poisson, the mean squared for an exponential.
+
+\textbf{For the kiss data.} For the Bernoulli, $b'(\theta) = e^\theta/(1 + e^\theta) = \mu$ and $b''(\theta) = \mu(1 - \mu)$, so $V(\mu) = \mu(1 - \mu)$: the variance $p(1 - p)$ that every interval for the kiss proportion has used, $0.229$ at $p = 0.645$, is the variance function at the mean.
+\end{inwords}
+
+\Cref{fig:efvariance} draws the four variance functions.
+They are the reason a Gaussian linear model cannot serve for counts or proportions: it assumes $V$ constant, and for those responses $V$ moves with $\mu$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.66\textwidth]{fig_ef_variance}
+\caption{The variance function $V(\mu)$ of four families: Gaussian with $\sigma = 1$ (blue), Poisson (orange, dashed), exponential (aqua, dash-dot) and Bernoulli on $(0, 1)$ (yellow, dotted).}
+\label{fig:efvariance}
+\end{figure}
+
+Since $b'$ is strictly increasing, it has an inverse, and the inverse is the map from the mean back to the canonical parameter.
+
+\begin{definition}[Canonical link]
+\label{def:canonical-link}
+The \textbf{canonical link} of a canonical exponential family is $g_c = (b')^{-1}$, the function with $g_c(\mu) = \theta$: it sends the mean to the canonical parameter.
+\end{definition}
+
+\begin{inwords}
+Each family has a scale on which its parameter enters the likelihood linearly, and the canonical link is the change of coordinates from the mean to that scale: the identity for the Gaussian, the logarithm for the Poisson, $-1/\mu$ for the exponential.
+
+\textbf{For the kiss data.} $b'(\theta) = e^\theta/(1 + e^\theta) = \mu$ solves to $\theta = \log\big(\mu/(1 - \mu)\big)$: the canonical link of the Bernoulli family is the log-odds, which \cref{ch:glm-links} will set equal to $x^\top\beta$ to get logistic regression.
+\end{inwords}
+
+\section{Likelihood in a canonical family}
+\label{sec:ef-likelihood}
+
+The regularity conditions of \cref{ch:mle-properties} were listed and checked family by family.
+In a canonical family they come for free.
+
+\begin{proposition}[Canonical families are regular]
+\label{prop:ef-regular}
+A canonical exponential family with $b''(\theta) > 0$ on $\Theta$ satisfies the regularity conditions of \cref{sec:mle-regularity} at every $\theta^* \in \Theta$: the parameter is identifiable, the support does not depend on $\theta$, $\Theta$ is open, $b$ is infinitely differentiable, $f_\theta(y)$ is infinitely differentiable in $\theta$ with the derivatives movable inside the integral, and $I(\theta) = b''(\theta)/\phi > 0$.
+\end{proposition}
+\optionalproof{Each condition is read off the form. The one with content is moving derivatives inside the integral, which holds because $\int e^{y\theta/\phi}h(y)\,\mathrm{d}y$ is finite on an open interval, and such an integral can be differentiated under the sign as often as one likes.}
+\begin{proof}
+Identifiability: if $f_\theta = f_{\theta'}$ then $(\theta - \theta')y = b(\theta) - b(\theta')$ for every $y$ in the support, and the support has at least two points (one point would make $\var_\theta(Y) = 0$, against $b'' > 0$), so subtracting the equations at two of them gives $\theta = \theta'$.
+The support is $E$, where $c(y, \phi)$ is finite, and does not involve $\theta$; $\Theta$ is open by definition, so $\theta^*$ is interior.
+The integrand $\exp\big((y\theta - b(\theta))/\phi + c(y, \phi)\big)$ is infinitely differentiable in $\theta$.
+For the differentiation under the integral sign, write $\int e^{y\theta/\phi}e^{c(y, \phi)}\,\mathrm{d}y = e^{b(\theta)/\phi}$, finite for every $\theta \in \Theta$.
+The $k$th derivative of the integrand in $\theta$ is $(y/\phi)^k e^{y\theta/\phi}e^{c(y, \phi)}$.
+Fix $\theta^*$ and $\delta > 0$ with $[\theta^* - 2\delta, \theta^* + 2\delta] \subset \Theta$; for $\theta$ within $\delta$ of $\theta^*$, $\abs{y/\phi}^k e^{y\theta/\phi} \leq K_k\big(e^{y(\theta^* + 2\delta)/\phi} + e^{y(\theta^* - 2\delta)/\phi}\big)$ for a constant $K_k$ depending on $k$ and $\delta$, since a power of $\abs{y}$ is eventually smaller than $e^{\delta\abs{y}/\phi}$.
+The bound does not depend on $\theta$ and is integrable against $e^{c(y, \phi)}$, so the derivative passes through the integral: by the mean value theorem the difference quotient of the $(k-1)$st derivative is a $k$th derivative at a nearby $\theta$, the bound applies to it, and the dominated convergence theorem \toolkit{sec:math-limits} lets the limit inside.
+Applied for $k = 1, 2, \ldots$ this makes $e^{b(\theta)/\phi}$, and so $b$, infinitely differentiable, and the derivatives of $f_\theta = e^{-b(\theta)/\phi}e^{y\theta/\phi}e^{c(y, \phi)}$ pass through the integral by the product rule.
+In particular $\ell'''(\theta) = -b'''(\theta)/\phi$ does not involve $Y$ and is continuous in $\theta$, so near $\theta^*$ it is bounded by a constant, which is the third-derivative condition, and $\ell''(\theta^*) = -b''(\theta^*)/\phi$ is a constant, with variance $0$.
+Finally $I(\theta) = \var_\theta(\ell'(\theta)) = \var_\theta(Y)/\phi^2 = b''(\theta)/\phi > 0$.
+\end{proof}
+
+Now take $n$ i.i.d.\ observations.
+The log-likelihood is
+\[
+\ell_n(\theta) = \frac{\theta\sum_{i=1}^n Y_i - n\,b(\theta)}{\phi} + \sum_{i=1}^n c(Y_i, \phi),
+\]
+and the sample enters only through $\sum_i Y_i$, apart from the last term, which does not involve $\theta$.
+
+\begin{theorem}[Maximum likelihood in a canonical family]
+\label{thm:ef-mle}
+Let $Y_1, \ldots, Y_n$ be i.i.d.\ from a canonical family with $b'' > 0$ on $\Theta$, and suppose $\bar{Y}_n$ lies in the range of $b'$.
+Then:
+\begin{enumerate}[nosep]
+\item $\ell_n$ is strictly concave, and the maximum likelihood estimator is the unique solution of $b'(\hat{\theta}_n) = \bar{Y}_n$; the maximum likelihood estimator of the mean $\mu = b'(\theta)$ is $\hat{\mu}_n = \bar{Y}_n$;
+\item $\bar{Y}_n$ is unbiased for $\mu$ with variance $\phi\,b''(\theta)/n = 1/(nI_\mu)$, where $I_\mu = 1/(\phi V(\mu))$ is the Fisher information in the mean parameterization: it attains the Cram\'er--Rao bound;
+\item $\sqrt{n}(\hat{\theta}_n - \theta) \convd \Gauss\big(0, \phi/b''(\theta)\big)$ and $\sqrt{n}(\bar{Y}_n - \mu) \convd \Gauss\big(0, \phi\,b''(\theta)\big)$.
+\end{enumerate}
+\end{theorem}
+\coreproof{The score is $(\sum_i Y_i - nb'(\theta))/\phi$, zero exactly where $b'(\theta)$ equals the sample mean, and $\ell_n'' = -nb''/\phi < 0$ everywhere. The rest is the Central Limit Theorem for $\bar{Y}_n$ and \cref{ch:mle-properties}'s theorem, whose conditions \cref{prop:ef-regular} checked.}
+\recall{The Central Limit Theorem (\cref{thm:clt}): for i.i.d.\ $Y_i$ with mean $\mu$ and variance $0 < \sigma^2 < \infty$, $\sqrt{n}(\bar{Y}_n - \mu) \convd \Gauss(0, \sigma^2)$. Asymptotic normality of the MLE (\cref{thm:mle-normal}): in a regular model with $\theta^*$ interior and $I(\theta^*) > 0$, $\sqrt{n}(\hat{\theta}_n - \theta^*) \convd \Gauss(0, 1/I(\theta^*))$. The Cram\'er--Rao bound (\cref{thm:cramer-rao}): an unbiased estimator in a regular model has variance at least $1/(nI)$. Fisher information under a change of parameter (\cref{lem:fisher-reparam}): $I_\mu = I_\theta(\mathrm{d}\theta/\mathrm{d}\mu)^2$. The delta method (\cref{thm:delta}): if $\sqrt{n}(Z_n - \mu) \convd \Gauss(0, \sigma^2)$ and $g$ is continuously differentiable at $\mu$, then $\sqrt{n}(g(Z_n) - g(\mu)) \convd \Gauss(0, g'(\mu)^2\sigma^2)$.}
+\begin{proof}
+$\ell_n'(\theta) = \big(\sum_i Y_i - nb'(\theta)\big)/\phi$ and $\ell_n''(\theta) = -nb''(\theta)/\phi < 0$, so $\ell_n$ is strictly concave and has at most one stationary point, which is its maximum (\cref{prop:concave-max}); the stationary point is where $b'(\theta) = \bar{Y}_n$, which has a solution since $\bar{Y}_n$ is in the range of the continuous, strictly increasing $b'$, and only one.
+By the invariance of maximum likelihood (\cref{prop:mle-invariance}), the MLE of $\mu = b'(\theta)$ is $b'(\hat{\theta}_n) = \bar{Y}_n$: this is (1).
+For (2), $\E[\bar{Y}_n] = b'(\theta) = \mu$ and $\var(\bar{Y}_n) = \phi b''(\theta)/n$ by \cref{thm:ef-moments}.
+The information in $\mu$ is $I_\mu = I_\theta(\mathrm{d}\theta/\mathrm{d}\mu)^2 = \frac{b''(\theta)}{\phi}\cdot\frac{1}{b''(\theta)^2} = \frac{1}{\phi b''(\theta)} = \frac{1}{\phi V(\mu)}$, since $\mathrm{d}\mu/\mathrm{d}\theta = b''(\theta)$, so $\var(\bar{Y}_n) = 1/(nI_\mu)$, which is the Cram\'er--Rao bound for $\mu$.
+For (3), the second limit is the Central Limit Theorem with $\sigma^2 = \phi b''(\theta)$.
+The first follows from the second by the delta method, since $\hat{\theta}_n = (b')^{-1}(\bar{Y}_n)$ and the derivative of $(b')^{-1}$ at $\mu$ is $1/b''(\theta)$, continuous by \cref{prop:ef-regular}, so the asymptotic variance is $\phi b''(\theta)/b''(\theta)^2 = \phi/b''(\theta)$; it agrees with \cref{thm:mle-normal} with $I(\theta) = b''(\theta)/\phi$, whose hypotheses hold by \cref{prop:ef-regular}.
+\end{proof}
+
+The condition that $\bar{Y}_n$ lie in the range of $b'$ is not empty: for the Bernoulli the range is $(0, 1)$, and a sample of all $1$s has no maximum likelihood estimate on $\Theta = \real$, the log-likelihood $n\theta - n\log(1 + e^\theta)$ increasing forever.
+This is the problem that will return, with predictors, in \cref{ch:glm-links}.
+
+This is the explanation \cref{ch:mom-mestimation} promised.
+In a canonical family the likelihood equation is $b'(\theta) = \bar{Y}_n$, that is, `set the model's mean equal to the sample mean', which is exactly the method of moments; and for the uniform and Laplace families, which are not exponential families, the two methods part.
+With $k$ natural parameters the same differentiation gives the likelihood equations $\E_\eta[T_j(Y)] = \frac1n\sum_i T_j(Y_i)$ for $j = 1, \ldots, k$ (in the natural parameterization, with $B$ a function of $\eta$: differentiating $\int h(y)e^{\eta^\top T(y) - B(\eta)}\,\mathrm{d}y = 1$ in $\eta_j$ gives $\partial B/\partial\eta_j = \E_\eta[T_j(Y)]$ as in \cref{thm:ef-moments}, and $\partial\ell_n/\partial\eta_j = \sum_i T_j(Y_i) - n\,\partial B/\partial\eta_j$), which match the moments of the sufficient statistics; for the Gaussian with both parameters unknown, $T = (Y, Y^2)$, and the equations match the first two sample moments, which is how \cref{ch:mom-mestimation} found $\hat{\mu}$ and $\hat{\sigma}^2$.
+
+\begin{bridge}[the sample mean is the best unbiased estimator]
+An introductory course states, without proof, that the sample mean is the best unbiased estimator of a population mean. Part (2) of \cref{thm:ef-mle} is the statement with its conditions: for a sample from a canonical exponential family, $\bar{Y}_n$ is unbiased for the mean and its variance $\phi b''(\theta)/n$ is the Cram\'er--Rao bound, which no unbiased estimator can beat. Outside these families the claim can fail: for the Laplace family of \cref{ch:mom-mestimation} the sample median has asymptotic variance $1$ against the sample mean's $2$, and for $\Unif([0, \theta])$ the largest observation, rescaled by $(n+1)/n$ to remove its bias, has error of order $1/n$ against the $1/\sqrt{n}$ of the estimator $2\bar{Y}_n$ built from the mean (\cref{ch:mle-properties}).
+\end{bridge}
+
+Here are the three running data sets on their canonical scales.
+
+\begin{worked}[three estimates on the canonical scale]
+For the kiss data, $b'(\theta) = e^\theta/(1 + e^\theta) = 0.645$ gives $\hat{\theta} = \log(80/44) = 0.598$, the log-odds, with $I(\hat{\theta}) = b''(\hat{\theta}) = 0.645 \times 0.355 = 0.229$ and standard error $1/\sqrt{124 \times 0.229} = 0.188$, the number the odds-ratio bridge of \cref{ch:limit-tools} reached by the delta method; $0.598 \pm 1.96 \times 0.188$, exponentiated, is the odds interval $[1.26, 2.63]$ found there. For the siblings data of \cref{ch:models}, $24$ values of $X_i - 1$ summing to $24$, the Poisson mean is $\hat{\lambda} = 1$, so $\hat{\theta} = \log 1 = 0$ with $I = b''(0) = e^0 = 1$ and standard error $1/\sqrt{24} = 0.204$. For the subway's $64$ waits averaging $6.23$ minutes, the exponential's $b'(\theta) = -1/\theta = 6.23$ gives $\hat{\theta} = -0.1605$ per minute, which is $-\hat{\lambda}$, with $b''(\hat\theta) = 1/\hat\theta^2 = 38.8$ and standard error $\sqrt{1/(64 \times 38.8)} = 0.020$.
+\end{worked}
+
+\Cref{fig:efkissloglik} shows what the canonical scale buys.
+The kiss log-likelihood is concave in $p$ and in $\theta$, but in $\theta$ it is close to the parabola $-\frac12 n b''(\hat{\theta})(\theta - \hat{\theta})^2$ over the range drawn, which is what makes the Gaussian approximation to $\hat{\theta}$ accurate; in $p$ the curve is lopsided against its parabola, steep toward $1$ and gentle toward $0$.
+\Cref{ch:wald-lrt}, which found that Wald's test depends on the parameterization, was looking at the same fact.
+
+\begin{sanitycheck}[Two standard errors, two ways]
+The kiss standard error $0.188$ on the log-odds scale came out of $1/\sqrt{nb''(\hat{\theta})} = 1/\sqrt{124 \times 0.229}$ here and out of $\sqrt{1/80 + 1/44}$ in \cref{ch:limit-tools}. They are the same number because $1/(np(1-p)) = 1/(np) + 1/(n(1-p))$, and $np = 80$, $n(1 - p) = 44$. For the subway, the standard error $0.020$ of $\hat{\theta} = -\hat{\lambda}$ is $\abs{\hat{\theta}}/\sqrt{n} = 0.1605/8$, the standard error $\hat{\lambda}/\sqrt{n}$ that the delta method gave for $\hat{\lambda} = 1/\bar{T}_n$ in \cref{ch:limit-tools}; changing the sign of a parameter changes nothing.
+\end{sanitycheck}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_ef_kiss_loglik}
+\caption{The kiss data's log-likelihood from its maximum, with the parabola matching its curvature there (orange, dashed). Left: against $p$, maximum at $0.645$ (dotted), curvature $-542$. Right: against the canonical parameter $\theta$, maximum at $0.598$, curvature $-124 \times 0.229$.}
+\label{fig:efkissloglik}
+\end{figure}
+
+\section{Sufficiency}
+\label{sec:ef-sufficiency}
+
+\Cref{ch:estimators} defined a sufficient statistic, a function $T$ of the sample such that the conditional distribution of the sample given $T$ is free of $\theta$, showed that the count of right turns is sufficient for the kiss data, and promised the theory would reappear here.
+Checking the definition directly, as that chapter did, means computing a conditional distribution.
+A criterion that reads sufficiency off the likelihood is easier.
+
+\needspace{8\baselineskip}
+\begin{theorem}[Factorization theorem]
+\label{thm:factorization}
+Let the sample $\mathbf{Y} = (Y_1, \ldots, Y_n)$ have joint PMF or density $f_\theta(\mathbf{y})$.
+A statistic $T(\mathbf{Y})$ is sufficient for $\theta$ if and only if
+\[
+f_\theta(\mathbf{y}) = g_\theta\big(T(\mathbf{y})\big)\,k(\mathbf{y})
+\]
+for some functions $g_\theta$ of the statistic's value and $k$ of the sample alone.
+\end{theorem}
+\coreproof{For a discrete sample, the conditional probability of $\mathbf{y}$ given $T = t$ is $f_\theta(\mathbf{y})$ divided by the sum of $f_\theta$ over the samples with $T = t$; if $f_\theta$ factors, the $g_\theta(t)$ cancels top and bottom. Conversely, if the conditional probability is free of $\theta$, it is the $k$.}
+\begin{proof}
+Take a discrete sample space (the continuous case replaces sums by integrals, and its rigorous version needs more measure theory than this book develops).
+Fix $t$ and a sample $\mathbf{y}$ with $T(\mathbf{y}) = t$.
+Then
+\[
+\Pr_\theta(\mathbf{Y} = \mathbf{y} \mid T = t) = \frac{\Pr_\theta(\mathbf{Y} = \mathbf{y})}{\Pr_\theta(T = t)} = \frac{f_\theta(\mathbf{y})}{\sum_{\mathbf{y}' : T(\mathbf{y}') = t} f_\theta(\mathbf{y}')},
+\]
+since $\{\mathbf{Y} = \mathbf{y}\}$ is contained in $\{T = t\}$.
+If $f_\theta = g_\theta(T)\,k$, the right side is $g_\theta(t)k(\mathbf{y})\big/\big(g_\theta(t)\sum_{\mathbf{y}'}k(\mathbf{y}')\big) = k(\mathbf{y})/\sum_{\mathbf{y}' : T(\mathbf{y}') = t}k(\mathbf{y}')$, free of $\theta$: $T$ is sufficient.
+Conversely, if $T$ is sufficient, the conditional probability is a function $k(\mathbf{y})$ free of $\theta$, and $f_\theta(\mathbf{y}) = \Pr_\theta(T = t)\,k(\mathbf{y})$ with $g_\theta(t) = \Pr_\theta(T = t)$.
+\end{proof}
+
+\begin{worked}[four sufficient statistics by factorization]
+Kiss data: $f_p(\mathbf{r}) = p^{s}(1 - p)^{n - s}$ with $s = \sum_i r_i$, which is $g_p(s)$ times $k = 1$, so $S$ is sufficient, as \cref{ch:estimators} found by computing the conditional distribution. Gaussian with both parameters unknown: the joint density is $(2\pi\sigma^2)^{-n/2}\exp\big(-\frac{1}{2\sigma^2}\sum_i y_i^2 + \frac{\mu}{\sigma^2}\sum_i y_i - \frac{n\mu^2}{2\sigma^2}\big)$, a function of $(\sum_i y_i, \sum_i y_i^2)$ and the parameters, so the pair $(\sum_i Y_i, \sum_i Y_i^2)$, equivalently $(\bar{Y}_n, S_n^2)$, is sufficient for $(\mu, \sigma^2)$: the $t$-test of \cref{ch:t-test} used nothing else. Uniform $[0, \theta]$: the joint density is $\theta^{-n}\ind(\max_i y_i \leq \theta)\ind(\min_i y_i \geq 0)$, a function of $\max_i y_i$ and $\theta$ times a function of the sample, so the largest observation is sufficient; the MLE of \cref{ch:likelihood} is a function of it, as the theorem says every MLE must be, since maximizing $g_\theta(T(\mathbf{y}))\,k(\mathbf{y})$ in $\theta$ uses the sample only through $T$. Laplace with unknown center: $2^{-n}\exp(-\sum_i\abs{y_i - \mu})$ does not change when the observations are reordered, so the sorted sample $(Y_{(1)}, \ldots, Y_{(n)})$ is sufficient, and the exponent does not split into a function of $\mu$ times a function of one statistic (\cref{ex:ef-laplace}).
+\end{worked}
+
+In an exponential family the factorization is on the surface.
+
+\begin{corollary}[Sufficiency in an exponential family]
+\label{cor:ef-sufficient}
+For $Y_1, \ldots, Y_n$ i.i.d.\ from a $k$-parameter exponential family, the vector of sums $\sum_{i=1}^n T(Y_i) = \big(\sum_i T_1(Y_i), \ldots, \sum_i T_k(Y_i)\big)$ is sufficient for $\theta$.
+In a canonical family, $\sum_i Y_i$ is sufficient.
+\end{corollary}
+\optionalproof{Multiply the $n$ factors: the exponents add, and the parameter meets the data only through the sums.}
+\begin{proof}
+$\prod_i f_\theta(y_i) = \big(\prod_i h(y_i)\big)\exp\big(\eta(\theta)^\top\sum_i T(y_i) - nB(\theta)\big)$, which is $k(\mathbf{y}) = \prod_i h(y_i)$ times a function of $\theta$ and $\sum_i T(y_i)$.
+\end{proof}
+
+A $k$-parameter exponential family thus has a sufficient statistic of fixed dimension $k$ however large $n$ is: $124$ couples reduce to one count, $64$ waits to one sum, a Gaussian sample of any size to a sum and a sum of squares.
+The converse is a classical theorem, due to Darmois, Koopman and Pitman (1935 to 1936): among families with a fixed support and smooth densities, the ones whose i.i.d.\ samples admit a sufficient statistic of bounded dimension are exactly the exponential families.
+It is stated without proof; nothing later depends on it.
+The sufficiency principle of \cref{ch:estimators} then says what it has said all along: every method for the kiss data is a function of $80$ and $124$, and every method for a Gaussian sample is a function of $\bar{Y}_n$ and $S_n^2$, not because those were convenient choices but because nothing else in the sample speaks about the parameter.
+
+\begin{remark}[Rao, 1945, and Blackwell, 1947]
+Sufficiency improves estimators as well as summarizing data.
+If $T$ is sufficient and $W$ is any unbiased estimator of $\theta$, then $\E[W \mid T]$ is a function of $T$ alone (the conditional distribution given $T$ does not involve $\theta$), still unbiased by the tower property, and with variance no larger than $W$'s: both have mean $\theta$, and $\E\big[\E[W \mid T]^2\big] \leq \E[W^2]$ \toolkit{sec:math-condexp}, so $\var(\E[W \mid T]) \leq \var(W)$.
+For the kiss data, $W = R_1$, the first couple's turn, is unbiased for $p$ with variance $p(1 - p)$, and $\E[R_1 \mid S] = S/n$, the sample proportion, with variance $p(1 - p)/n$: conditioning on the count recovers $\hat{p}$ from a single observation.
+\end{remark}
+
+\section{Conjugate priors, explained}
+\label{sec:ef-conjugate}
+
+\Cref{ch:bayes-intro} found a conjugate family of priors for each of its models and defined conjugacy as the posterior staying in the prior's family.
+Written on the canonical scale, every one of those families has the same shape as the likelihood.
+
+\begin{proposition}[Conjugate priors for a canonical family]
+\label{prop:ef-conjugate}
+For a canonical family with dispersion $\phi$, let the prior density of $\theta$ be
+\[
+\pi(\theta) \propto \exp\Big(\frac{m_0\theta - n_0\,b(\theta)}{\phi}\Big), \qquad \theta \in \Theta,
+\]
+for numbers $m_0$ and $n_0 > 0$ that make it integrable.
+Then after $n$ i.i.d.\ observations with sum $\sum_i Y_i$, the posterior is of the same form with $(m_0, n_0)$ replaced by $(m_0 + \sum_i Y_i, n_0 + n)$.
+\end{proposition}
+\optionalproof{Prior times likelihood: both are exponentials of a linear function of $\theta$ minus a multiple of $b(\theta)$, and exponents add.}
+\begin{proof}
+$\pi(\theta)L_n(\mathbf{y}; \theta) \propto \exp\big((m_0\theta - n_0b(\theta))/\phi\big)\exp\big((\theta\sum_i y_i - nb(\theta))/\phi\big) = \exp\big(((m_0 + \sum_i y_i)\theta - (n_0 + n)b(\theta))/\phi\big)$, the prior's form with the new numbers.
+\end{proof}
+
+The prior behaves like $n_0$ earlier observations whose sum was $m_0$, which is the `imaginary couples' reading of \cref{ch:bayes-intro} made general.
+For the Bernoulli, with $\theta$ the log-odds and $b(\theta) = \log(1 + e^\theta)$, the prior $\exp(m_0\theta - n_0\log(1 + e^\theta)) = p^{m_0}(1 - p)^{n_0 - m_0}$ on the scale of $\theta$ is, after the change of variables $\mathrm{d}\theta = \mathrm{d}p/(p(1-p))$ of \cref{ch:jeffreys}, the density $p^{m_0 - 1}(1 - p)^{n_0 - m_0 - 1}$ on the scale of $p$: the $\Betad(m_0, n_0 - m_0)$ prior, updated to $\Betad(m_0 + S, n_0 - m_0 + n - S)$, which is \cref{thm:beta-bernoulli} with $a = m_0$ and $b = n_0 - m_0$.
+The Gamma prior for a Poisson mean and for an exponential rate, and the Gaussian prior for a Gaussian mean, are the same proposition in the other rows of the table (\cref{ex:ef-conjugate}).
+
+\section{What comes next}
+\label{sec:ef-next}
+
+A canonical family has one parameter and $n$ observations that share it.
+\Cref{ch:glm-links} lets each observation have its own $\theta_i$, tied to that observation's predictors by $g(\mu_i) = x_i^\top\beta$ for a link $g$, which is the generalized linear model: the Gaussian family with the identity link gives back \cref{ch:regression-multi}, the Bernoulli family with its canonical link, the log-odds, gives logistic regression, and the Poisson family with the log link gives regression for counts.
+The log-likelihood in $\beta$ stays concave under the canonical link, the maximum likelihood estimator has no closed form but can be found by Newton's method, and the large-sample theory of \cref{ch:mle-properties}, verified here for canonical families, carries it through to tests and intervals.
+
+\section{Summary}
+\label{sec:ef-summary}
+
+\begin{itemize}[nosep]
+\item A $k$-parameter exponential family has densities $h(y)\exp(\eta(\theta)^\top T(y) - B(\theta))$: the base weight $h$ tilted by an exponential, with a fixed support. Bernoulli, Poisson, exponential, Gaussian, Gamma and Beta are; the uniform (moving support), Laplace with unknown center, $t$ and Cauchy are not.
+\item Canonical form: $\exp\big((y\theta - b(\theta))/\phi + c(y, \phi)\big)$, with $\theta$ the canonical parameter and $\phi$ the known dispersion. Kiss: $\theta$ is the log-odds and $b = \log(1 + e^\theta)$; Poisson: $\log\lambda$, $e^\theta$; exponential: $-\lambda$, $-\log(-\theta)$; Gaussian with $\sigma^2$ known: $\mu$, $\theta^2/2$, $\phi = \sigma^2$.
+\item $\E[Y] = b'(\theta)$, $\var(Y) = \phi\,b''(\theta)$, so $b$ is convex and $b'$ strictly increasing; the variance function $V(\mu) = b''((b')^{-1}(\mu))$ is $1$, $\mu$, $\mu^2$, $\mu(1 - \mu)$ for the four families; the canonical link is $g_c = (b')^{-1}$, the log-odds for the Bernoulli.
+\item Canonical families are regular. For $n$ observations $\ell_n$ is strictly concave, the MLE solves $b'(\hat{\theta}_n) = \bar{Y}_n$ (so it is the method of moments), $\bar{Y}_n$ attains the Cram\'er--Rao bound for the mean, $I(\theta) = b''(\theta)/\phi$, and $\sqrt{n}(\hat{\theta}_n - \theta) \convd \Gauss(0, \phi/b''(\theta))$. Kiss: $\hat{\theta} = 0.598$, standard error $0.188$, odds interval $[1.26, 2.63]$.
+\item Factorization theorem: $T$ is sufficient exactly when $f_\theta(\mathbf{y}) = g_\theta(T(\mathbf{y}))k(\mathbf{y})$. In an exponential family $\sum_i T(Y_i)$ is sufficient, of dimension $k$ for every $n$; Darmois, Koopman and Pitman: only exponential families have that (stated). Rao and Blackwell: conditioning an unbiased estimator on a sufficient statistic never raises its variance.
+\item The prior $\exp((m_0\theta - n_0b(\theta))/\phi)$ is conjugate for every canonical family, updating to $(m_0 + \sum_i Y_i, n_0 + n)$: the Beta, Gamma and Gaussian conjugates of \cref{ch:bayes-intro} are its rows.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:ef-exercises}
+
+\begin{exercise}
+\label{ex:ef-gamma}
+(a) Write the $\Gammad(\alpha, \beta)$ density with $\alpha$ known in canonical form and check the table's row: $\theta = -\beta/\alpha$, $b(\theta) = -\log(-\theta)$, $\phi = 1/\alpha$. (b) Use \cref{thm:ef-moments} to find the mean and variance, and the variance function. (c) Which row of the table is the case $\alpha = 1$?
+\end{exercise}
+\begin{solution}
+(a) $\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y} = \exp\big(-\beta y + \alpha\log\beta + (\alpha - 1)\log y - \log\Gamma(\alpha)\big)$. With $\theta = -\beta/\alpha$ and $\phi = 1/\alpha$, $-\beta y = y\theta/\phi$ and $\alpha\log\beta = \alpha\log(-\theta) + \alpha\log\alpha = -b(\theta)/\phi + \alpha\log\alpha$, so the exponent is $(y\theta - b(\theta))/\phi + \alpha\log\alpha + (\alpha - 1)\log y - \log\Gamma(\alpha)$, and $c(y, \phi) = \alpha\log(\alpha y) - \log y - \log\Gamma(\alpha)$. (b) $b'(\theta) = -1/\theta = \alpha/\beta$ and $b''(\theta) = 1/\theta^2 = \alpha^2/\beta^2$, so $\E[Y] = \alpha/\beta$ and $\var(Y) = \phi b'' = \alpha/\beta^2$, the Gamma's mean and variance of \cref{def:gamma}; $V(\mu) = \mu^2$, with dispersion $1/\alpha$. (c) $\alpha = 1$ is $\Expo(\beta)$: $\theta = -\beta$, $\phi = 1$, $c = 0$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-geometric}
+(a) Show that $\Bin(m, p)$ with $m$ known is a canonical family with $\theta$ the log-odds, $b(\theta) = m\log(1 + e^\theta)$ and $c(y) = \log\binom{m}{y}$, and recover its mean and variance from $b$. (b) Show that the geometric family $\Pr(Y = y) = (1 - p)^{y}p$, $y = 0, 1, 2, \ldots$, is canonical with $\theta = \log(1 - p)$ and $b(\theta) = -\log(1 - e^\theta)$, and compute $\E[Y]$ from $b'$. (c) Show that the negative binomial with known size $r$, $\Pr(Y = y) = \binom{y + r - 1}{y}(1 - p)^yp^r$, is canonical with the same $\theta$ and $b(\theta) = -r\log(1 - e^\theta)$.
+\end{exercise}
+\begin{solution}
+(a) $\binom{m}{y}p^y(1-p)^{m-y} = \binom{m}{y}\exp\big(y\log\frac{p}{1-p} + m\log(1 - p)\big)$, and $m\log(1 - p) = -m\log(1 + e^\theta)$. Then $b'(\theta) = me^\theta/(1 + e^\theta) = mp$ and $b''(\theta) = mp(1 - p)$. (b) $(1 - p)^yp = \exp\big(y\log(1 - p) + \log p\big)$ with $\log p = \log(1 - e^\theta)$, so $b(\theta) = -\log(1 - e^\theta)$ on $\theta < 0$; $b'(\theta) = e^\theta/(1 - e^\theta) = (1 - p)/p$, the geometric mean. (c) $\log p^r = -r\log(1 - e^\theta)$, so $b(\theta) = -r\log(1 - e^\theta)$ with $c(y) = \log\binom{y + r - 1}{y}$, and $b'(\theta) = re^\theta/(1 - e^\theta) = r(1 - p)/p$, $r$ times the geometric mean.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-beta}
+Show that the Beta family $\Betad(a, b)$, with density $p^{a-1}(1 - p)^{b-1}/B(a, b)$ on $(0, 1)$, is a two-parameter exponential family, and name $\eta$, $T$, $B$ and $h$.
+\end{exercise}
+\begin{solution}
+$p^{a-1}(1-p)^{b-1}/B(a, b) = \exp\big((a - 1)\log p + (b - 1)\log(1 - p) - \log B(a, b)\big)$: $T(p) = (\log p, \log(1 - p))$, $\eta = (a - 1, b - 1)$, the normalizer is $\log B(a, b)$, the log of the Beta function, and $h = 1$ on $(0, 1)$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-laplace}
+Show that the Laplace family with densities $\frac12e^{-\abs{y - \mu}}$, $\mu \in \real$, is not a one-parameter exponential family. (Suppose $\abs{y - \mu} = \eta(\mu)T(y) + B(\mu) + a(y)$ for all $y$ and $\mu$, and look at what the equation says for $y$ far to the right of two fixed centers.)
+\end{exercise}
+\begin{solution}
+Suppose $\abs{y - \mu} = \eta(\mu)T(y) + B(\mu) + a(y)$ for all $y, \mu$. Pick $\mu_1 < \mu_2$ with $\eta(\mu_1) \neq \eta(\mu_2)$ (if $\eta$ were constant, $\eta T(y)$ could be absorbed into $a(y)$, and then $\abs{y - \mu_1} - \abs{y - \mu_2} = B(\mu_1) - B(\mu_2)$ would be constant in $y$ for any two centers; but it equals $\mu_2 - \mu_1$ to the right of both and $\mu_1 - \mu_2$ to the left). Subtracting the equations for $\mu_1$ and $\mu_2$, $\abs{y - \mu_1} - \abs{y - \mu_2} = (\eta(\mu_1) - \eta(\mu_2))T(y) + \text{constant}$, and the left side equals $\mu_2 - \mu_1$ for every $y \geq \mu_2$; so $T$ is constant on $[\mu_2, \infty)$. Then for every $\mu$, $\abs{y - \mu} - a(y) = \eta(\mu)T(y) + B(\mu)$ is constant in $y$ on $[\mu_2, \infty)$, so for two centers $\mu_2 < \mu < \mu'$ the difference $\abs{y - \mu} - \abs{y - \mu'}$ is constant in $y$ on $[\mu_2, \infty)$; but between $\mu$ and $\mu'$ it equals $2y - \mu - \mu'$, which is not constant. No such representation exists.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-variance-determines}
+The variance function determines $b$, and with it the mean, the variance and the canonical link. (a) Show that if a canonical family with $\phi = 1$ has $V(\mu) = \mu$ on $(0, \infty)$, then $b'' = b'$, so $b'(\theta) = Ce^\theta$, and with the normalization $C = 1$ this is the Poisson row's $b$. (b) Which rows of the table have $V(\mu) = \mu(1 - \mu)$ and $V(\mu) = \mu^2$?
+\end{exercise}
+\begin{solution}
+(a) $V(\mu) = b''(\theta)$ at $\mu = b'(\theta)$, so $b''(\theta) = b'(\theta)$; the solutions are $b'(\theta) = Ce^\theta$, and $C = e^{\theta_0}$ only shifts $\theta$ by $\theta_0$, so take $b' = e^\theta$ and $b = e^\theta$ up to a constant, which is absorbed in $c$: the Poisson row's $b$. (b) $b'' = b'(1 - b')$ gives $b' = e^\theta/(1 + e^\theta)$ up to a shift of $\theta$, the Bernoulli row's $b$; $b'' = (b')^2$ gives $b' = -1/\theta$ up to a shift, the exponential row's, and with dispersion $1/\alpha$ the Gamma row's. (The base weight $e^{c(y)}$ is then forced as well, since $\int e^{y\theta}e^{c(y)}\,\mathrm{d}y = e^{b(\theta)}$ for every $\theta$ determines it; that a weight is determined by this transform is not proved in this book.)
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-cr-attained}
+For the kiss data, the sample proportion attains the Cram\'er--Rao bound for $p$ (\cref{ch:mle-properties}). (a) Show from \cref{thm:ef-mle} that the same holds for the Poisson mean, the exponential mean and the Gaussian mean with known variance. (b) The MLE of the exponential rate, $\hat{\lambda} = 1/\bar{T}_n$, has expectation $\frac{n}{n-1}\lambda$ (\cref{ch:estimators}). Explain why neither it nor its unbiased correction $(n-1)/\sum_i T_i$ attains the bound for $\lambda$ at any finite $n$, and why this does not contradict (a). (The bound is attained by an unbiased $W$ exactly when the score is $a(\theta)(W - \tau(\theta))$ for some $a$, the equality case of the Cauchy--Schwarz step in its proof.)
+\end{exercise}
+\begin{solution}
+(a) In each family the mean is $b'(\theta)$ and $\bar{Y}_n$ is unbiased with variance $\phi b''(\theta)/n = 1/(nI_\mu)$ by part (2) of the theorem. (b) $\hat{\lambda}$ is biased, so the bound, which is for unbiased estimators, does not apply to it. The score of the exponential sample is $n/\lambda - \sum_i T_i$, an affine function of $\bar{T}_n$, so it is an affine function of $W - \tau$ only for $W$ affine in $\bar{T}_n$; $(n - 1)/\sum_i T_i$ is not, so it does not attain the bound (its variance is $\lambda^2/(n - 2)$ for $n > 2$, against the bound $\lambda^2/n$). No contradiction: (a) is about the mean $1/\lambda$, and in a canonical family the bound is attained for the mean and for no parameter that is not an affine function of it: the score $(\sum_i Y_i - nb'(\theta))/\phi$ is affine in $\bar{Y}_n$, so an estimator $W$ free of $\theta$ with $W - \tau(\theta) = c(\theta)\,\ell_n'(\theta)$ for every $\theta$ must be $\alpha\bar{Y}_n + \beta$ with constants $\alpha, \beta$, which forces $\tau = \alpha b'(\theta) + \beta$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-sufficient-stats}
+By the factorization theorem, find a sufficient statistic for (a) $\theta$ in $\Unif([\theta, \theta + 1])$; (b) $(\alpha, \beta)$ in the Gamma family; (c) $\lambda$ in the Poisson family, and show that $\bar{Y}_n$ and $\sum_i Y_i$ are each sufficient while $Y_1$ alone is not.
+\end{exercise}
+\begin{solution}
+(a) The joint density is $\ind(\theta \leq \min_i y_i)\,\ind(\max_i y_i \leq \theta + 1)$, a function of the pair $(\min_i y_i, \max_i y_i)$ and $\theta$: the two extremes together are sufficient. (b) The joint density is
+\[
+\prod_{i=1}^n \frac{\beta^\alpha}{\Gamma(\alpha)}y_i^{\alpha - 1}e^{-\beta y_i} = \frac{\beta^{n\alpha}}{\Gamma(\alpha)^n}\Big(\prod_i y_i\Big)^{\alpha - 1}e^{-\beta\sum_i y_i},
+\]
+so $(\sum_i Y_i, \prod_i Y_i)$, or equivalently $(\sum_i Y_i, \sum_i\log Y_i)$, is sufficient, as \cref{cor:ef-sufficient} says with $T = (y, \log y)$. (c) $\prod_i \lambda^{y_i}e^{-\lambda}/y_i! = \lambda^{\sum_i y_i}e^{-n\lambda}/\prod_i y_i!$, so $\sum_i Y_i$ is sufficient, and so is $\bar{Y}_n$, a one-to-one function of it. $Y_1$ is not: given $Y_1 = y_1$ the remaining $Y_2, \ldots, Y_n$ still have the $\Pois(\lambda)$ distribution, which depends on $\lambda$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-conjugate}
+Apply \cref{prop:ef-conjugate} to (a) the Poisson family, showing that the conjugate prior on the scale of $\lambda = e^\theta$ is $\Gammad(m_0, n_0)$ and the posterior $\Gammad(m_0 + \sum_i Y_i, n_0 + n)$; (b) the Gaussian family with $\sigma^2$ known, showing that the prior is $\Gauss(m_0/n_0, \sigma^2/n_0)$ and the posterior mean is $(m_0 + \sum_i Y_i)/(n_0 + n)$, the precision-weighted average of \cref{ch:bayes-intro}; (c) the $\Expo(\lambda)$ family, showing that the conjugate prior on the scale of $\lambda = -\theta$ is $\Gammad(n_0 + 1, m_0)$ and saying what $\alpha$ and $\beta$ in \cref{ch:bayes-intro}'s $\Gammad(\alpha, \beta)$ prior for the subway rate count as.
+\end{exercise}
+\begin{solution}
+(a) $\pi(\theta) \propto \exp(m_0\theta - n_0e^\theta)$, and with $\lambda = e^\theta$, $\mathrm{d}\theta = \mathrm{d}\lambda/\lambda$, the density of $\lambda$ is proportional to $\lambda^{m_0 - 1}e^{-n_0\lambda}$: $\Gammad(m_0, n_0)$, updated to $\Gammad(m_0 + \sum_i Y_i, n_0 + n)$, the Gamma--Poisson pair of \cref{ch:bayes-intro}. (b) $\pi(\theta) \propto \exp\big((m_0\theta - n_0\theta^2/2)/\sigma^2\big) = \exp\big(-\frac{n_0}{2\sigma^2}(\theta - m_0/n_0)^2\big)$ up to a constant: $\Gauss(m_0/n_0, \sigma^2/n_0)$, a prior worth $n_0$ observations averaging $m_0/n_0$. The posterior is $\Gauss\big((m_0 + \sum_i Y_i)/(n_0 + n), \sigma^2/(n_0 + n)\big)$, whose mean weights the prior mean by $n_0$ and the sample mean by $n$, that is, by the precisions $n_0/\sigma^2$ and $n/\sigma^2$ of \cref{ch:bayes-intro}. (c) With $\theta = -\lambda$ and $b(\theta) = -\log(-\theta) = -\log\lambda$, $\pi(\theta) \propto \exp(-m_0\lambda + n_0\log\lambda) = \lambda^{n_0}e^{-m_0\lambda}$, and $\mathrm{d}\theta = -\mathrm{d}\lambda$ changes nothing but the sign, so the prior on $\lambda$ is $\Gammad(n_0 + 1, m_0)$: $\alpha = n_0 + 1$ and $\beta = m_0$. \Cref{ch:bayes-intro} read the prior as $\alpha$ waits lasting $\beta$ minutes, since the data add $n$ to $\alpha$ and $\sum_i T_i$ to $\beta$; on the canonical scale the count is $n_0 = \alpha - 1$, one fewer, because the flat prior on $\lambda$, which is $\Gammad(1, 0)$, counts as no waits at all. The posterior is $\Gammad(n_0 + n + 1, m_0 + \sum_i T_i) = \Gammad(\alpha + n, \beta + \sum_i T_i)$, the update of \cref{ch:bayes-intro}.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-rao-blackwell}
+For the siblings data modeled as $Y_i = X_i - 1 \sim \Pois(\lambda)$, the statistic $W = \ind(Y_1 = 0)$ is unbiased for $e^{-\lambda}$, the probability of having no siblings. (a) Show that $\E[W \mid S] = (1 - 1/n)^S$ for $S = \sum_i Y_i$. (Given $S = s$, $Y_1 \sim \Bin(s, 1/n)$.) (b) Compute both estimates for the $24$ values with $S = 24$, and compare with the plug-in $e^{-\hat{\lambda}}$.
+\end{exercise}
+\begin{solution}
+(a) A sum of independent Poissons is Poisson with the summed mean (its PMF is the convolution, which collapses by the binomial theorem), so $Y_2 + \cdots + Y_n \sim \Pois((n-1)\lambda)$ and $S \sim \Pois(n\lambda)$, and
+\begin{align*}
+\Pr(Y_1 = y \mid S = s) &= \frac{\Pr(Y_1 = y)\Pr(Y_2 + \cdots + Y_n = s - y)}{\Pr(S = s)} \\
+&= \frac{e^{-\lambda}\lambda^y}{y!}\cdot\frac{e^{-(n-1)\lambda}((n-1)\lambda)^{s-y}}{(s-y)!}\cdot\frac{s!}{e^{-n\lambda}(n\lambda)^s} = \binom{s}{y}\Big(\frac1n\Big)^y\Big(1 - \frac1n\Big)^{s-y},
+\end{align*}
+the $\Bin(s, 1/n)$ PMF, free of $\lambda$; so $\Pr(Y_1 = 0 \mid S = s) = (1 - 1/n)^s$. (b) The first student in \cref{ch:models}'s list has $X_1 = 2$, so $Y_1 = 1$ and $W = 0$: an unbiased estimate of $e^{-\lambda}$ that uses one person. The Rao--Blackwell estimate is $(1 - 1/24)^{24} = 0.360$, against the plug-in $e^{-1} = 0.368$ and the raw proportion of only children, $8/24 = 0.333$. The Rao--Blackwell estimate is unbiased, the plug-in is the MLE by invariance and is not, and they agree to two decimals here.
+\end{solution}
+
+\begin{exercise}
+\label{ex:ef-concave-p}
+\Cref{fig:efkissloglik} drew the kiss log-likelihood on two scales. (a) Compute the third derivative of $\ell_n$ in $\theta$ and in $p$ at the maximum, for $n = 124$ and $\hat{p} = 0.645$, and explain which scale the parabola fits better. (b) Wald's test of \cref{ch:wald-lrt} in $\theta$ uses $\hat{\theta}^2/\widehat{\var}(\hat{\theta})$; compute it for $H_0: \theta = 0$ and compare with Wald's statistic $11.41$ in $p$.
+\end{exercise}
+\begin{solution}
+(a) In $\theta$: $\ell_n'''(\theta) = -nb'''(\theta) = -np(1 - p)(1 - 2p)$, which is $-124 \times 0.229 \times (-0.29) = 8.2$ at the maximum; in $p$: $\ell_n(p) = S\log p + (n - S)\log(1 - p)$ has $\ell_n''' = 2S/p^3 - 2(n - S)/(1 - p)^3$, which is $2 \times 80/0.645^3 - 2 \times 44/0.355^3 = 596 - 1{,}967 = -1{,}371$ (with the rounded $\hat{p}$; $80/124$ gives $-1{,}374$). The two numbers are in different units, so compare them at one standard error from the maximum, where each parabola has dropped by $\frac12$: the cubic term $\frac16\ell_n'''\,\mathrm{SE}^3$ is $\frac16 \times 8.2 \times 0.188^3 = 0.009$ in $\theta$ and $\frac16 \times 1{,}371 \times 0.043^3 = 0.018$ in $p$, twice as large, so the parabola fits better in $\theta$. (b) $\hat{\theta}^2/\widehat{\var}(\hat{\theta}) = 0.598^2/0.188^2 = 10.1$, against $11.41$ in $p$: the two Wald statistics differ, as \cref{ch:wald-lrt} said they would, and the likelihood ratio statistic $10.60$, which does not depend on the scale, sits between them.
+\end{solution}

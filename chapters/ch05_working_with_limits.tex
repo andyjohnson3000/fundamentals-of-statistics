@@ -308,12 +308,14 @@ Every asymptotic statement in the later chapters is one of the facts of \cref{ch
 The table says which.
 `LLN' means the Law of Large Numbers (\cref{thm:wlln}), `CLT' the Central Limit Theorem (\cref{thm:clt}), `CMT' the continuous mapping theorem (\cref{thm:cmt}), `Slutsky' \cref{thm:slutsky}, and `delta' the delta method (\cref{thm:delta}).
 
-\begin{center}
-\small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.55in}>{\raggedright\arraybackslash}p{0.9in}>{\raggedright\arraybackslash}p{2.45in}@{}}
+\begin{small}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.55in}>{\raggedright\arraybackslash}p{0.9in}>{\raggedright\arraybackslash}p{2.45in}@{}}
 \toprule
 Result & Chapter & Rests on \\
 \midrule
+\endhead
+\bottomrule
+\endlastfoot
 Consistency of $\bar{X}_n$, $\hat{p}$, and any estimator built from an average & \cref{ch:estimators} & LLN, then CMT for functions of averages \\[3pt]
 Asymptotic confidence intervals; the plug-in interval & \cref{ch:confidence-intervals} & CLT; Slutsky for replacing $p$ by $\hat{p}$ in the standard error \\[3pt]
 Confidence interval for $1/\bar{T}_n$ and other transformed estimators & \cref{ch:confidence-intervals} & delta \\[3pt]
@@ -330,11 +332,11 @@ Kolmogorov--Smirnov and Lilliefors tests & \cref{ch:ks} & Glivenko--Cantelli (a 
 Bayesian posteriors concentrate on the truth (proved for Beta priors); Bernstein--von Mises & \cref{ch:bayes-intro} & LLN and Chebyshev for the concentration; Bernstein--von Mises stated, not proved \\[3pt]
 Bayesian confidence regions have asymptotic coverage $1 - \alpha$; Jeffreys' prior is flat on the variance-stabilizing scale & \cref{ch:jeffreys} & asymptotic normality of the MLE, Bernstein--von Mises and Slutsky; the delta method; coverage rates (Welch and Peers) stated, not proved \\[3pt]
 Inference for least squares with non-Gaussian errors & \cref{ch:regression-uni,ch:regression-multi} & LLN and CMT for the spread of the $x$'s, CLT for the average of $(X_i - \mu)\epsilon_i$, Slutsky for the ratio; consistency of the robust standard error stated, not proved (exact $t$ and $F$ when errors are Gaussian) \\[3pt]
+Maximum likelihood in an exponential family & \cref{ch:exp-families} & CLT for the sample mean; the MLE result, its regularity conditions verified there for every canonical family \\[3pt]
 Asymptotic normality of GLM estimates & \cref{ch:glm-links} & the MLE result again \\[3pt]
 Sample covariance converges to the true covariance & \cref{ch:pca} & LLN entrywise, then CMT for the eigenvectors \\
-\bottomrule
-\end{tabular}
-\end{center}
+\end{longtable}
+\end{small}
 
 \section{What comes next}
 \label{sec:tools-next}
