@@ -461,6 +461,31 @@ In the adapted basis, $P = \sum_{k \leq d}u_ku_k^\top$, so if $S_0 \subset S$ ar
 
 \textbf{Where the book uses it.} Least squares is the projection of the response onto the column space of the design matrix (\cref{thm:mreg-lse}); the residual sum of squares has $n - p$ degrees of freedom because $I - P$ projects onto an $(n - p)$-dimensional space (\cref{thm:mreg-exact}); the $F$-test splits the column space into nested pieces (\cref{thm:mreg-ftest}); and full rank is the identifiability of the regression model (\cref{ch:models}).
 
+\section{Newton's method}
+\label{sec:math-newton}
+
+\Cref{ch:glm-links} maximizes a log-likelihood that has no closed-form maximizer, and does it by a method that goes back to Newton (1669) and Raphson (1690); the form with derivatives used here was given by Simpson (1740).
+
+\textbf{The idea.} To find where a smooth function $\ell$ of one variable is largest, start at a guess $t_0$, replace $\ell$ near $t_0$ by the parabola with the same value, slope and curvature there,
+\[
+q(t) = \ell(t_0) + \ell'(t_0)(t - t_0) + \tfrac12\ell''(t_0)(t - t_0)^2,
+\]
+and move to the top of the parabola: $q'(t) = 0$ at $t_1 = t_0 - \ell'(t_0)/\ell''(t_0)$.
+Repeat from $t_1$.
+Equivalently, Newton's method solves the equation $\ell'(t) = 0$ by following the tangent line of $\ell'$ at the current point down to the axis.
+In $d$ variables the parabola is a quadratic with the gradient and the Hessian, and the step is
+\[
+t_{k+1} = t_k - \big(\nabla^2\ell(t_k)\big)^{-1}\nabla\ell(t_k),
+\]
+one linear system per step \toolkit{sec:math-multivar}.
+
+\textbf{When it works.} If $\ell$ is strictly concave with an invertible Hessian, the parabola at each step is concave too, so every step goes somewhere definite, and once the iterate is close to the maximizer the error is squared at each step: for a one-variable $\ell$ with $\ell''' $ bounded near the maximizer $\hat{t}$, a Taylor expansion of $\ell'$ gives $t_{k+1} - \hat{t} = \frac{\ell'''(\xi)}{2\ell''(t_k)}(t_k - \hat{t})^2$ for a $\xi$ between $t_k$ and $\hat{t}$.
+An error of $10^{-2}$ becomes about $10^{-4}$, then $10^{-8}$: three or four steps from a reasonable start usually finish the job, which \cref{ch:glm-links} sees in the kyphosis fit.
+Far from the maximizer the quadratic model can be poor and a full step can overshoot; the remedy is to shorten the step until the function goes up (a line search), which strict concavity guarantees is possible.
+If the function has no maximum, as a separated logistic regression does not, the iterates run away and the coefficients grow without bound, which is how the problem shows itself in a fit.
+
+\textbf{Where the book uses it.} Fitting a generalized linear model (\cref{sec:glm-fitting}), where the step has a second reading as a weighted least squares fit.
+
 \section{To be added with later chapters}
 \label{sec:math-later}
 

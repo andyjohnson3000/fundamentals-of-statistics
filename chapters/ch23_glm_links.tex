@@ -1,4 +1,344 @@
 \chapter[Link Functions and Fitting]{Generalized Linear Models: Link Functions and Fitting}
 \label{ch:glm-links}
 
-% Not yet written. Source material: unit 8 slides (nothing in the notes)
+\begin{chaptergoals}
+\begin{itemize}[nosep]
+\item The generalized linear model: each response $Y_i$ drawn from a canonical exponential family whose mean $\mu_i$ is tied to the predictors by a link, $g(\mu_i) = x_i^\top\beta$. Why a straight line cannot serve for a $0/1$ or a count response.
+\item Link functions: the logit and probit for a proportion, the logarithm for a count, and the canonical link of \cref{ch:exp-families}, under which the log-likelihood is strictly concave in $\beta$ and the maximum likelihood estimator is unique whenever it exists.
+\item Fitting by Newton's method, which has a second reading as repeated weighted least squares; when the estimator does not exist (separation).
+\item Inference from the asymptotic normality of the MLE: standard errors, Wald and likelihood ratio tests. Logistic regression on the kyphosis data, and the aspirin trial as a logistic regression with one $0/1$ predictor.
+\end{itemize}
+\Cref{ch:exp-families} described the families and found, in each, a scale on which the parameter enters the likelihood linearly. This chapter puts the linear predictor $x^\top\beta$ of \cref{ch:regression-multi} on that scale.
+\end{chaptergoals}
+
+\section{A response that is not Gaussian}
+\label{sec:glm-model}
+
+A data set published in Chambers and Hastie's \textit{Statistical Models in S} (1992) records $81$ children who had corrective spinal surgery.
+For each child the record says whether \textbf{kyphosis}, a forward curvature of the spine, was present after the operation ($17$ of the $81$), the child's age in months, the number of vertebrae involved, and the \textbf{start}, the number of the topmost vertebra operated on (counted from the top of the spine, so a larger start means an operation lower down).
+The question is how the chance of kyphosis depends on the three.
+
+The response is $0$ or $1$, so there is no choice of family: given the predictors, $Y_i \sim \Bern(\mu(x_i))$ with $\mu(x) = \E[Y \mid X = x] = \Pr(Y = 1 \mid X = x)$.
+What \cref{ch:regression-multi} would do next, $\mu(x) = x^\top\beta$, does not work here.
+\Cref{fig:glmkyphosis} fits a line to kyphosis against the start: it reaches $0.64$ at start $0$ and goes below $0$ past start $17$, where one child's start is $18$.
+A probability cannot be a line in $x$ over any range of $x$ wide enough to matter, and a count's mean cannot be either, since it must stay positive.
+The second trouble is the variance: $\var(Y_i \mid x_i) = \mu(x_i)(1 - \mu(x_i))$ moves with the mean, which the Gaussian linear model's constant $\sigma^2$ cannot represent.
+\Cref{ch:exp-families} handled both at once: in a canonical family the variance follows the mean through the variance function, and the mean is a strictly increasing function $b'$ of the canonical parameter, which ranges over an open interval, the whole line for the Bernoulli, Poisson and Gaussian families.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_glm_kyphosis}
+\caption{Kyphosis (present $= 1$) against the start vertebra for $81$ children, jittered vertically; the least squares line (gray, dashed) and the logistic regression curve $1/(1 + e^{-(0.890 - 0.218x)})$ (black).}
+\label{fig:glmkyphosis}
+\end{figure}
+
+\begin{definition}[Generalized linear model]
+\label{def:glm}
+Let $(x_1, Y_1), \ldots, (x_n, Y_n)$ be independent pairs with $x_i \in \real^p$.
+A \textbf{generalized linear model} has two parts:
+\begin{enumerate}[nosep]
+\item the \textbf{random component}: given $x_i$, $Y_i$ has a density or PMF in a canonical exponential family, $f_{\theta_i}(y) = \exp\big((y\theta_i - b(\theta_i))/\phi + c(y, \phi)\big)$, the same $b$ and $\phi$ for every $i$, with mean $\mu_i = b'(\theta_i)$;
+\item the \textbf{link}: $g(\mu_i) = x_i^\top\beta$ for a known function $g$, the \textbf{link function}, one-to-one and differentiable on the range of the means, and an unknown $\beta \in \real^p$.
+\end{enumerate}
+$x_i^\top\beta$ is the \textbf{linear predictor}.
+\end{definition}
+
+\begin{inwords}
+The predictors still enter through one linear combination $x^\top\beta$, as in \cref{ch:regression-multi}; what changes is that the combination is not the mean but a transformed mean, $g(\mu)$, chosen so that the transformed mean can range over an interval, usually the whole line. The family fixes how the variance follows the mean, and the link fixes how the mean follows the predictors. The Gaussian family with the identity link $g(\mu) = \mu$ is \cref{ch:regression-multi}'s model exactly.
+
+\textbf{For the kiss data.} With no predictors at all, $x_i = 1$ for every couple and $\beta$ is one number: the model says $g(p) = \beta$. With the Bernoulli family and $g$ the log-odds, $\beta$ is the canonical parameter $\theta = \log\big(p/(1-p)\big)$ of \cref{ch:exp-families}, and the fit will be $\hat{\beta} = \log(80/44) = 0.598$: logistic regression with an intercept alone is the kiss model on the log-odds scale.
+\end{inwords}
+
+The linear model of \cref{ch:regression-multi} treated the predictors as fixed numbers.
+The definition does the same, writing $x_i$ in lower case and conditioning on it; when the pairs are random draws, as the kyphosis children are, the conditional model is what the likelihood sees, since the distribution of $x$ does not involve $\beta$ (\cref{sec:glm-inference}).
+
+\section{Link functions}
+\label{sec:glm-links}
+
+A link's usual job is to carry the range of the means onto the whole line, so that no value of $x^\top\beta$ is forbidden.
+For a Gaussian mean the range is already $\real$ and the identity link is natural.
+For a Poisson or exponential mean the range is $(0, \infty)$, and the logarithm is the obvious choice: $\log\mu = x^\top\beta$, that is, $\mu = e^{x^\top\beta}$, under which each predictor acts multiplicatively on the mean, a unit increase in $x_j$ multiplying it by $e^{\beta_j}$.
+For a Bernoulli mean the range is $(0, 1)$, and two links are in common use (\cref{fig:glmlinks}):
+\begin{itemize}[nosep]
+\item the \textbf{logit}, $g(\mu) = \log\big(\mu/(1 - \mu)\big)$, the log-odds, with inverse the \textbf{logistic function} $\mu = e^{t}/(1 + e^{t}) = 1/(1 + e^{-t})$;
+\item the \textbf{probit}, $g(\mu) = \Phi^{-1}(\mu)$, with $\Phi$ the standard Gaussian CDF of \cref{ch:gaussian}, so that the inverse link is $\mu = \Phi(t)$.
+\end{itemize}
+The two inverses have the same shape, a sigmoid from $0$ to $1$, and differ mainly in scale: $\Phi(t/1.7)$ and the logistic function are within $0.01$ of each other everywhere, so the two models fit almost the same curve with coefficients that differ by about the factor $1.7$.
+The logit has the advantage that its coefficients are log odds ratios, which \cref{ch:limit-tools} has already made familiar; the probit has a reading in terms of a hidden Gaussian variable (\cref{ex:glm-latent}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_glm_links}
+\caption{Left: the logit (blue) and probit (orange, dashed) links on $(0, 1)$. Right: their inverses, the logistic function and the Gaussian CDF with its scale matched, $\Phi(t/1.7)$, as functions of the linear predictor.}
+\label{fig:glmlinks}
+\end{figure}
+
+Among all links one is singled out by the family.
+
+\begin{definition}[Canonical link, with predictors]
+\label{def:glm-canonical}
+The \textbf{canonical link} of a generalized linear model is $g_c = (b')^{-1}$ (\cref{def:canonical-link}), under which the linear predictor is the canonical parameter itself: $\theta_i = x_i^\top\beta$.
+Under any other link, $\theta_i = h(x_i^\top\beta)$ with $h = (g \circ b')^{-1}$.
+\end{definition}
+
+\begin{inwords}
+Every link ties the mean to the predictors; the canonical link ties the predictors to the scale on which the family's likelihood is linear in the parameter, so the data meet $\beta$ only through $Y_i\,x_i^\top\beta$. That is what makes the next section's theorem work. The identity is canonical for the Gaussian, the logarithm for the Poisson, $-1/\mu$ for the exponential and Gamma, and the logit for the Bernoulli: the logarithm and the logit are both the natural choice and the canonical one. For the exponential and Gamma the canonical link reaches only the negative half-line, so $x^\top\beta$ must stay negative, and the logarithm is the usual choice there instead.
+
+\textbf{For the kiss data.} Bernoulli with the logit link is \textbf{logistic regression}, and with $x_i = 1$ it is the kiss model with $\theta = \beta$. With a predictor, say $x_i = (1, \text{age of the couple})$, it says the log-odds of turning right is a line in age, $\theta_i = \beta_1 + \beta_2\,\text{age}_i$.
+\end{inwords}
+
+\section{The likelihood and its shape}
+\label{sec:glm-likelihood}
+
+Since the pairs are independent, the log-likelihood is a sum over observations, each in \cref{ch:exp-families}'s form:
+\[
+\ell_n(\beta) = \sum_{i=1}^n \frac{Y_i\theta_i - b(\theta_i)}{\phi} + \sum_{i=1}^n c(Y_i, \phi), \qquad \theta_i = h(x_i^\top\beta).
+\]
+Under the canonical link $\theta_i = x_i^\top\beta$ and, dropping the last sum, which does not involve $\beta$,
+\[
+\ell_n(\beta) = \frac{1}{\phi}\sum_{i=1}^n \big(Y_i\,x_i^\top\beta - b(x_i^\top\beta)\big) = \frac{1}{\phi}\Big(Y^\top X\beta - \sum_{i=1}^n b(x_i^\top\beta)\Big),
+\]
+with $X$ the $n \times p$ design matrix of \cref{ch:regression-multi} and $Y = (Y_1, \ldots, Y_n)^\top$: linear in $\beta$ in the first term, with the data entering only through $X^\top Y$, and concave in the second.
+
+\begin{theorem}[Concavity under the canonical link]
+\label{thm:glm-concave}
+In a generalized linear model with the canonical link, $b'' > 0$, and $X$ of full rank $p$:
+\begin{enumerate}[nosep]
+\item $\nabla\ell_n(\beta) = \frac{1}{\phi}X^\top\big(Y - \mu(\beta)\big)$, where $\mu(\beta)$ is the vector with entries $\mu_i = b'(x_i^\top\beta)$;
+\item $\nabla^2\ell_n(\beta) = -\frac{1}{\phi}X^\top W(\beta)X$, where $W(\beta)$ is the diagonal matrix with entries $w_i = b''(x_i^\top\beta) = V(\mu_i)$, and this matrix is negative definite for every $\beta$;
+\item $\ell_n$ is strictly concave on the convex open set of $\beta$ with every $x_i^\top\beta \in \Theta$ (all of $\real^p$ for the Bernoulli, Poisson and Gaussian families), so it has at most one maximizer: the maximum likelihood estimator $\hat{\beta}$ is unique whenever it exists, and it is the unique solution of the \textbf{likelihood equations} $X^\top\big(Y - \mu(\beta)\big) = 0$.
+\end{enumerate}
+\end{theorem}
+\coreproof{Differentiate the two terms: the linear term's gradient is $X^\top Y/\phi$, the sum of $b$'s has gradient $\sum_i b'(x_i^\top\beta)x_i/\phi$ and Hessian $\sum_i b''(x_i^\top\beta)x_ix_i^\top/\phi$. The Hessian is a weighted $X^\top X$ with positive weights, negative definite because $X$ has full rank, and a function with a negative definite Hessian everywhere is strictly concave.}
+\begin{proof}
+For (1), $\partial(Y_i x_i^\top\beta)/\partial\beta = Y_i x_i$ and $\partial b(x_i^\top\beta)/\partial\beta = b'(x_i^\top\beta)x_i$ by the chain rule \toolkit{sec:math-multivar}, so $\nabla\ell_n(\beta) = \frac1\phi\sum_i (Y_i - b'(x_i^\top\beta))x_i = \frac1\phi X^\top(Y - \mu(\beta))$.
+Differentiating once more,
+\[
+\nabla^2\ell_n(\beta) = -\frac1\phi\sum_i b''(x_i^\top\beta)x_ix_i^\top = -\frac1\phi X^\top WX,
+\]
+which is (2)'s formula.
+For $a \in \real^p$, $a^\top X^\top WXa = \sum_i w_i(x_i^\top a)^2 \geq 0$, with equality only if $x_i^\top a = 0$ for every $i$, that is, $Xa = 0$, which full rank rules out for $a \neq 0$ \toolkit{sec:math-matrices}; so $X^\top WX$ is positive definite and the Hessian negative definite.
+For (3), take $\beta_1 \neq \beta_2$ and $r(t) = \ell_n(\beta_1 + t(\beta_2 - \beta_1))$ on $[0, 1]$: $r''(t) = (\beta_2 - \beta_1)^\top\nabla^2\ell_n(\cdot)(\beta_2 - \beta_1) < 0$, so $r$ is strictly concave in one variable, which is strict concavity of $\ell_n$ along every segment \toolkit{sec:math-multivar}.
+A strictly concave function cannot have two maximizers (the value at their midpoint would exceed their common value, which is the maximum), and a maximizer on that open set is a stationary point, so it solves $\nabla\ell_n = 0$; conversely a stationary point of a concave function is a global maximizer (\cref{prop:concave-max} applied along the segment from the stationary point) \toolkit{sec:math-multivar}, so the solution of the likelihood equations, if there is one, is $\hat{\beta}$.
+\end{proof}
+
+The likelihood equations say the fitted means balance the data along every predictor: $\sum_i x_{ij}Y_i = \sum_i x_{ij}\hat{\mu}_i$ for each column $j$.
+With an intercept column of ones, the fitted means sum to the observed total, $\sum_i\hat{\mu}_i = \sum_i Y_i$: a logistic regression's fitted probabilities add up to the number of ones, and a Poisson regression's fitted means to the total count.
+For the Gaussian family with the identity link, $b(\theta) = \theta^2/2$, $\mu(\beta) = X\beta$ and the equations are the normal equations $X^\top(Y - X\beta) = 0$ of \cref{thm:mreg-lse}; the theorem contains least squares as the one case where the equations are linear and solve in closed form.
+
+Existence is the part the theorem leaves open, and it can fail.
+
+\begin{pitfall}[separation: a maximum that is not there]
+\Cref{fig:glmseparation} shows six observations with $y = 0$ at $x = 1, 2, 3$ and $y = 1$ at $x = 4, 5, 6$, and the logistic curves $1/(1 + e^{-b(x - 3.5)})$ for several slopes. Every curve classifies the data perfectly, and the steeper the curve the higher the likelihood: the log-likelihood rises toward its supremum $0$, the value of a perfect fit, and never reaches it. The MLE does not exist, and Newton's method runs off toward infinite coefficients. This is \cref{ch:exp-families}'s all-$1$s sample with predictors: whenever some hyperplane $x^\top a = c$ puts every $y = 1$ on one side and every $y = 0$ on the other (\textbf{complete separation}), the same happens. It is common in small samples with many predictors, and a fit with huge coefficients and huge standard errors is the sign of it; the remedy is fewer predictors, more data, or a prior on $\beta$ (the ridge of \cref{ch:regression-multi} on the log-odds scale).
+\end{pitfall}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_glm_separation}
+\caption{Complete separation. Left: six observations and the logistic curves with slopes $1$ (gray, dashed), $2$ (aqua, dash-dot) and $4$ (black). Right: the log-likelihood of the slope, with the intercept fixed at $-3.5b$, climbing toward $0$ without a maximum.}
+\label{fig:glmseparation}
+\end{figure}
+
+\section{Fitting by Newton's method}
+\label{sec:glm-fitting}
+
+Outside the Gaussian case the likelihood equations $X^\top(Y - \mu(\beta)) = 0$ are nonlinear in $\beta$, since $\mu_i = b'(x_i^\top\beta)$, and no formula solves them.
+Newton's method \toolkit{sec:math-newton} does: from a current $\beta_k$, replace $\ell_n$ by the quadratic with the same gradient and Hessian at $\beta_k$ and move to its top,
+\[
+\beta_{k+1} = \beta_k - \big(\nabla^2\ell_n(\beta_k)\big)^{-1}\nabla\ell_n(\beta_k) = \beta_k + \big(X^\top W_kX\big)^{-1}X^\top\big(Y - \mu_k\big),
+\]
+with $W_k = W(\beta_k)$ and $\mu_k = \mu(\beta_k)$; the dispersion $\phi$ cancels.
+Because the Hessian is negative definite everywhere, each quadratic has a top and each step is defined, and once the iterate is near $\hat{\beta}$ the error is squared at every step.
+\Cref{fig:glmnewton} draws the method on the kiss data in one dimension: from $\theta_0 = 0$ the fitted parabola peaks at $\theta_1 = 0 + (80 - 62)/31 = 0.581$, the next at $0.598$, and the third step changes nothing in the fourth decimal.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_glm_newton}
+\caption{Newton's method on the kiss log-likelihood in the log-odds, from $\theta_0 = 0$: the parabola fitted at $\theta_0$ (orange, dashed) peaks at $\theta_1 = 0.581$, the one fitted there (aqua, dash-dot) at $0.598$.}
+\label{fig:glmnewton}
+\end{figure}
+
+The step has a second reading.
+Write $z_k = X\beta_k + W_k^{-1}(Y - \mu_k)$, the \textbf{working response}: the current linear predictor, corrected by the residual $Y_i - \mu_{k,i}$ divided by the slope $w_{k,i} = \mathrm{d}\mu_i/\mathrm{d}\theta_i$ of the mean, that is, the residual carried from the scale of $Y$ to the scale of the linear predictor.
+Then
+\[
+\beta_{k+1} = \big(X^\top W_kX\big)^{-1}X^\top W_k z_k,
+\]
+the weighted least squares fit of $z_k$ on $X$ with weights $w_{k,i}$ (\cref{ex:glm-irls}): Newton's method for a generalized linear model with the canonical link is \textbf{iteratively reweighted least squares}.
+Each round fits a linear regression to a response that stands in for $Y$ on the predictor's scale, weighting the observations by the family's variance function at the current fit, and refits until the weights stop changing.
+For the Gaussian with the identity link, $w_i = 1$, $z_k = Y$, and the first step from any start lands on the least squares estimate.
+
+\begin{worked}[fitting the kyphosis data]
+With $x_i = (1, \text{age}_i, \text{number}_i, \text{start}_i)$, the Bernoulli family and the logit link, Newton's method from $\beta_0 = 0$ (every fitted probability $\frac12$) gives
+\begin{center}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+step & $\ell_n$ & intercept & age & number & start \\
+\midrule
+$0$ & $-56.14$ & $0$ & $0$ & $0$ & $0$ \\
+$1$ & $-33.21$ & $-0.955$ & $0.0043$ & $0.210$ & $-0.123$ \\
+$2$ & $-30.93$ & $-1.583$ & $0.0082$ & $0.334$ & $-0.180$ \\
+$3$ & $-30.69$ & $-1.960$ & $0.0105$ & $0.398$ & $-0.203$ \\
+$4$ & $-30.69$ & $-2.035$ & $0.0109$ & $0.410$ & $-0.206$ \\
+$5$ & $-30.69$ & $-2.037$ & $0.0109$ & $0.411$ & $-0.207$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+and a sixth step changes nothing in the fourth decimal: $\hat{\beta} = (-2.037, 0.0109, 0.411, -0.207)$ with $\ell_n(\hat{\beta}) = -30.69$, against $-41.62$ for the intercept-only fit $\hat{\beta}_1 = \log(17/64) = -1.326$. The fitted probabilities sum to $17$. Read on the odds scale: each month of age multiplies the odds of kyphosis by $e^{0.0109} = 1.011$ (by $1.12$ per ten months), each additional vertebra by $e^{0.411} = 1.51$, and each vertebra further down the spine for the start by $e^{-0.207} = 0.81$. For a child of $100$ months with $4$ vertebrae involved, the fitted probability is $0.42$ when the operation starts at vertebra $5$ and $0.08$ when it starts at $15$.
+\end{worked}
+
+\section{Inference}
+\label{sec:glm-inference}
+
+The MLE has no formula, but its large-sample distribution does, and it is \cref{ch:mle-properties}'s.
+To apply that chapter the observations must be i.i.d., so take the pairs $(x_i, Y_i)$ as i.i.d.\ draws of $(x, Y)$ with the conditional law of $Y$ given $x$ the generalized linear model's and the law of $x$ not involving $\beta$; the joint density of a pair is $f_{h(x^\top\beta)}(y)\,q(x)$, and $\log q(x)$ drops out of every derivative in $\beta$, so the log-likelihood of the pairs is the $\ell_n(\beta)$ above plus a constant.
+
+\begin{theorem}[Asymptotic normality in a generalized linear model]
+\label{thm:glm-normal}
+Let $(x_i, Y_i)$ be i.i.d.\ pairs following a generalized linear model with the canonical link, $b'' > 0$, $\norm{x} \leq C$ with probability one for some constant $C$, $x^\top\beta^*$ in a closed bounded subinterval of $\Theta$ with probability one, and $M = \E[b''(x^\top\beta^*)\,xx^\top]$ positive definite at the true $\beta^*$.
+Then the Fisher information of one pair is $I(\beta^*) = M/\phi$, and the MLE satisfies
+\[
+\sqrt{n}\,(\hat{\beta} - \beta^*) \convd \Gauss_p\big(0, \phi M^{-1}\big).
+\]
+In practice: $\hat{\beta}$ is approximately $\Gauss_p\big(\beta^*, \phi(X^\top\hat{W}X)^{-1}\big)$ with $\hat{W} = W(\hat{\beta})$, and the standard error of $\hat{\beta}_j$ is the square root of the $j$th diagonal entry of $\phi(X^\top\hat{W}X)^{-1}$.
+\end{theorem}
+\optionalproof{The model in $\beta$ is regular: the density is a canonical family's at $\theta = x^\top\beta$, so \cref{ch:exp-families}'s verification of the conditions goes through with $x$ along for the ride, and the information is minus the expected Hessian, $\E[b''(x^\top\beta)xx^\top]/\phi$, which does not even need averaging over $Y$. \Cref{thm:mle-normal} in $p$ dimensions does the rest.}
+\recall{Asymptotic normality of the MLE (\cref{thm:mle-normal}), $d$-dimensional form: for i.i.d.\ observations from a regular model with $\theta^*$ interior and $I(\theta^*)$ invertible, $\sqrt{n}(\hat{\theta}_n - \theta^*) \convd \Gauss_d(0, I(\theta^*)^{-1})$. The information as minus the expected Hessian (\cref{thm:fisher-curvature}). The Law of Large Numbers (\cref{thm:wlln}): for i.i.d.\ $Z_i$ with $\var(Z_i) < \infty$, $\frac1n\sum_i Z_i \convp \E[Z_i]$, applied to each entry of $\frac1n X^\top\hat{W}X$. The continuous mapping theorem (\cref{thm:cmt}): if $Z_n \convp z$ and $f$ is continuous, then $f(Z_n) \convp f(z)$, applied to matrix inversion, which is continuous on the invertible matrices, an open set containing $M$.}
+\begin{proof}
+The log-likelihood of one pair is $\ell(\beta) = (Y x^\top\beta - b(x^\top\beta))/\phi + c(Y, \phi) + \log q(x)$, with gradient $(Y - b'(x^\top\beta))x/\phi$ and Hessian $-b''(x^\top\beta)xx^\top/\phi$, free of $Y$.
+The regularity conditions of \cref{sec:mle-regularity} hold: identifiability, since equal conditional densities force $x^\top\beta_1 = x^\top\beta_2$ with probability one, hence $(\beta_1 - \beta_2)^\top\E[xx^\top](\beta_1 - \beta_2) = 0$, and $\E[xx^\top]$ is positive definite (if $a^\top\E[xx^\top]a = 0$ then $x^\top a = 0$ almost surely and $a^\top Ma = 0$, against the assumption on $M$); fixed support and an open parameter set, $\real^p$ when $\Theta = \real$ and otherwise the open set of $\beta$ with $x^\top\beta \in \Theta$ with probability one; derivatives under the integral by \cref{prop:ef-regular} applied conditionally on $x$; and the moment conditions, since $x$ is bounded, so for $\beta$ near $\beta^*$ the values $x^\top\beta$ stay in a bounded interval on which $b''$ and $b'''$ are bounded: $\nabla^2\ell(\beta^*) = -b''(x^\top\beta^*)xx^\top/\phi$ has finite variance and $\nabla^3\ell$ is bounded by a constant, which serves as the $K$ the conditions ask for; the same bounds give the finite variances the Law of Large Numbers needs below; and $I(\beta^*) = -\E[\nabla^2\ell(\beta^*)] = \E[b''(x^\top\beta^*)xx^\top]/\phi = M/\phi$, invertible.
+\Cref{thm:mle-normal} gives $\sqrt{n}(\hat{\beta} - \beta^*) \convd \Gauss_p(0, I(\beta^*)^{-1}) = \Gauss_p(0, \phi M^{-1})$.
+For the plug-in, $\frac1n X^\top\hat{W}X = \frac1n\sum_i b''(x_i^\top\hat{\beta})x_ix_i^\top \convp M$ by the Law of Large Numbers at $\beta^*$, the consistency of $\hat{\beta}$ and the continuity of $b''$ (the uniform-law step of \cref{thm:mle-normal}'s proof, for the Hessian at a nearby point), and inversion is continuous at $M$, so $n\,\phi(X^\top\hat{W}X)^{-1} \convp \phi M^{-1}$: the covariance $\phi(X^\top\hat{W}X)^{-1}$ is the limit's, divided by $n$ and estimated.
+\end{proof}
+
+The matrix $X^\top\hat{W}X/\phi$ is minus the Hessian at the fit, the curvature of the log-likelihood at its top, as in \cref{ch:mle-properties}; it is the last matrix Newton's method inverted, so the standard errors come free with the fit.
+With the covariance in hand, the tests of \cref{ch:wald-lrt} apply as they stand.
+\begin{itemize}[nosep]
+\item \textbf{Wald.} For one coefficient, $Z_j = \hat{\beta}_j/\mathrm{SE}_j$ is approximately standard Gaussian under $\beta_j^* = 0$, and $\hat{\beta}_j \pm 1.96\,\mathrm{SE}_j$ is a $95\%$ interval; exponentiated, it is an interval for the odds ratio or the rate ratio per unit of $x_j$. For $k$ coefficients at once, the quadratic form of \cref{def:three-nuisance} against $\chi^2_k$.
+\item \textbf{Likelihood ratio.} For nested models, twice the gap between the maximized log-likelihoods is approximately $\chi^2_k$ under the smaller model, $k$ the number of coefficients set to zero (\cref{thm:three-nuisance}). Twice the gap between a model's maximized log-likelihood and that of the \textbf{saturated} model, which gives each observation its own mean, is called the model's \textbf{deviance}; the likelihood ratio statistic for nested models is the difference of their deviances (when $\phi \neq 1$ the deviance is usually defined as $\phi$ times this).
+\end{itemize}
+The two agree in large samples and can differ in small ones, as \cref{ch:wald-lrt} found for a proportion, and the likelihood ratio test is the one to prefer when both fits are available.
+The $t$ and $F$ distributions of \cref{ch:regression-multi} do not return: they came from a Gaussian error with an estimated $\sigma^2$, and here the dispersion is known ($\phi = 1$ for a proportion or a count) and the exactness is gone.
+
+\begin{worked}[what the kyphosis fit says]
+Standard errors from $(X^\top\hat{W}X)^{-1}$: $1.450$, $0.0064$, $0.225$, $0.068$, so $Z = -1.41$, $1.70$, $1.83$, $-3.05$ for the intercept, age, number and start. The start is the clear predictor, $p$-value $0.002$; age and number are each short of $1.96$. The Wald interval for the start coefficient is $-0.207 \pm 1.96 \times 0.068 = [-0.339, -0.074]$, an odds ratio per vertebra between $0.71$ and $0.93$. The likelihood ratio test of all three predictors against the intercept alone is $2(-30.69 + 41.62) = 21.85$ on $3$ degrees of freedom, $p$-value $7 \times 10^{-5}$; of the start alone, refitting without it, $2(-30.69 + 35.81) = 10.25$ on $1$ degree of freedom, against Wald's $Z^2 = 9.30$: same verdict, different number, as expected in a sample of $81$ with $17$ ones. Dropping age and number together costs $2(-30.69 + 34.04) = 6.69$ on $2$ degrees of freedom, $p$-value $0.035$: the pair matters at the $5\%$ level even though neither does on its own, the situation of \cref{ch:regression-multi}'s Old Faithful fit.
+\end{worked}
+
+A logistic regression with one $0/1$ predictor is a case the book has met before, under another name.
+
+\begin{bridge}[the two-proportion test as a regression]
+The aspirin trial of \cref{ch:wald-lrt} is a logistic regression with one $0/1$ predictor: $x_i = (1, a_i)$ with $a_i = 1$ for aspirin, so the log-odds of a heart attack is $\beta_1$ on placebo and $\beta_1 + \beta_2$ on aspirin, and $\beta_2$ is the log odds ratio. With two groups and two parameters the model is saturated, the likelihood equations say each group's fitted probability is its observed proportion, and the fit is exact. On placebo $189$ had a heart attack and $10{,}845$ did not; on aspirin $104$ and $10{,}933$. So $\hat{\beta}_1 = \log(189/10{,}845) = -4.050$, $\hat{\beta}_2 = \log\big(\frac{104/10{,}933}{189/10{,}845}\big) = -0.605$, an odds ratio of $0.55$. The standard error of $\hat{\beta}_2$ from $(X^\top\hat{W}X)^{-1}$ is $\sqrt{1/104 + 1/10{,}933 + 1/189 + 1/10{,}845} = 0.123$, the four-reciprocals formula of \cref{ch:limit-tools}, so $Z = -4.93$, $Z^2 = 24.3$, and the $95\%$ interval for the odds ratio is $[0.43, 0.69]$. The likelihood ratio statistic against $\beta_2 = 0$ is $25.37$, the same $T^{\mathrm{LR}}$ as in \cref{ch:wald-lrt}, since the two models compared are the same two. Every two-group comparison of proportions is a logistic regression on a single indicator, and every $2 \times 2$ table of \cref{ch:gof} is one as well.
+\end{bridge}
+
+\section{Counts: Poisson regression}
+\label{sec:glm-poisson}
+
+For a count response the Poisson family with its canonical link, the logarithm, is the standard model: $Y_i \sim \Pois(\mu_i)$ with $\log\mu_i = x_i^\top\beta$.
+Everything above applies with $b(\theta) = e^\theta$, so $w_i = \mu_i$: the Hessian is $-\sum_i\mu_ix_ix_i^\top$, the working weights are the fitted means, and the likelihood equations $X^\top(Y - \mu) = 0$ make the fitted counts add up to the observed ones along every predictor.
+The coefficients are log rate ratios: a unit increase in $x_j$ multiplies the expected count by $e^{\beta_j}$.
+When the counts are collected over exposures of different lengths (a count of accidents per plant over different numbers of operating hours, say), the exposure $E_i$ enters as $\log\mu_i = \log E_i + x_i^\top\beta$, a predictor with its coefficient fixed at $1$, an \textbf{offset}, so that $\beta$ describes the rate per unit of exposure.
+A warning the Poisson family carries: it fixes $\var(Y_i) = \mu_i$, and real counts are often more variable than that (\textbf{overdispersion}); the coefficient estimates are then still sensible, since the likelihood equations are the method of moments for the means, but the standard errors from $(X^\top\hat{W}X)^{-1}$ are too small, and the robust standard errors of \cref{ch:regression-multi} or a model with a dispersion parameter are the repair.
+The siblings data of \cref{ch:models} are the intercept-only case: $\log\lambda = \beta_1$, $\hat{\beta}_1 = \log 1 = 0$, with standard error $1/\sqrt{\sum_i\hat{\mu}_i} = 1/\sqrt{24} = 0.204$, \cref{ch:exp-families}'s numbers.
+\Cref{ex:glm-predator} fits a Poisson model with a link that is not canonical, and sees what the theorem no longer guarantees.
+
+\section{What comes next}
+\label{sec:glm-next}
+
+This chapter closes the book's account of regression: a response from any canonical family, a mean linked to a linear predictor, maximum likelihood by iteratively reweighted least squares, and inference from the information matrix.
+\Cref{ch:pca} turns from predicting one variable from others to describing many variables at once: the directions in which multivariate data vary most, found from the eigenvectors of the sample covariance matrix, with the Law of Large Numbers saying why the sample directions approach the population's.
+
+\section{Summary}
+\label{sec:glm-summary}
+
+\begin{itemize}[nosep]
+\item A generalized linear model: independent $Y_i$ from one canonical family with means $\mu_i$, and a one-to-one differentiable link $g$ with $g(\mu_i) = x_i^\top\beta$. The family fixes the variance function, the link carries the range of the means onto an interval, the whole line for the links in common use. Gaussian with the identity link is \cref{ch:regression-multi}.
+\item Links: identity, logarithm for counts, logit (log-odds) and probit for proportions; $\Phi(t/1.7)$ and the logistic function nearly coincide. The canonical link $g_c = (b')^{-1}$ makes $\theta_i = x_i^\top\beta$: logit for the Bernoulli (logistic regression), log for the Poisson.
+\item Under the canonical link, $\nabla\ell_n = X^\top(Y - \mu)/\phi$, $\nabla^2\ell_n = -X^\top WX/\phi$ with $w_i = b''(x_i^\top\beta)$, negative definite when $X$ has full rank: $\ell_n$ is strictly concave, the MLE is unique if it exists, and it solves $X^\top(Y - \mu(\beta)) = 0$ (fitted means balance the data along every predictor). Existence fails under complete separation.
+\item Newton's method: $\beta_{k+1} = \beta_k + (X^\top W_kX)^{-1}X^\top(Y - \mu_k)$, which is weighted least squares of the working response $z_k = X\beta_k + W_k^{-1}(Y - \mu_k)$ with weights $w_{k,i}$, repeated. Kyphosis: five steps from $0$; kiss: $0 \to 0.581 \to 0.598$.
+\item Asymptotic normality: $\sqrt{n}(\hat{\beta} - \beta^*) \convd \Gauss_p(0, \phi M^{-1})$, $M = \E[b''(x^\top\beta^*)xx^\top]$; in practice $\hat{\beta} \approx \Gauss_p(\beta^*, \phi(X^\top\hat{W}X)^{-1})$, the inverse curvature at the fit. Wald $Z_j = \hat{\beta}_j/\mathrm{SE}_j$, likelihood ratio for nested models (differences of deviances). Kyphosis: start $Z = -3.05$, odds ratio per vertebra $[0.71, 0.93]$; all three predictors $21.85$ on $3$ df. Aspirin: $\hat{\beta}_2 = -0.605$, SE $0.123$, the four-reciprocals formula, $T^{\mathrm{LR}} = 25.37$ as in \cref{ch:wald-lrt}.
+\item Poisson regression: $\log\mu_i = x_i^\top\beta$, coefficients as log rate ratios, offsets for exposure, overdispersion inflating the true standard errors above the model's.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:glm-exercises}
+
+\begin{exercise}
+\label{ex:glm-gaussian}
+Show that the Gaussian family with known $\sigma^2$ and the identity link is the linear model of \cref{ch:regression-multi}: write $\ell_n(\beta)$, check that $W = I$, that the likelihood equations are the normal equations, that Newton's method from any $\beta_0$ reaches $\hat{\beta}$ in one step, and that \cref{thm:glm-normal}'s covariance $\phi(X^\top\hat{W}X)^{-1}$ is $\sigma^2(X^\top X)^{-1}$, the exact covariance of \cref{thm:mreg-exact}.
+\end{exercise}
+\begin{solution}
+$b(\theta) = \theta^2/2$, $\phi = \sigma^2$, so $\ell_n(\beta) = \frac{1}{\sigma^2}\sum_i(Y_ix_i^\top\beta - (x_i^\top\beta)^2/2) + \text{const} = -\frac{1}{2\sigma^2}\norm{Y - X\beta}^2 + \text{const}'$. $b'' = 1$ gives $W = I$, $\mu(\beta) = X\beta$, and $X^\top(Y - X\beta) = 0$ are the normal equations. Newton's step is $\beta_0 + (X^\top X)^{-1}X^\top(Y - X\beta_0) = (X^\top X)^{-1}X^\top Y = \hat{\beta}$ whatever $\beta_0$ is, since the log-likelihood is exactly quadratic. The covariance is $\sigma^2(X^\top X)^{-1}$, and here the Gaussian distribution of $\hat{\beta}$ is exact, not asymptotic.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-poisson-grad}
+For Poisson regression with the log link, write $\ell_n(\beta)$, its gradient and Hessian, and check \cref{thm:glm-concave} directly. If $x_j$ is a $0/1$ indicator, show that $e^{\beta_j}$ is the ratio of the expected counts with and without the attribute, other predictors held fixed.
+\end{exercise}
+\begin{solution}
+$b(\theta) = e^\theta$, $\phi = 1$, $c(y) = -\log y!$: $\ell_n(\beta) = \sum_i(Y_ix_i^\top\beta - e^{x_i^\top\beta}) - \sum_i\log Y_i!$, $\nabla\ell_n = \sum_i(Y_i - e^{x_i^\top\beta})x_i = X^\top(Y - \mu)$, $\nabla^2\ell_n = -\sum_i e^{x_i^\top\beta}x_ix_i^\top = -X^\top WX$ with $w_i = \mu_i > 0$: negative definite for $X$ of full rank. With $x_j \in \{0, 1\}$ and the other coordinates fixed, $\mu(x_j = 1)/\mu(x_j = 0) = e^{x^\top\beta + \beta_j}/e^{x^\top\beta} = e^{\beta_j}$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-aspirin}
+Verify the aspirin bridge: (a) solve the likelihood equations with $x_i = (1, a_i)$ and show that the fitted probabilities are the two group proportions; (b) with $n_1, \hat{p}_1$ for placebo and $n_2, \hat{p}_2$ for aspirin as in \cref{ch:wald-lrt}, compute $(X^\top\hat{W}X)^{-1}$ and show that its $(2, 2)$ entry is $1/(n_1\hat{p}_1(1 - \hat{p}_1)) + 1/(n_2\hat{p}_2(1 - \hat{p}_2))$, which equals $1/189 + 1/10{,}845 + 1/104 + 1/10{,}933$; (c) explain why the likelihood ratio statistic equals \cref{ch:wald-lrt}'s $25.37$.
+\end{exercise}
+\begin{solution}
+(a) The two equations are $\sum_i(Y_i - \mu_i) = 0$ and $\sum_{i: a_i = 1}(Y_i - \mu_i) = 0$; $\mu_i$ takes one value $\mu^{(1)}$ on aspirin and one $\mu^{(0)}$ on placebo, so the second says $n_2\mu^{(1)} = 104$ and the first then says $n_1\mu^{(0)} = 189$: the proportions. (b) $X^\top\hat{W}X = \begin{pmatrix} s_0 + s_1 & s_1 \\ s_1 & s_1\end{pmatrix}$ with $s_0 = n_1\hat{p}_1(1 - \hat{p}_1)$ and $s_1 = n_2\hat{p}_2(1 - \hat{p}_2)$; its inverse has $(2, 2)$ entry $(s_0 + s_1)/(s_0s_1) = 1/s_0 + 1/s_1$, and $1/(n\hat{p}(1 - \hat{p})) = 1/(n\hat{p}) + 1/(n(1 - \hat{p}))$ gives the four reciprocals. (c) The free model fits two proportions and the null model ($\beta_2 = 0$) one common proportion, which are exactly the two fits \cref{ch:wald-lrt}'s likelihood ratio test compared; same maximized likelihoods, same statistic.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-latent}
+A hidden-variable reading of the two Bernoulli links. Suppose $Y = \ind(x^\top\beta + \epsilon > 0)$ for an unobserved $\epsilon$ with a continuous, symmetric distribution and CDF $F$. (a) Show that $\Pr(Y = 1 \mid x) = F(x^\top\beta)$, so that $\epsilon \sim \Gauss(0, 1)$ gives the probit model and $\epsilon$ with the logistic CDF $F(t) = 1/(1 + e^{-t})$ gives the logit model. (b) The logistic distribution has variance $\pi^2/3$; use this to explain the factor $1.7$ in \cref{fig:glmlinks}. (c) Why can the scale of $\epsilon$ not be estimated from $0/1$ data?
+\end{exercise}
+\begin{solution}
+(a) $\Pr(x^\top\beta + \epsilon > 0) = \Pr(\epsilon > -x^\top\beta) = 1 - F(-x^\top\beta) = F(x^\top\beta)$ by symmetry. (b) A logistic $\epsilon$ has standard deviation $\pi/\sqrt{3} = 1.81$, so matching standard deviations would give $\Phi(t/1.81)$; matching the two curves so that the largest gap between them is as small as possible gives the slightly smaller $1.7$, with the gap below $0.01$ everywhere (the two densities have different shapes, the logistic heavier in the tails, so no single scale makes them coincide). (c) Multiplying $\beta$ and the scale of $\epsilon$ by the same constant leaves $\Pr(Y = 1 \mid x)$ unchanged: only $\beta$ divided by the scale is identifiable, which is why the scale is fixed at $1$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-predator}
+A predator and prey model: the number $Y$ of prey a hawk catches in a day is $\Pois(\mu(x))$, where $x$ is the number of prey in its territory and $\mu(x) = mx/(h + x)$ for unknown $m, h > 0$ ($m$ the most it can catch, $h$ the prey count at which it catches half of that). (a) Show that $1/\mu(x) = (1/m) + (h/m)(1/x)$, so this is a generalized linear model with the reciprocal link $g(\mu) = 1/\mu$ and predictor vector $(1, 1/x)$. (b) Is the reciprocal link canonical for the Poisson? Write $\theta_i = h(x_i^\top\beta)$ and show that the Hessian of $\ell_n$ now contains a term with the factor $Y_i - \mu_i$, so \cref{thm:glm-concave} does not apply. (c) What does Newton's method lose?
+\end{exercise}
+\begin{solution}
+(a) $1/\mu = (h + x)/(mx) = 1/m + (h/m)/x$, linear in $1/x$ with $\beta = (1/m, h/m)$. (b) The Poisson's canonical link is $\log$, so no: $\theta_i = \log\mu_i = -\log(x_i^\top\beta)$, $h(t) = -\log t$. Then $\ell_n = \sum_i(Y_i\theta_i - e^{\theta_i})$ with $\partial\theta_i/\partial\beta = h'(x_i^\top\beta)x_i$, so $\nabla\ell_n = \sum_i(Y_i - \mu_i)h'(x_i^\top\beta)x_i$ and the Hessian is $\sum_i\big[-\mu_ih'(x_i^\top\beta)^2 + (Y_i - \mu_i)h''(x_i^\top\beta)\big]x_ix_i^\top$. The first term is negative definite; the second has the sign of $Y_i - \mu_i$ and can make the whole positive somewhere. (c) The guarantee that every quadratic model has a top and that a stationary point is the global maximum: a step can go downhill, since the quadratic model need not have a top, and a stationary point it reaches need not be the global maximum, so the iteration must be started well, or the Hessian replaced by its expectation, $-\sum_i\mu_ih'(x_i^\top\beta)^2x_ix_i^\top$ (Fisher scoring), which is negative definite.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-separation}
+For the separated data of \cref{fig:glmseparation}, with the model $\Pr(Y = 1 \mid x) = 1/(1 + e^{-b(x - 3.5)})$: (a) show that $\ell_n(b) < 0$ for every finite $b$ and $\ell_n(b) \to 0$ as $b \to \infty$; (b) show that for the full two-parameter logistic model $\Pr(Y = 1 \mid x) = 1/(1 + e^{-(a + bx)})$ the supremum of the log-likelihood is $0$ and is not attained; (c) explain why the Newton iterates cannot converge.
+\end{exercise}
+\begin{solution}
+(a) Each term is $\log\Pr(Y_i = y_i)$, strictly negative for finite $b$ since every probability is strictly between $0$ and $1$; as $b \to \infty$, $\Pr(Y_i = y_i) \to 1$ for every $i$ since $x_i - 3.5$ has the sign of $2y_i - 1$, so the sum of logarithms tends to $0$. (b) The log-likelihood is a sum of logarithms of probabilities, so it is at most $0$, and along $a = -3.5b$, $b \to \infty$ it tends to $0$ by (a); it is never $0$ since no finite $(a, b)$ gives probabilities $0$ and $1$. (c) If the iterates converged to some $\hat{\beta}$, continuity would make $\hat{\beta}$ a stationary point, hence by concavity a maximizer, which does not exist.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-irls}
+Show that Newton's step equals the weighted least squares fit of the working response: with $z_k = X\beta_k + W_k^{-1}(Y - \mu_k)$, verify that $(X^\top W_kX)^{-1}X^\top W_kz_k = \beta_k + (X^\top W_kX)^{-1}X^\top(Y - \mu_k)$, and that the right side minimizes $\sum_i w_{k,i}(z_{k,i} - x_i^\top\beta)^2$ over $\beta$.
+\end{exercise}
+\begin{solution}
+$X^\top W_kz_k = X^\top W_kX\beta_k + X^\top(Y - \mu_k)$, and multiplying by $(X^\top W_kX)^{-1}$ gives the step. The weighted sum of squares is $(z_k - X\beta)^\top W_k(z_k - X\beta)$, whose gradient $-2X^\top W_k(z_k - X\beta)$ vanishes at $\beta = (X^\top W_kX)^{-1}X^\top W_kz_k$, and whose Hessian $2X^\top W_kX$ is positive definite, so that is its minimizer: the normal equations of \cref{ch:regression-multi} with the weights $w_{k,i}$ inserted.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-kyphosis-start}
+The start alone. Logistic regression of kyphosis on the start gives $\hat{\beta} = (0.890, -0.218)$ with standard errors $(0.630, 0.060)$ and $\ell_n = -34.04$. (a) Compute the fitted probability of kyphosis for starts $5$, $10$ and $15$. (b) Test the start by Wald and by likelihood ratio against the intercept-only fit ($\ell_n = -41.62$). (c) The full model's start coefficient is $-0.207$ with standard error $0.068$: why are the two coefficients so close here, when \cref{ch:regression-multi} found a coefficient can change a great deal when company is added?
+\end{exercise}
+\begin{solution}
+(a) $1/(1 + e^{-(0.890 - 0.218s)})$: $0.45$, $0.22$, $0.085$. (b) $Z = -0.218/0.060 = -3.61$, $Z^2 = 13.0$; likelihood ratio $2(-34.04 + 41.62) = 15.16$ on $1$ degree of freedom, $p$-value $10^{-4}$. (c) A coefficient changes with company when the added predictors are correlated with the one already in and carry their own effect. Here the start is nearly uncorrelated with age (correlation $0.06$) and moderately correlated with the number of vertebrae ($-0.43$), and the number's own effect is modest, so the start's coefficient moves only from $-0.218$ to $-0.207$; its standard error grows from $0.060$ to $0.068$, the price of estimating two more coefficients from columns that overlap with it.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-kiss-newton}
+Logistic regression with an intercept alone on the kiss data. (a) Show that the likelihood equation is $\sum_i R_i = n\,e^\beta/(1 + e^\beta)$ and solve it. (b) Carry out Newton's method from $\beta_0 = 0$ by hand for two steps, using $\nabla\ell_n = S - np$ and $\nabla^2\ell_n = -np(1 - p)$ with $p = e^\beta/(1 + e^\beta)$, and compare with \cref{fig:glmnewton}. (c) Compute the standard error from $(X^\top\hat{W}X)^{-1}$ and match it with \cref{ch:exp-families}.
+\end{exercise}
+\begin{solution}
+(a) $X$ is a column of ones, so $X^\top(Y - \mu) = S - n\,e^\beta/(1 + e^\beta) = 0$ gives $\hat{\beta} = \log\big(S/(n - S)\big) = \log(80/44) = 0.598$. (b) At $\beta_0 = 0$, $p = \frac12$, gradient $80 - 62 = 18$, curvature $-31$, so $\beta_1 = 18/31 = 0.581$; at $\beta_1$, $p = 0.6412$, gradient $80 - 79.51 = 0.49$, curvature $-28.53$, so $\beta_2 = 0.581 + 0.0171 = 0.598$. (c) $X^\top\hat{W}X = n\hat{p}(1 - \hat{p}) = 28.39$, standard error $1/\sqrt{28.39} = 0.188$, \cref{ch:exp-families}'s $1/\sqrt{nb''(\hat{\theta})}$.
+\end{solution}
+
+\begin{exercise}
+\label{ex:glm-offset}
+Two plants report $Y_1 = 12$ accidents in $E_1 = 30{,}000$ operating hours and $Y_2 = 9$ in $E_2 = 10{,}000$. Fit the Poisson model $\log\mu_i = \log E_i + \beta_1 + \beta_2a_i$ with $a_i = \ind(i = 2)$: find $\hat{\beta}$, interpret $e^{\hat{\beta}_2}$, and give a Wald interval for it.
+\end{exercise}
+\begin{solution}
+The model is saturated, so the fitted means are the counts: $\mu_1 = E_1e^{\beta_1} = 12$ gives $\hat{\beta}_1 = \log(12/30{,}000) = -7.824$ (a rate of $0.4$ per $1{,}000$ hours), and $\mu_2 = E_2e^{\beta_1 + \beta_2} = 9$ gives $\hat{\beta}_2 = \log\big(\frac{9/10{,}000}{12/30{,}000}\big) = \log 2.25 = 0.811$: the second plant's accident rate is $2.25$ times the first's. $X^\top\hat{W}X$ has the form of the aspirin exercise with $s_0 = 12$ and $s_1 = 9$, so $\mathrm{SE}_2 = \sqrt{1/12 + 1/9} = 0.441$, and the interval for the rate ratio is $e^{0.811 \pm 1.96 \times 0.441} = [0.95, 5.34]$: the difference is suggestive and not established on $21$ accidents.
+\end{solution}
