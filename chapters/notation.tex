@@ -4,12 +4,14 @@
 The symbols that recur, in the order a reader meets them.
 These are the standard conventions of mathematical statistics; the two that differ from most software are marked.
 
-\begin{center}
-\small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.55in}>{\raggedright\arraybackslash}p{4.35in}@{}}
+\begin{small}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.55in}>{\raggedright\arraybackslash}p{4.35in}@{}}
 \toprule
 Symbol & Meaning \\
 \midrule
+\endhead
+\bottomrule
+\endlastfoot
 $\Xton$ & the sample: $n$ random variables, i.i.d.\ (independent, identically distributed) unless said otherwise \\[2pt]
 $x_1, \ldots, x_n$ & the realized values, numbers; likewise $\bar{X}_n$ is a random variable and $\bar{x}_n$ a number (\cref{ch:lln}) \\[2pt]
 $\Xton \iid \Bern(p)$ & the $X_i$ are i.i.d.\ with the named distribution; Bern, Bin, Pois, Expo, Unif, Gauss \\[2pt]
@@ -23,16 +25,6 @@ $\bar{T}_n$, $\hat{\lambda}$ & the subway inter-arrival times, $T_i \iid \Expo(\
 $X_n \convp X$ & convergence in probability (\cref{def:convp}) \\[2pt]
 $X_n \convd X$ & convergence in distribution (\cref{def:convd}); the limit may be written as a distribution, $X_n \convd \Gauss(0,1)$ \\[2pt]
 $X_n \convas X$, $X_n \convasp X$ & convergence almost surely (\cref{app:modes}); both arrows at once, which is how the two laws of large numbers are written together \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\begin{center}
-\small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.55in}>{\raggedright\arraybackslash}p{4.35in}@{}}
-\toprule
-Symbol & Meaning \\
-\midrule
 $\statmodel$ & a statistical model: sample space $E$ and a family of candidate distributions indexed by $\theta \in \Theta$ (\cref{def:statmodel}) \\[2pt]
 $\theta$, $\theta^*$, $\ethn$ & a parameter, the true parameter, an estimator of it from $n$ observations \\[2pt]
 $\Bias$, $R(\ethn)$ & bias $\E_\theta[\ethn] - \theta$ and quadratic risk $\E_\theta[(\ethn - \theta)^2]$ (\cref{ch:estimators}) \\[2pt]
@@ -40,8 +32,12 @@ $\mathcal{I} \ni \theta$ & the random interval $\mathcal{I}$ contains $\theta$; 
 $\alpha$ & a small probability: a test's level, or $1 -$ (an interval's level) \\[2pt]
 $a^\top$, $A^\top$ & the transpose of a vector or matrix; vectors are columns, so $a^\top b$ is a number \\[2pt]
 $\nabla h$, $\nabla^2 h$ & gradient and Hessian of a function of several variables \toolkit{sec:math-multivar}; for $g: \real^d \to \real^k$, $\nabla g$ is the $d \times k$ matrix of partial derivatives \\[2pt]
+$\TV(\Pr, \Qr)$, $\KL(\Pr, \Qr)$ & total variation distance and Kullback--Leibler divergence between two distributions (\cref{ch:distances}) \\[2pt]
+$L_n(\mathbf{x}; \theta)$, $\ell_n(\theta)$ & the likelihood of the sample at $\theta$ and its logarithm; $\hat{\theta}_n$ or $\hat{\theta}^{\mathrm{MLE}}_n$ its maximizer (\cref{ch:likelihood}) \\[2pt]
 $I(\theta)$ & the Fisher information of one observation (\cref{ch:mle-properties}); a $d \times d$ matrix when $\theta \in \real^d$ \\[2pt]
 $\Gauss_d(m, \Sigma)$ & the Gaussian vector in $\real^d$ with mean $m$ and positive definite covariance matrix $\Sigma$ \toolkit{sec:math-gaussquad} \\[2pt]
+$\chi^2_k$, $t_n$ & the chi-squared distribution with $k$ degrees of freedom and Student's $t$ with $n$ (\cref{ch:t-test}) \\[2pt]
+$T^{\mathrm{W}}_n$, $T^{\mathrm{LR}}_n$, $T^{\mathrm{S}}_n$ & Wald's, the likelihood ratio and the score statistic (\cref{ch:wald-lrt}) \\[2pt]
 $o_\Pr(1)$ & a sequence of random quantities that converges in probability to $0$ (\cref{ch:wald-lrt}) \\[2pt]
 $N_j$, $\Mult(n, \mathbf{p})$ & the count in category $j$; the multinomial distribution of $(N_1, \ldots, N_K)$ (\cref{ch:gof}) \\[2pt]
 $F_n$, $X_{(i)}$ & the empirical CDF; the $i$th smallest observation (\cref{ch:ks}) \\[2pt]
@@ -54,10 +50,10 @@ $X$, $P$, $\gamma_j$ & the $n \times p$ design matrix, the projection $X(X^\top 
 $F_{k,l}$ & the $F$ distribution with $(k, l)$ degrees of freedom, the ratio of two independent chi-squared variables over their degrees of freedom (\cref{ch:t-test,ch:regression-multi}) \\[2pt]
 $\eta(\theta)$, $T(y)$, $B(\theta)$, $h(y)$ & natural parameters, sufficient statistics, normalizer and base weight of an exponential family $h(y)\exp(\eta(\theta)^\top T(y) - B(\theta))$ (\cref{ch:exp-families}) \\[2pt]
 $b(\theta)$, $\phi$, $V(\mu)$, $g_c$ & in the canonical form $\exp((y\theta - b(\theta))/\phi + c(y, \phi))$: the function with $b' = \E[Y]$ and $\phi b'' = \var(Y)$, the dispersion, the variance function $\var(Y) = \phi V(\mu)$, and the canonical link $(b')^{-1}$ (\cref{ch:exp-families}) \\[2pt]
+$g$, $x_i^\top\beta$, $\mu_i$, $W$ & the link function, the linear predictor, the mean of $Y_i$ and the diagonal weight matrix $b''(x_i^\top\beta)$ of a generalized linear model (\cref{ch:glm-links}) \\[2pt]
 $\Sigma$, $S$, $\lambda_j$, $v_j$ & the covariance matrix of a random vector and the sample covariance matrix (divisor $n$); the eigenvalues of $S$ in decreasing order and their orthonormal eigenvectors, the principal directions (\cref{ch:pca}) \\[2pt]
 r.v., CDF, PDF, PMF & random variable; cumulative distribution function $F(x) = \Pr(X \leq x)$; density; probability mass function \\[2pt]
 CLT, LLN, CMT & Central Limit Theorem, Law of Large Numbers, continuous mapping theorem \\[2pt]
 (toolkit A.$k$) & a pointer to entry $k$ of the Mathematical Toolkit, \cref{app:math}, which explains the piece of mathematics being used \\
-\bottomrule
-\end{tabular}
-\end{center}
+\end{longtable}
+\end{small}
