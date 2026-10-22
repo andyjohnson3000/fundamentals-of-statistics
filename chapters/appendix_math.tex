@@ -486,7 +486,36 @@ If the function has no maximum, as a separated logistic regression does not, the
 
 \textbf{Where the book uses it.} Fitting a generalized linear model (\cref{sec:glm-fitting}), where the step has a second reading as a weighted least squares fit.
 
-\section{To be added with later chapters}
-\label{sec:math-later}
+\section{Eigenvalues, eigenvectors and the spectral theorem}
+\label{sec:math-eigen}
 
-Eigenvalues and eigenvectors (for \cref{ch:pca}).
+\Cref{ch:pca} asks in which direction a cloud of points is most spread out, and the answer is an eigenvector of its covariance matrix.
+This entry says what that is and proves the one theorem the chapter needs.
+
+\textbf{Eigenvalues and eigenvectors.} For a $d \times d$ matrix $A$, a nonzero vector $v$ with $Av = \lambda v$ for a number $\lambda$ is an \textbf{eigenvector} of $A$ with \textbf{eigenvalue} $\lambda$: $A$ acts on $v$ by stretching it, without turning it.
+A matrix $A$ is \textbf{symmetric} if $A^\top = A$, and then $u^\top Av = (Au)^\top v$ for all $u, v$.
+A symmetric matrix is \textbf{positive semidefinite} if $u^\top Au \geq 0$ for every $u$, and \textbf{positive definite} if $u^\top Au > 0$ for every $u \neq 0$; every covariance matrix is positive semidefinite, since $u^\top\Sigma u = \var(u^\top X) \geq 0$.
+The \textbf{trace} of $A$ is the sum of its diagonal entries, and $\mathrm{tr}(AB) = \mathrm{tr}(BA)$ whenever both products are square.
+
+\textbf{The spectral theorem.} Every symmetric $d \times d$ matrix $A$ has $d$ orthonormal eigenvectors $v_1, \ldots, v_d$ with real eigenvalues $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_d$:
+\[
+A = PDP^\top = \sum_{j=1}^d \lambda_j v_jv_j^\top, \qquad P = (v_1, \ldots, v_d) \text{ orthogonal}, \quad D = \mathrm{diag}(\lambda_1, \ldots, \lambda_d).
+\]
+Proof. The function $u \mapsto u^\top Au$ is continuous on the unit sphere $\{u : \norm{u} = 1\}$, which is closed and bounded, so it attains its maximum, at some $v_1$ say, with value $\lambda_1$ \toolkit{sec:math-sup}.
+For any unit $w$ with $w^\top v_1 = 0$, the curve $u(t) = \cos t\,v_1 + \sin t\,w$ stays on the sphere and passes through $v_1$ at $t = 0$, so $t \mapsto u(t)^\top Au(t)$ has a maximum at $t = 0$ and its derivative there is zero; by the product rule and symmetry that derivative is $2u'(0)^\top Au(0) = 2w^\top Av_1$. So $Av_1$ is perpendicular to every $w$ perpendicular to $v_1$: writing $Av_1 = \alpha v_1 + w'$ with $w' \perp v_1$ gives $w'^\top Av_1 = \norm{w'}^2 = 0$, hence $Av_1 = \alpha v_1$, and $\alpha = v_1^\top Av_1 = \lambda_1$.
+Now restrict $A$ to the vectors perpendicular to $v_1$: for such $u$, $v_1^\top Au = (Av_1)^\top u = \lambda_1v_1^\top u = 0$, so $Au$ stays perpendicular to $v_1$, and the same argument on the unit sphere of that $(d-1)$-dimensional subspace gives $v_2$ and $\lambda_2 \leq \lambda_1$; after $d$ rounds the eigenvectors are orthonormal by construction.
+Then $AP = PD$, and $P^\top P = I$ gives $A = PDP^\top$.
+
+\textbf{Consequences.} Writing $u = Pc$, that is, $c = P^\top u$ with $\norm{c} = \norm{u}$, gives $u^\top Au = \sum_j\lambda_jc_j^2$: a weighted sum of squares with the eigenvalues as weights.
+So $A$ is positive semidefinite exactly when every $\lambda_j \geq 0$, and positive definite exactly when every $\lambda_j > 0$; $\lambda_d \leq u^\top Au \leq \lambda_1$ for every unit $u$, with the ends attained at $v_d$ and $v_1$; $\mathrm{tr}(A) = \mathrm{tr}(PDP^\top) = \mathrm{tr}(DP^\top P) = \sum_j\lambda_j$; and $\det A = \prod_j\lambda_j$.
+The eigenvalues of a symmetric matrix depend continuously on its entries, and when $\lambda_j$ differs from its neighbors, $\lambda_{j-1} > \lambda_j > \lambda_{j+1}$ (only the inequality that exists when $j = 1$ or $j = d$), so does the line through $v_j$ (the vector itself is determined only up to sign); \cref{ch:pca} uses both with the continuous mapping theorem, and both follow from the theorem.
+For symmetric $A$ and $B$ write $\norm{A - B}$ for the square root of the sum of the squared entries of $A - B$.
+For a unit vector $u$, $\abs{u^\top Au - u^\top Bu} = \abs{\sum_{j,k}(A - B)_{jk}u_ju_k} \leq \norm{A - B}$ by the Cauchy--Schwarz inequality, since the squares of the $u_ju_k$ add up to $\norm{u}^4 = 1$.
+The proof of \cref{thm:pca-projection} uses only the decomposition $A = PDP^\top$, not the sign of the eigenvalues, and shows that $\lambda_1 + \cdots + \lambda_k$ is the largest value of $\sum_{j \leq k}u_j^\top Au_j$ over orthonormal $u_1, \ldots, u_k$ (for $k = d$ every orthonormal basis gives the same sum, $\mathrm{tr}(A) = \lambda_1 + \cdots + \lambda_d$).
+Replacing $A$ by $B$ changes each such sum by at most $k\norm{A - B}$, so it changes the largest value by at most that, and changes $\lambda_k = (\lambda_1 + \cdots + \lambda_k) - (\lambda_1 + \cdots + \lambda_{k-1})$ by at most $(2k - 1)\norm{A - B}$: each eigenvalue is a continuous function of the matrix.
+For the eigenvector, let $A_n \to A$ with $\lambda_{j-1} > \lambda_j > \lambda_{j+1}$ for $A$, so that the eigenvectors of $A$ for $\lambda_j$ are the multiples of $v_j$ (if $Aw = \lambda_jw$ and $w = \sum_ic_iv_i$, then $c_i(\lambda_i - \lambda_j) = 0$ for every $i$, so $c_i = 0$ for $i \neq j$).
+Let $u_n$ be a unit eigenvector of $A_n$ for its $j$th eigenvalue with $u_n^\top v_j \geq 0$.
+Every subsequence of the $u_n$ has a further subsequence converging to some unit vector $w$, since the sphere is closed and bounded \toolkit{sec:math-sup}, and passing to the limit in $A_nu_n = \lambda_j(A_n)u_n$, with $\lambda_j(A_n) \to \lambda_j$ by the bound just proved, gives $Aw = \lambda_jw$, so $w = \pm v_j$, and $w^\top v_j = \lim_n u_n^\top v_j \geq 0$ makes it $v_j$.
+A sequence on the sphere whose convergent subsequences all have the same limit converges to that limit, so $u_n \to v_j$.
+
+\textbf{Where the book uses it.} The principal directions of a sample are the eigenvectors of its covariance matrix (\cref{thm:pca-directions}), and the best $k$-dimensional picture of the cloud is the projection onto the first $k$ of them (\cref{thm:pca-projection}).
