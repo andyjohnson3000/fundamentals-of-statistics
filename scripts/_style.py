@@ -26,6 +26,10 @@ PDF and looking at it; see README):
      neighboring panels never collide.
   6. Keep the palette order (BLUE first, ORANGE second, ...) and pair every
      color with a line style so the figure still reads in grayscale.
+  7. Titles and axis labels in sentence case ("The two principal
+     directions", "Eruption duration (minutes)"); tags that hang off a
+     curve or a point stay lowercase ("slope 0.12", "logit"). The first
+     letter is capitalized automatically below; write the rest in lowercase.
 """
 import math
 import os
@@ -75,7 +79,45 @@ TALL = (6.0, 4.6)      # full text width, two rows
 SINGLE = (3.6, 2.7)    # one small panel
 
 
+# House rule 7: titles and axis labels are in sentence case (first letter
+# capitalized); tags that hang off a curve stay lowercase. Enforced here so
+# that every script gets it: the first letter of a title or axis label is
+# capitalized unless the label opens with math, a backslash, or a one-letter
+# word (a variable name such as "n" or "x").
+import re as _re
+_CASE_LOG = []
+
+
+def _sentence_case(text):
+    if not isinstance(text, str) or not text:
+        return text
+    m = _re.match(r"\s*([A-Za-z][^\s$\\]*)", text)
+    if m is None or len(m.group(1)) < 2 or text.lstrip()[0] != m.group(1)[0]:
+        return text
+    if m.group(1).lower() == "sd":
+        i = text.index("s"); out = text[:i] + "SD" + text[i + 2:]; _CASE_LOG.append((text, out)); return out
+    i = text.index(m.group(1)[0])
+    out = text[:i] + text[i].upper() + text[i + 1:]
+    if out != text:
+        _CASE_LOG.append((text, out))
+    return out
+
+
+for _name in ("set_title", "set_xlabel", "set_ylabel"):
+    _orig = getattr(matplotlib.axes.Axes, _name)
+
+    def _wrapped(self, label, *args, _orig=_orig, **kw):
+        return _orig(self, _sentence_case(label), *args, **kw)
+
+    setattr(matplotlib.axes.Axes, _name, _wrapped)
+_orig_suptitle = matplotlib.figure.Figure.suptitle
+matplotlib.figure.Figure.suptitle = lambda self, t, *a, **k: _orig_suptitle(self, _sentence_case(t), *a, **k)
+
+
 def save(fig, name):
+    for a, b in _CASE_LOG:
+        print(f"    case: {a!r} -> {b!r}")
+    _CASE_LOG.clear()
     path = os.path.join(FIGDIR, name + ".pdf")
     fig.savefig(path)
     plt.close(fig)

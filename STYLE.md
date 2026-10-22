@@ -76,7 +76,11 @@ Where this book goes further than Blitzstein, because the reader needs it:
 - **More visualization.** Every chapter has figures, and any idea that can
   be drawn is drawn. A result that is only an inequality on a page is a
   result this reader will not hold. Figures are generated, never hand-drawn,
-  and obey the figure rules in `scripts/_style.py`.
+  and obey the figure rules in `scripts/_style.py`. Figure titles and axis
+  labels are in sentence case ("The two principal directions", "Eruption
+  duration (minutes)"); tags that hang off a curve or a point stay lowercase
+  ("slope 0.12", "logit"). `_style.py` capitalizes the first letter of
+  titles and axis labels itself, so scripts write them in lowercase.
 - **More intuition.** Research it. The best explanation of an idea usually
   exists somewhere outside the source materials, and it is the writer's job
   to find it rather than to paraphrase the lecture.
