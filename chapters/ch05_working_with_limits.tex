@@ -105,6 +105,8 @@ Slutsky's multiplicative property then gives
 This is the plug-in route to the confidence interval for $p$, and it's the justification for every $\hat{p} \pm 1.96 \sqrt{\hat{p}(1-\hat{p})/n}$ you've ever computed.
 \end{worked}
 
+The same two-line argument settles a substitution every introductory course makes without comment.
+
 \begin{bridge}[why you're allowed to use $s$ in place of $\sigma$]
 Every introductory course replaces the unknown $\sigma$ by the sample standard deviation $s$ in the standard error, and for a mean switches from $z$ to $t$.
 Slutsky's theorem is the reason this works for large $n$: $s \convp \sigma$ by the Law of Large Numbers applied to the data and to their squares (for the squares in its finite-mean form, \cref{thm:slln}) and the continuous mapping theorem of \cref{sec:cmt}, so

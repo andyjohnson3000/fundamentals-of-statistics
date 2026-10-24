@@ -225,10 +225,11 @@ On those scales the Fisher information is constant, the standard error of the tr
 For the kiss data, $2\arcsin\sqrt{0.645} = 1.865$ with standard error $1/\sqrt{124} = 0.090$, and the interval $1.865 \pm 1.96 \times 0.090$, mapped back to $p$, is $[0.559, 0.727]$, close to the Jeffreys posterior interval $[0.558, 0.725]$.
 \end{bridge}
 
-The table collects Jeffreys' prior for the book's one-parameter families, with the posterior after $n$ observations whose sum is $S$.
+\Cref{tab:jeffreys} collects Jeffreys' prior for the book's one-parameter families, with the posterior after $n$ observations whose sum is $S$.
 Only the first prior is proper, and each posterior is proper: for the Bernoulli always, for the Poisson, the exponential and the Gaussian mean once $n \geq 1$, and for the Gaussian scale once $n \geq 1$ and not every $x_i$ equals $\mu$.
 
-\begin{center}
+\begin{table}[htbp]
+\centering
 \small
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -241,7 +242,9 @@ $\Gauss(\mu, \sigma^2)$, $\sigma$ known & $1/\sigma^2$ & $1$, improper & $\Gauss
 $\Gauss(\mu, \sigma^2)$, $\mu$ known, in $\sigma$ & $2/\sigma^2$ & $1/\sigma$, improper & $\sum_i(x_i - \mu)^2/\sigma^2 \sim \chi^2_n$ \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{Jeffreys' prior and the resulting posterior for the book's one-parameter families, with $S$ the sum of the $n$ observations.}
+\label{tab:jeffreys}
+\end{table}
 
 \section{Several parameters: a Gaussian with unknown variance}
 \label{sec:jeff-several}
