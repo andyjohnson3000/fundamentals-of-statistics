@@ -4,6 +4,7 @@ Each edition is one commit. The PDF link opens the book exactly as it stood in t
 
 | Edition | Date | What is new | PDF |
 |---|---|---|---|
+| v0.24.4 | 2026-10-24 | Whole-book pass, part 3: the five stacked box pairs separated (Chapters 2, 5, 7, 8), the Jeffreys prior table a captioned float; all review flags in sections A to E applied or closed | [main.pdf](https://github.com/andyjohnson3000/fundamentals-of-statistics/blob/6de80fe5dbad39c0c6a71540720ad80b0f41f27b/main.pdf) |
 | v0.24.3 | 2026-10-22 | Whole-book pass, part 2: the notation page gains five rows (distances, likelihood, chi-squared and t, the three test statistics, the GLM symbols) and flows across pages; the ten part intros checked | [main.pdf](https://github.com/andyjohnson3000/fundamentals-of-statistics/blob/3d89345c3b0d437b16d095b1d1ef86ed0273081a/main.pdf) |
 | v0.24.2 | 2026-10-22 | Whole-book pass, part 1: the preface checked against the finished book (chapter lengths, the recalled theorems, the Toolkit description, the closing chapter) | [main.pdf](https://github.com/andyjohnson3000/fundamentals-of-statistics/blob/1cf40b10941ec192881238f05dd4dbf1fdf26d29/main.pdf) |
 | v0.24.1 | 2026-10-22 | Figure titles and axis labels in sentence case, all 141 figures regenerated (no text changes) | [main.pdf](https://github.com/andyjohnson3000/fundamentals-of-statistics/blob/bcb3a643ecc19d41e130d6eff0a6ae189bb890f5/main.pdf) |
