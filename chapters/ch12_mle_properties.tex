@@ -71,7 +71,7 @@ The `technical conditions' in the theorem rule those out, and once the parameter
 \begin{theorem}[Consistency of the MLE]
 \label{thm:mle-consistent}
 Let $\Xton \iid \Pr_{\theta^*}$ in an identifiable model $(E, (\Pr_\theta)_{\theta \in \Theta})$ with $\Theta \subset \real^d$, and let $\hat{\theta}_n$ be the maximum likelihood estimator.
-Suppose that $\Theta$ is bounded and closed, that $\log p_\theta(x)$ is continuous in $\theta$ for every $x$, and that $\E_{\theta^*}[\sup_{\theta \in \Theta}\abs{\log p_\theta(X)}] < \infty$.
+Suppose that $\Theta$ is bounded and closed, that $\log p_\theta(x)$ is continuous in $\theta$ for every $x$, and that $\E_{\theta^*}\big[\big(\sup_{\theta \in \Theta}\abs{\log p_\theta(X)}\big)^2\big] < \infty$.
 Then
 \[
 \hat{\theta}_n \convp \theta^* \quad \text{under } \Pr_{\theta^*}.
@@ -82,7 +82,7 @@ If the model is misspecified, so that the data come from a $\Pr$ outside the fam
 \coreproof{Under the hypotheses, a uniform law of large numbers (proved in \cref{sec:proof-ulln} of \cref{app:proofs}) upgrades the pointwise LLN to $\sup_\theta \abs{\frac1n\ell_n(\theta) - M(\theta)} \convp 0$. Then the argument of the intuition box applies: outside any neighborhood of $\theta^*$, $M$ is at least some $\delta > 0$ below $M(\theta^*)$, and once the random curve is uniformly within $\delta/2$ of $M$, its maximizer must be inside the neighborhood.}
 \begin{proof}
 Write $A_n = \sup_{\theta \in \Theta}\abs{\frac1n\ell_n(\theta) - M(\theta)}$.
-The uniform law of large numbers (\cref{thm:ulln}) says $A_n \convp 0$ under the stated hypotheses; the one-$\theta$-at-a-time version is the LLN with $h = \log p_\theta$, and the uniform version is where the continuity, boundedness and the integrable envelope $\sup_\theta\abs{\log p_\theta(X)}$ are used. It is the one step of this chapter proved outside it.
+The uniform law of large numbers (\cref{thm:ulln}) says $A_n \convp 0$ under the stated hypotheses; the one-$\theta$-at-a-time version is the LLN with $h = \log p_\theta$, and the uniform version is where the continuity, boundedness and the square-integrable envelope $\sup_\theta\abs{\log p_\theta(X)}$ are used. It is the one step of this chapter proved outside it.
 
 Fix $\epsilon > 0$ and let $N = \{\theta : \norm{\theta - \theta^*} < \epsilon\}$.
 Its complement in $\Theta$, $\Theta \setminus N$, is bounded and closed, and $M$ is continuous on it (continuity of $\log p_\theta$ in $\theta$ plus the envelope condition), so $M$ attains a maximum on $\Theta \setminus N$ at some $\theta_1$.
