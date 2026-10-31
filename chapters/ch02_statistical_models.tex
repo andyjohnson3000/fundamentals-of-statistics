@@ -3,7 +3,7 @@
 
 \begin{chaptergoals}
 \begin{itemize}[nosep]
-\item What a statistical model is: a sample space and a family of candidate distributions indexed by a parameter. The whole of the rest of the book happens inside this object.
+\item What a statistical model is: an observation space and a family of candidate distributions indexed by a parameter. The whole of the rest of the book happens inside this object.
 \item The chain from the abstract sample space to the numbers in the data file, walked once for the kiss experiment: outcomes, random variables as functions on them, and observations as those functions evaluated at the outcome that happened.
 \item The trade that modeling always makes: assumptions buy fewer parameters to learn, at the price of being wrong if the assumptions are. The siblings example, drawn both ways.
 \item Well-specified models, and parametric versus nonparametric ones.
@@ -76,15 +76,16 @@ Checking the assumption is the job of the goodness-of-fit tests in \cref{ch:gof}
 
 \begin{definition}[Statistical model]
 \label{def:statmodel}
-Let the observed outcome of a statistical experiment be a sample $\Xton$ of $n$ i.i.d.\ r.v.s in some sample space $E$ (usually $E \subseteq \real$; the requirement that $E$ be measurable is a technicality, see \toolkit{sec:math-rv}) and denote by $\Pr$ their common distribution.
+Let the observed outcome of a statistical experiment be a sample $\Xton$ of $n$ i.i.d.\ r.v.s in some observation space $E$ (usually $E \subseteq \real$; the requirement that $E$ be measurable is a technicality, see \toolkit{sec:math-rv}) and denote by $\Pr$ their common distribution.
 A \textbf{statistical model} associated to that statistical experiment is a pair:
 \[
 \left(E, (\Pr_\theta)_{\theta \in \Theta} \right),
 \]
 where:
 \begin{itemize}[nosep]
-\item $E$ is the \textbf{sample space} for $X$; that is, the set containing all possible outcomes of $X$.
-The sample space is therefore also where your observations, $\Xton$, live.
+\item $E$ is the \textbf{observation space} for $X$; that is, the set containing all possible values of $X$.
+It is therefore also where your observations, $\Xton$, live.
+(The word \textit{outcome} is reserved for a point of the sample space $\Omega$ of \cref{sec:models-sample-space}, which records a whole study rather than one observation.)
 \item $(\Pr_{\theta})_{\theta \in \Theta}$ is a family of probability distributions on $E$, the candidate distributions for $X$.
 \item $\Theta$ is the \textbf{parameter space}; that is, a set consisting of the possible values of $\theta$.
 \end{itemize}
@@ -99,7 +100,7 @@ The sample space is therefore also where your observations, $\Xton$, live.
 \textbf{Note:} A \textbf{probability measure} or \textbf{probability distribution} takes an event $A \subseteq E$ as input and returns $\Pr_\theta(A)$ \toolkit{sec:math-rv}.
 It is assumed to satisfy the usual axioms of probability.
 Most importantly, a probability measure is not a PMF or PDF.
-A probability measure assigns probabilities to events in the sample space, while a PMF or PDF assigns probabilities (or densities) to specific values of a discrete or continuous r.v.
+A probability measure assigns probabilities to events in the observation space, while a PMF or PDF assigns probabilities (or densities) to specific values of a discrete or continuous r.v.
 The two determine each other, so in practice you write down the family by writing down its PMFs or PDFs, as in the examples below, but the object in the definition is the distribution.
 
 \Cref{fig:modelfamilies} is the picture to keep in mind: a model is a family of distributions, and the parameter is the label that picks one out.
@@ -144,14 +145,14 @@ Here $E = \real^d \times \real$, $\Theta = \real^d$, and $\Pr_\beta$ is the join
 \Cref{ch:regression-multi} is about this model in a slightly different form: the $X_i$ treated as fixed numbers rather than Gaussian draws, and the error variance $\sigma^2$ unknown, which makes $\Theta = \real^d \times (0, \infty)$ and makes the $Y_i$ independent but no longer identically distributed, since each has its own mean $\beta^\top x_i$.
 Treating the predictors as fixed is what lets the regression chapter condition on them and still have a model in the sense of \cref{def:statmodel}.
 
-\begin{pitfall}[the sample space must not depend on the parameter]
+\begin{pitfall}[the observation space must not depend on the parameter]
 Which of these is a statistical model for $n$ Bernoulli trials: $\left( \{1\}, (\Bern(p))_{p \in (0,1)} \right)$ or $\left( \{0,1\}, (\Bern(p))_{p \in (0.2, 0.4)} \right)$?
 Only the second.
-The first has a sample space that leaves out an outcome the distributions put mass on; a Bernoulli r.v.\ takes the value $0$, so $\{1\}$ isn't where the observations live.
+The first has an observation space that leaves out a value the distributions put mass on; a Bernoulli r.v.\ takes the value $0$, so $\{1\}$ isn't where the observations live.
 The second is a model, just one that assumes $p$ is between $0.2$ and $0.4$ (which may or may not be well-specified, the next section's question).
-Similarly, for $\Xton \iid \text{Unif}([0, a])$ with $a$ unknown, the model is $\left( \real_+, (\text{Unif}([0, a]))_{a > 0} \right)$ and not $\left( [0, a], \ldots \right)$: the sample space is fixed before you know $a$, so it has to be a set that contains every observation for every candidate $a$.
+Similarly, for $\Xton \iid \text{Unif}([0, a])$ with $a$ unknown, the model is $\left( \real_+, (\text{Unif}([0, a]))_{a > 0} \right)$ and not $\left( [0, a], \ldots \right)$: the observation space is fixed before you know $a$, so it has to be a set that contains every observation for every candidate $a$.
 Any such set will do ($\real$ works too); the convention in this book is the smallest natural one.
-A sample space that mentions the unknown parameter is not a sample space.
+An observation space that mentions the unknown parameter is not an observation space.
 \end{pitfall}
 
 None of this is new to a reader who has taken an introductory course; only the bookkeeping is.
@@ -166,8 +167,9 @@ When a method fails in practice, it is often because the data came from outside 
 \section{From the sample space to the data and back}
 \label{sec:models-sample-space}
 
-The definition says the observations live in a sample space $E$, and a random variable is, by definition, a function on a sample space $S$ \toolkit{sec:math-rv}; \cref{ch:lln} returns to that definition when it needs sequences of random variables.
-These are two uses of the same phrase for two different sets, and the gap between them is where the single most common confusion in this subject lives: what is the relationship between the abstract space on which probability is defined and the concrete numbers in the data file?
+The definition says the observations live in an observation space $E$, while a random variable is, by definition, a function on a sample space $\Omega$ \toolkit{sec:math-rv}; \cref{ch:lln} returns to that definition when it needs sequences of random variables.
+These are two different sets, and many books call both of them the sample space, which is why this book keeps the two names apart: $E$ is where one observation lands, and $\Omega$ is where one whole study lands.
+The gap between them is where the single most common confusion in this subject lives: what is the relationship between the abstract space on which probability is defined and the concrete numbers in the data file?
 This section walks the chain once, slowly, for the kiss experiment, with \cref{fig:layers} as the map.
 On the left of the figure is the sample space $\Omega$, one point per complete possible outcome of the study, with the one that happened marked.
 In the middle, the data are a function on $\Omega$, one row of $0$s and $1$s per outcome, and the marked row is the data set you have.
@@ -183,7 +185,7 @@ Nothing travels from right to left: the dashed arrow is inference, which holds t
 
 \textbf{Layer one: the sample space.}
 An outcome $\omega$ of the study is everything that could happen, in full detail: which $124$ couples were observed, where and in which order, and which way each one turned.
-The set of all such outcomes is the sample space, written $\Omega$ here ($S$ in the toolkit and in \cref{ch:lln}).
+The set of all such outcomes is the sample space, written $\Omega$.
 It is as abstract as the subject gets, and you never see an element of it.
 What you see is what your measuring instruments report about the one $\omega$ that occurred.
 For the $n = 12$ experiment of \cref{fig:layers}, one $\omega$ is a complete record of all twelve couples at once, say
@@ -233,7 +235,7 @@ That is the dashed arrow in \cref{fig:layers}, and it is what every confidence i
 Since $\Omega$ only ever enters through the random variables defined on it, you may as well take $\Omega$ to be the set of data sets you could have gotten.
 For the kiss experiment that is $\Omega = \{0,1\}^{124}$, a finite set with $2^{124}$ elements, and under the model $\Pr_p(\omega) = p^{\#\text{ones}}(1-p)^{\#\text{zeros}}$.
 Every row of \cref{fig:layers} is a point of this $\Omega$, and $R_i(\omega)$ is just `the $i$-th entry of the row'.
-This is why \cref{def:statmodel} mentions $E$ and never $\Omega$: for a fixed $n$ the observable sample space $E^n$ \textit{is} the sample space, and a model is a family of probabilities on it.
+This is why \cref{def:statmodel} mentions $E$ and never $\Omega$: for a fixed $n$ the set $E^n$ of possible data sets \textit{is} the sample space, and a model is a family of probabilities on it.
 The abstract $\Omega$ of probability theory is needed only when one space has to carry infinitely many random variables at once, $R_1, R_2, R_3, \ldots$ without end, which is exactly what the limit theorems of Part II need in order to say `as $n \to \infty$'.
 For any fixed $n$, think $\Omega = E^n$ and nothing is lost.
 \end{intuition}
@@ -635,7 +637,7 @@ All three also rest on what an average of $n$ draws does as $n$ grows, and that 
 \label{sec:models-summary}
 
 \begin{itemize}[nosep]
-\item A statistical model is $\left( E, (\Pr_\theta)_{\theta \in \Theta} \right)$: a sample space and a family of candidate distributions for $X$, indexed by a parameter. Parameters define distributions; learning one is learning the other. The sample space must not depend on $\theta$.
+\item A statistical model is $\left( E, (\Pr_\theta)_{\theta \in \Theta} \right)$: an observation space and a family of candidate distributions for $X$, indexed by a parameter. Parameters define distributions; learning one is learning the other. The observation space must not depend on $\theta$.
 \item Assumptions buy fewer parameters: the siblings PMF has six, the shifted Poisson one. The price is misspecification if the assumption is wrong.
 \item Three layers: the sample space $\Omega$ (every complete outcome), random variables (functions on $\Omega$, the measuring instruments and the rules applied to their readings), and the observations (those functions evaluated at the one outcome that happened). An estimate is one draw from the estimator's distribution. Inference does not invert the chain; it holds the one value up against the distribution of the rule. For fixed $n$, take $\Omega = E^n$.
 \item Well-specified: the true $\Pr$ is some $\Pr_{\theta^*}$ in the family. Everything from Part III on assumes this; \cref{ch:distances} says what estimators estimate when it fails.
@@ -651,14 +653,14 @@ All three also rest on what an average of $n$ draws does as $n$ grows, and that 
 Which of the following is a statistical model? (1) $\left( \{1\}, (\Bern(p))_{p \in (0,1)} \right)$; (2) $\left( \{0,1\}, (\Bern(p))_{p \in (0.2, 0.4)} \right)$; (3) both; (4) neither.
 \end{exercise}
 \begin{solution}
-(2). The first has a sample space that excludes the outcome $0$, which every $\Bern(p)$ puts mass on. The second is a legitimate model with a restricted parameter space; whether it's well-specified is a separate question.
+(2). The first has an observation space that excludes the value $0$, which every $\Bern(p)$ puts mass on. The second is a legitimate model with a restricted parameter space; whether it's well-specified is a separate question.
 \end{solution}
 
 \begin{exercise}
 Let $\Xton \iid \text{Unif}([0, a])$ for some unknown $a > 0$. Which is the associated statistical model: (1) $\left( [0, a], (\text{Unif}([0,a]))_{a > 0} \right)$; (2) $\left( \real_+, (\text{Unif}([0,a]))_{a > 0} \right)$; (3) $\left( \real, (\text{Unif}([0,a]))_{a > 0} \right)$; (4) none?
 \end{exercise}
 \begin{solution}
-The intended answer is (2), and (1) is the one that is definitely wrong: the sample space can't depend on the unknown $a$. Both $\real_+$ and $\real$ contain every observation for every $a$, so by \cref{def:statmodel} (3) is a legitimate model too; the convention is to take $E = \real_+$, the smallest natural set that works, and that convention is what the question is testing.
+The intended answer is (2), and (1) is the one that is definitely wrong: the observation space can't depend on the unknown $a$. Both $\real_+$ and $\real$ contain every observation for every $a$, so by \cref{def:statmodel} (3) is a legitimate model too; the convention is to take $E = \real_+$, the smallest natural set that works, and that convention is what the question is testing.
 \end{solution}
 
 \begin{exercise}

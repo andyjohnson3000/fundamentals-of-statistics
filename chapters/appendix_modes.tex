@@ -43,14 +43,14 @@ Compare the two definitions side by side:
 \end{align*}
 
 In the first, you compute a probability for each $n$ and then take a limit of numbers.
-In the second, you fix an outcome $s$ of the experiment, which fixes the entire sequence of numbers $X_1(s), X_2(s), \ldots$, ask whether that sequence of numbers converges to the number $X(s)$ in the calculus sense, and then ask for the probability of the set of outcomes for which the answer is yes.
+In the second, you fix an outcome $\omega$ of the experiment, which fixes the entire sequence of numbers $X_1(\omega), X_2(\omega), \ldots$, ask whether that sequence of numbers converges to the number $X(\omega)$ in the calculus sense, and then ask for the probability of the set of outcomes for which the answer is yes.
 
 \begin{definition}[Convergence almost surely]
 \label{def:convas}
-Let $(X_n)_{n \geq 1}$ be a sequence of r.v.s defined on a sample space $S$.
+Let $(X_n)_{n \geq 1}$ be a sequence of r.v.s defined on a sample space $\Omega$.
 The sequence \textbf{converges almost surely} to an r.v.\ $X$ if:
 \[
-\Pr \left( \left\{ s \in S : \lim_{n \to \infty} X_n(s) = X(s) \right\} \right) = 1.
+\Pr \left( \left\{ \omega \in \Omega : \lim_{n \to \infty} X_n(\omega) = X(\omega) \right\} \right) = 1.
 \]
 If $(X_n)_{n \geq 1}$ converges almost surely to the r.v.\ $X$, this is denoted by $X_n \convas X$.
 \end{definition}

@@ -18,7 +18,7 @@ for i in range(1, 7):
 ax1.set_xlim(0.5, 6.5); ax1.set_ylim(0.5, 6.5); ax1.set_aspect("equal")
 ax1.set_xticks(range(1, 7)); ax1.set_yticks(range(1, 7)); ax1.grid(False)
 ax1.set_xlabel("first die"); ax1.set_ylabel("second die")
-ax1.set_title(r"The sample space, colored by $X(s) = $ sum")
+ax1.set_title(r"The sample space, colored by $X(\omega) = $ sum")
 
 k = np.arange(2, 13)
 pm = np.array([min(s - 1, 13 - s) for s in k]) / 36

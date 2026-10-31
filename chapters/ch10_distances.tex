@@ -65,7 +65,7 @@ Look at all the events, find the one on which the two distributions disagree mos
 
 \begin{definition}[Total variation distance]
 \label{def:tv}
-Let $\Pr$ and $\Qr$ be two probability distributions on the same sample space $E$.
+Let $\Pr$ and $\Qr$ be two probability distributions on the same observation space $E$.
 The \textbf{total variation distance} between them is
 \[
 \TV(\Pr, \Qr) = \max_{A \subset E} \abs{\Pr(A) - \Qr(A)},
@@ -79,8 +79,8 @@ the largest difference between the probabilities they assign to one event.
 \textbf{For the kiss data.} One couple either turns right or doesn't, so there are four events: nothing, `right', `left' and everything. Compare $\Bern(0.645)$, the fitted distribution, with $\Bern(\frac12)$, `no preference'. The empty event and the whole space get probabilities $0$ and $1$ from both. `Right' gets $0.645$ and $0.5$; `left' gets $0.355$ and $0.5$. The largest difference is $0.145$, so $\TV = 0.145$. As a natural frequency: of $1{,}000$ couples, the fitted model predicts $645$ right turns and `no preference' predicts $500$; the two descriptions disagree about $145$ couples in a thousand.
 \end{inwords}
 
-For a sample space with four events the maximum is easy.
-For a sample space like $\real$ there are uncountably many events, and searching over them is not a calculation anyone wants to do.
+For an observation space with four events the maximum is easy.
+For an observation space like $\real$ there are uncountably many events, and searching over them is not a calculation anyone wants to do.
 The next result turns the maximum into a sum or an integral.
 
 \begin{proposition}[Total variation as an area]
@@ -139,7 +139,7 @@ On the right, the two distributions of the number of right turns among $124$ cou
 \]
 For the kiss data, $\abs{0.645 - 0.5} = 0.145$, as the in-words box found by listing events. For $\Bern(\frac12)$ against $\Bern(\frac1{10})$, $0.4$.
 \item \textbf{Two Gaussians with the same variance.} The densities of $\Gauss(0, 1)$ and $\Gauss(\mu, 1)$, $\mu > 0$, cross at the midpoint $\mu/2$, and $A^\star = \{x < \mu/2\}$ is where the first is above. So $\TV = \Pr(Z < \mu/2) - \Pr(Z + \mu < \mu/2) = \Phi(\mu/2) - \Phi(-\mu/2) = 2\Phi(\mu/2) - 1$ for $Z \sim \Gauss(0,1)$. With $\mu = 1$ this is $0.383$, the left of \cref{fig:tvarea}; with $\mu = 0.01$ it is $0.004$, the left of \cref{fig:paramvsdist}.
-\item \textbf{An exponential and a uniform.} $\Expo(1)$ has density $e^{-x}$ on $[0, \infty)$, and $\Unif([0,1])$ has density $1$ on $[0,1]$. The two need a common sample space, and $[0, \infty)$ contains both. On $[0,1]$, $1 \geq e^{-x}$; beyond $1$, only the exponential has mass. So
+\item \textbf{An exponential and a uniform.} $\Expo(1)$ has density $e^{-x}$ on $[0, \infty)$, and $\Unif([0,1])$ has density $1$ on $[0,1]$. The two need a common observation space, and $[0, \infty)$ contains both. On $[0,1]$, $1 \geq e^{-x}$; beyond $1$, only the exponential has mass. So
 \[
 \TV = \frac12 \left( \int_0^1 (1 - e^{-x}) \, \mathrm{d}x + \int_1^\infty e^{-x} \, \mathrm{d}x \right) = \frac12 \left( (1 - 1 + e^{-1}) + e^{-1} \right) = e^{-1} = 0.368.
 \]
@@ -166,7 +166,7 @@ For distributions $\Pr$, $\Qr$, $\mathbb{V}$ on the same $E$:
 (4) For each event, $\abs{\Pr(A) - \Qr(A)} \leq \abs{\Pr(A) - \mathbb{V}(A)} + \abs{\mathbb{V}(A) - \Qr(A)}$ by the triangle inequality for numbers \toolkit{sec:math-inequalities}, and each term on the right is at most the corresponding total variation. Take the maximum over $A$ on the left.
 \end{proof}
 
-A total variation of $1$ means the two distributions live on separate parts of the sample space: one draw tells you, with certainty, which one it came from.
+A total variation of $1$ means the two distributions live on separate parts of the observation space: one draw tells you, with certainty, which one it came from.
 A total variation of $0$ means they are the same.
 Everything else is in between, and \cref{sec:dist-tv-tests} makes `in between' precise.
 
@@ -284,7 +284,7 @@ Factor $p_{\theta^*}(x)$ out of the integrand of \cref{prop:tv-area}:
 \]
 But the function inside the expectation contains $p_{\theta^*}$, the density you don't know, and it sits inside the absolute value tangled up with $p_\theta$.
 To average it over the data you would need to evaluate it at each $X_i$, and to evaluate it you would need $\theta^*$, so no average of the data estimates it.
-For a sample space with a few outcomes there is a way around this: plug in the observed frequencies. For the kiss data, $\TV(\Bern(q), \Bern(p^*)) = \abs{q - p^*}$ is estimated by $\abs{q - \hat{p}}$, whose minimizer is $\hat{p}$.
+For an observation space with a few values there is a way around this: plug in the observed frequencies. For the kiss data, $\TV(\Bern(q), \Bern(p^*)) = \abs{q - p^*}$ is estimated by $\abs{q - \hat{p}}$, whose minimizer is $\hat{p}$.
 For continuous data the plug-in fails outright: the observed frequencies form a discrete distribution, and by the pitfall of \cref{sec:dist-tv} a discrete distribution sits at total variation $1$ from every continuous candidate.
 
 What would rescue the plan is a measure of distance in which the unknown $p_{\theta^*}$ separates from $p_\theta$, so that the part involving $\theta^*$ is a constant that doesn't depend on $\theta$.
@@ -601,7 +601,7 @@ What has changed is the minimum: no $\theta$ makes the divergence $0$, so the mi
 
 \begin{definition}[KL projection]
 \label{def:kl-projection}
-Let $\Pr$ be a distribution and $(\Pr_\theta)_{\theta \in \Theta}$ a family on the same sample space.
+Let $\Pr$ be a distribution and $(\Pr_\theta)_{\theta \in \Theta}$ a family on the same observation space.
 A \textbf{KL projection} of $\Pr$ onto the family is a parameter
 \[
 \theta^\circ = \operatorname*{argmin}_{\theta \in \Theta} \KL(\Pr, \Pr_\theta),
@@ -701,7 +701,7 @@ Distances between distributions return in \cref{ch:ks}, where the largest gap be
 \item Closeness should be measured between distributions, not parameters: a parameter difference of $0.01$ is $\TV = 0.004$ for two means with $\sigma = 1$ and $\TV = 0.323$ for standard deviations $0.01$ and $0.02$. A distance between distributions also makes sense when the model is wrong.
 \item Total variation: $\TV(\Pr, \Qr) = \max_A \abs{\Pr(A) - \Qr(A)} = \frac12 \sum \abs{p - q}$ (or $\frac12\int$), attained at $\{p > q\}$; the area where one density is above the other; $1 - \TV$ is the shared mass. A true distance with values in $[0, 1]$. $\TV(\Bern(p), \Bern(q)) = \abs{p - q}$; kiss data $0.145$ for one couple, $0.900$ for $124$.
 \item The best test of $\Pr$ against $\Qr$ has $\alpha + \beta = 1 - \TV$. For $124$ couples it rejects $p = \frac12$ from $72$ right turns, with $\alpha = 0.0438$ and $\beta = 0.0567$.
-\item Total variation ignores the geometry of the sample space: $\TV(X, X + 0.001) = 1$, and a discrete distribution is at distance $1$ from every continuous one, so the CLT is not convergence in total variation.
+\item Total variation ignores the geometry of the observation space: $\TV(X, X + 0.001) = 1$, and a discrete distribution is at distance $1$ from every continuous one, so the CLT is not convergence in total variation.
 \item Total variation can't be estimated by an average: written as an expectation under the truth, it has the unknown density inside an absolute value. Plugging in frequencies works for a few discrete outcomes and fails for continuous data.
 \item KL divergence: $\KL(\Pr, \Qr) = \E_\Pr[\log(p(X)/q(X))]$, the average evidence per observation for $\Pr$ over $\Qr$; $+\infty$ if $\Qr$ calls impossible what $\Pr$ produces. Nonnegative and zero only for $\Pr = \Qr$ (Jensen), but not symmetric and no triangle inequality. Kiss data: $0.0428$ and, reversed, $0.0440$.
 \item Formulas: Bernoulli $p\log(p/q) + (1-p)\log((1-p)/(1-q))$; Gaussians with a common variance $(a - b)^2/(2\sigma^2)$; exponentials $\log(\lambda/\mu) + \mu/\lambda - 1$.

@@ -54,26 +54,26 @@ These limits are conceptually more general than the limits of undergraduate calc
 
 So what is meant by `convergence of random variables'?
 And what is a sequence of r.v.s?
-Recall that, by definition, an r.v.\ is a mapping from a sample space, $S$, to the real number line \toolkit{sec:math-rv}.
+Recall that, by definition, an r.v.\ is a mapping from a sample space, $\Omega$, to the real number line \toolkit{sec:math-rv}.
 Suppose, to fix ideas, that the outcomes can be listed (a continuous r.v.\ needs a richer sample space, but the picture is the same), so you can write:
 \[
-S = \{ s_1, \ldots, s_k \}.
+\Omega = \{ \omega_1, \ldots, \omega_k \}.
 \]
 
-This means an r.v.\ $X$ defined on $S$ can be written as:
+This means an r.v.\ $X$ defined on $\Omega$ can be written as:
 \[
-X(s_i) = x_i, \text{ for } i = 1,\ldots,k.
+X(\omega_i) = x_i, \text{ for } i = 1,\ldots,k.
 \]
 
 When you have a sequence of r.v.s it's useful to keep in mind that there's always an underlying sample space.
-In particular, each $X_n$ is a function from $S$ to $\real$:
+In particular, each $X_n$ is a function from $\Omega$ to $\real$:
 \[
-X_n(s_i) = x_{n,i}, \text{ for } i = 1,\ldots,k.
+X_n(\omega_i) = x_{n,i}, \text{ for } i = 1,\ldots,k.
 \]
 
-So a sequence of r.v.s is a sequence of functions $X_n: S \to \real$.
-Pick an outcome $s_i$ and you get an ordinary sequence of numbers $x_{1,i}, x_{2,i}, x_{3,i}, \ldots$, one such sequence for every outcome.
-A \textit{realization} of the sequence is what you see when the experiment is run once and the outcome happens to be $s_i$.
+So a sequence of r.v.s is a sequence of functions $X_n: \Omega \to \real$.
+Pick an outcome $\omega_i$ and you get an ordinary sequence of numbers $x_{1,i}, x_{2,i}, x_{3,i}, \ldots$, one such sequence for every outcome.
+A \textit{realization} of the sequence is what you see when the experiment is run once and the outcome happens to be $\omega_i$.
 
 \begin{figure}[htbp]
 \centering
