@@ -93,8 +93,8 @@
 \usepackage{answers}
 \Newassociation{solution}{Solution}{ans}
 \renewcommand{\Currentlabel}{\theexercise}
-\renewcommand{\solutionstyle}[1]{\textbf{Exercise #1.}\label{sol:#1}}
-\AtEndEnvironment{exercise}{\ \textit{(Solution on page~\pageref{sol:\theexercise}.)}}
+\renewcommand{\solutionstyle}[1]{\textbf{\hyperref[exc:#1]{Exercise #1}} \textit{(page~\pageref{exc:#1})}.\label{sol:#1}}
+\AtEndEnvironment{exercise}{\label{exc:\theexercise}\ \textit{(Solution on page~\pageref{sol:\theexercise}.)}}
 \makeatletter
 % Keep the current chapter's title, so the solutions chapter can print
 % one heading per chapter, written to the file before its first exercise.

@@ -49,7 +49,7 @@ for i in range(rows):
         axM.add_patch(Rectangle((-0.1, y - 0.1), n + 0.1, 1.02, facecolor="none", edgecolor=ORANGE, lw=1.2, zorder=4))
 axM.text(-0.35, rows - 1 - star + 0.41, r"$\omega^*$", ha="right", va="center", fontsize=8, color=ORANGE)
 axM.text(n / 2, -0.6, r"$\vdots$  one row per outcome, $2^{n}$ rows", ha="center", va="center", fontsize=7, color=GRAY)
-axM.set_title(r"data $X(\omega) \in E = \{0,1\}^n$", fontsize=8.5, pad=4)
+axM.set_title(r"data $R(\omega) \in E^n = \{0,1\}^n$", fontsize=8.5, pad=4)
 
 # ---- right: the statistic and its distribution
 k = np.arange(n + 1)
@@ -67,7 +67,7 @@ axR.set_title(r"statistic $\bar R_n(\omega)$", fontsize=8.5, pad=4)
 
 # ---- arrows between the panels, mid-height, with their labels above
 ymid = 0.52
-for x0, x1, lab in [(0.255, 0.305, r"measure" + "\n" + r"$X_i(\omega)$"), (0.68, 0.74, r"compute" + "\n" + r"$\frac{1}{n}\sum_i X_i(\omega)$")]:
+for x0, x1, lab in [(0.255, 0.305, r"measure" + "\n" + r"$R_i(\omega)$"), (0.68, 0.74, r"compute" + "\n" + r"$\frac{1}{n}\sum_i R_i(\omega)$")]:
     fig.patches.append(FancyArrowPatch((x0, ymid), (x1, ymid), transform=fig.transFigure,
                                        arrowstyle="->", color=INK, lw=0.8, mutation_scale=8))
     fig.text((x0 + x1) / 2, ymid + 0.04, lab, ha="center", va="bottom", fontsize=7, color=INK)

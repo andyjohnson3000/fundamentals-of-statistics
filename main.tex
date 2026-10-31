@@ -85,6 +85,12 @@
 \backmatter
 \Closesolutionfile{ans}
 \chapter{Solutions to the Exercises}
+% Each solution heading carries a back-reference to its exercise's page,
+% which lengthens the first line; emergencystretch absorbs the few
+% paragraphs that would otherwise run over.
+\begingroup
+\emergencystretch=8em
 \Readsolutionfile{ans}
+\endgroup
 
 \end{document}

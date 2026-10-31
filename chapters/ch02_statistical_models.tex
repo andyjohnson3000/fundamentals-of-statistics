@@ -186,6 +186,14 @@ An outcome $\omega$ of the study is everything that could happen, in full detail
 The set of all such outcomes is the sample space, written $\Omega$ here ($S$ in the toolkit and in \cref{ch:lln}).
 It is as abstract as the subject gets, and you never see an element of it.
 What you see is what your measuring instruments report about the one $\omega$ that occurred.
+For the $n = 12$ experiment of \cref{fig:layers}, one $\omega$ is a complete record of all twelve couples at once, say
+\[
+\omega = (R, L, R, R, L, R, R, R, L, R, R, L),
+\]
+one entry per couple, and it is one row of the middle panel of the figure.
+So $\Omega$ holds not twelve things but $2^{12} = 4{,}096$ of them, one for every way the twelve couples could have come out.
+What $n$ counts is the random variables defined on $\Omega$, which is the width of a row; $2^n$ counts the points of $\Omega$, which is the height of the grid.
+For the experiment as it was run, $n = 124$ and $\Omega$ has $2^{124}$ points, a number with 38 digits.
 
 \textbf{Layer two: random variables are the measuring instruments.}
 A random variable is a function on $\Omega$ \toolkit{sec:math-rv}.
@@ -193,6 +201,16 @@ The instrument for couple $i$ is $R_i$, with $R_i(\omega) = 1$ if, in outcome $\
 The data vector $(R_1, \ldots, R_n)$ is a function on $\Omega$ too, with values in $E^n = \{0,1\}^n$; one row of \cref{fig:layers} per outcome.
 And $\bar{R}_n = \frac{1}{n}\sum_i R_i$ is yet another function on $\Omega$.
 That is all `the estimator is a random variable' means: a rule that could be applied to any outcome, written down before you know which outcome you will get.
+
+\begin{pitfall}[counting the sample space]
+Three counts in \cref{fig:layers} are easy to run together, and they answer three different questions.
+There are $4{,}096$ outcomes, the points of $\Omega$.
+There are $12$ random variables defined on them, $R_1, \ldots, R_{12}$, one per couple.
+And there are $13$ values that $\bar{R}_n$ can take, namely $0/12, 1/12, \ldots, 12/12$.
+The right-hand panel of the figure therefore has thirteen bars and not $4{,}096$: many outcomes give the same average, and the height of a bar is the total probability of all the rows that produce that average.
+The mistake to avoid is reading the sample space as having $n$ elements, one per observation.
+It has $2^n$, one per data set you could have gotten, and $n$ is how many numbers each of those data sets contains.
+\end{pitfall}
 
 \textbf{Layer three: the observations are those functions evaluated at the outcome that happened.}
 Nature picked one $\omega^*$.
