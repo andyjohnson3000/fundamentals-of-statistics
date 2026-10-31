@@ -94,8 +94,10 @@ It is therefore also where your observations, $\Xton$, live.
 \begin{inwords}
 \textbf{In words.} A model is a list of candidate explanations for the data: where an observation can land ($E$), and every distribution you are willing to consider as the one that produced it, with a label $\theta$ on each.
 \par\smallskip
-\textbf{For the kiss data.} $E = \{0, 1\}$, the candidates are the $\Bern(p)$ distributions, one for each $p \in (0,1)$, and the label is $p$ itself. `Learn the model' means `find out which label is right'.
+\textbf{For the kiss data.} $E = \{0, 1\}$, the candidates are the $\Bern(p)$ distributions, one for each $p \in (0,1)$, and the label is $p$ itself. `Learn the model' means `find out which label is right'. Note the size: $E$ holds the two values one couple's turn can take, while the sample space $\Omega$ of \cref{sec:models-sample-space}, which holds the $2^{124}$ ways the whole study could come out, is a different and vastly larger set.
 \end{inwords}
+
+\textbf{Note:} $E$ is not the support of $X$. The support is the set of values $X$ gives positive probability, so it belongs to one distribution and may move with the parameter: under $\Unif([0,\theta])$ it is $[0,\theta]$, while $E = \real_+$ is declared in advance and is the same set for every candidate. In general the support is contained in $E$ for every $\theta$, and the two coincide when no support moves, as for $\Bern(p)$ with $p \in (0,1)$, where both are $\{0,1\}$. Whether the support moves with $\theta$ is a real condition and not a technicality; \cref{ch:mle-properties} and \cref{ch:exp-families} both turn on it.
 
 \textbf{Note:} A \textbf{probability measure} or \textbf{probability distribution} takes an event $A \subseteq E$ as input and returns $\Pr_\theta(A)$ \toolkit{sec:math-rv}.
 It is assumed to satisfy the usual axioms of probability.
