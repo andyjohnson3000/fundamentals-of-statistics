@@ -197,7 +197,11 @@ For the experiment as it was run, $n = 124$ and $\Omega$ has $2^{124}$ points, a
 
 \textbf{Layer two: random variables are the measuring instruments.}
 A random variable is a function on $\Omega$ \toolkit{sec:math-rv}.
-The instrument for couple $i$ is $R_i$, with $R_i(\omega) = 1$ if, in outcome $\omega$, couple $i$ turned right and $0$ otherwise.
+The instrument for couple $i$ is $R_i$, a function $\Omega \to \{0,1\}$ defined by
+\[
+R_i(\omega) = \begin{cases} 1 & \text{if the } i\text{-th entry of } \omega \text{ is } R, \\ 0 & \text{otherwise.}\end{cases}
+\]
+Reading the tuple above, $R_1(\omega) = 1$, $R_2(\omega) = 0$ and $R_{12}(\omega) = 0$.
 The data vector $(R_1, \ldots, R_n)$ is a function on $\Omega$ too, with values in $E^n = \{0,1\}^n$; one row of \cref{fig:layers} per outcome.
 And $\bar{R}_n = \frac{1}{n}\sum_i R_i$ is yet another function on $\Omega$.
 That is all `the estimator is a random variable' means: a rule that could be applied to any outcome, written down before you know which outcome you will get.
